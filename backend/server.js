@@ -1,30 +1,62 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
-// Enable CORS for all routes
-app.use(cors());
-// middleware
+
+// =============================
+// 🌍 CORS Configuration
+// =============================
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true,
+  })
+);
+
+// =============================
+// 📦 Middleware
+// =============================
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use(express.urlencoded({ extended: true }));
+
+// =============================
+// 📂 Static Upload Folder
+// =============================
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// =============================
+// 🛣 Routes
+// =============================
 app.use("/api/users", userRoutes);
 app.use("/api/complaints", complaintRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Server is running successfully");
+  res.send("🚀 Cyber Crime Portal Backend is Running");
 });
 
-// 🔥 Error middleware MUST be last
+// =============================
+// ❗ Error Handler (MUST BE LAST)
+// =============================
 app.use(errorHandler);
 
-// Start server only after DB connects
-connectDB().then(() => {
-  app.listen(5000, () => {
-    console.log("Server running on port 5000");
+// =============================
+// 🔌 Connect DB & Start Server
+// =============================
+const PORT = process.env.PORT || 5000;
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err.message);
+    process.exit(1);
   });
-});
