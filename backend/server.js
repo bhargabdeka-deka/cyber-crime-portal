@@ -39,6 +39,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // =============================
 app.use("/api/users", userRoutes);
 app.use("/api/complaints", complaintRoutes);
+/////////////////
+app.get("/api/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend API working perfectly 🚀"
+  });
+});
+///////////
 
 app.get("/", (req, res) => {
   res.send("🚀 Cyber Crime Portal Backend is Running");
