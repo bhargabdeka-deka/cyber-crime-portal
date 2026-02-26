@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
 
+const BASE_URL = "https://cyber-crime-portal-2.onrender.com";
+
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +104,6 @@ const Complaints = () => {
 
   return (
     <div style={{ padding: "30px" }}>
-      
       <div style={styles.header}>
         <h2>All Complaints</h2>
         <button style={styles.exportBtn} onClick={handleExport}>
@@ -110,7 +111,6 @@ const Complaints = () => {
         </button>
       </div>
 
-      {/* FILTERS */}
       <div style={styles.controls}>
         <input
           type="text"
@@ -158,7 +158,6 @@ const Complaints = () => {
         </select>
       </div>
 
-      {/* TABLE */}
       <table style={styles.table}>
         <thead style={styles.thead}>
           <tr>
@@ -184,13 +183,7 @@ const Complaints = () => {
                   ...(isHighRisk && styles.highRiskRow)
                 }}
               >
-                <td
-                  style={
-                    isHighRisk
-                      ? styles.highRiskCaseId
-                      : styles.normalCell
-                  }
-                >
+                <td style={isHighRisk ? styles.highRiskCaseId : styles.normalCell}>
                   {c.caseId}
                 </td>
 
@@ -223,7 +216,7 @@ const Complaints = () => {
                 <td style={styles.normalCell}>
                   {c.evidence ? (
                     <a
-                      href={`http://localhost:5000/${c.evidence}`}
+                      href={`${BASE_URL}/${c.evidence}`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -239,12 +232,8 @@ const Complaints = () => {
         </tbody>
       </table>
 
-      {/* PAGINATION */}
       <div style={styles.pagination}>
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-        >
+        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           Previous
         </button>
 
