@@ -15,6 +15,9 @@ const Complaints = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("-createdAt");
 
+  // ✅ Modal state added
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+
   /* ---------------- FETCH ---------------- */
 
   const fetchComplaints = useCallback(async () => {
@@ -111,6 +114,7 @@ const Complaints = () => {
         </button>
       </div>
 
+      {/* FILTERS */}
       <div style={styles.controls}>
         <input
           type="text"
@@ -152,12 +156,10 @@ const Complaints = () => {
         <select value={sort} onChange={(e) => setSort(e.target.value)}>
           <option value="-createdAt">Newest First</option>
           <option value="createdAt">Oldest First</option>
-          <option value="-priority">Priority High → Low</option>
-          <option value="priority">Priority Low → High</option>
-          <option value="status">Status A → Z</option>
         </select>
       </div>
 
+      {/* TABLE */}
       <table style={styles.table}>
         <thead style={styles.thead}>
           <tr>
@@ -182,11 +184,9 @@ const Complaints = () => {
                   ...styles.row,
                   ...(isHighRisk && styles.highRiskRow)
                 }}
+                onClick={() => setSelectedComplaint(c)}
               >
-                <td style={isHighRisk ? styles.highRiskCaseId : styles.normalCell}>
-                  {c.caseId}
-                </td>
-
+                <td style={styles.normalCell}>{c.caseId}</td>
                 <td style={styles.normalCell}>{c.user?.name}</td>
                 <td style={styles.normalCell}>{c.crimeType}</td>
 
@@ -196,7 +196,11 @@ const Complaints = () => {
                   </span>
                 </td>
 
-                <td style={styles.normalCell}>
+                {/* STOP modal when clicking dropdown */}
+                <td
+                  style={styles.normalCell}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <select
                     value={c.status}
                     onChange={(e) =>
@@ -213,7 +217,11 @@ const Complaints = () => {
                   {new Date(c.createdAt).toLocaleDateString()}
                 </td>
 
-                <td style={styles.normalCell}>
+                {/* STOP modal when clicking evidence */}
+                <td
+                  style={styles.normalCell}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {c.evidence ? (
                     <a
                       href={`${BASE_URL}/${c.evidence}`}
@@ -232,6 +240,7 @@ const Complaints = () => {
         </tbody>
       </table>
 
+      {/* PAGINATION */}
       <div style={styles.pagination}>
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           Previous
@@ -248,6 +257,36 @@ const Complaints = () => {
           Next
         </button>
       </div>
+
+      {/* ✅ MODAL */}
+      {selectedComplaint && (
+        <div
+          style={styles.modalOverlay}
+          onClick={() => setSelectedComplaint(null)}
+        >
+          <div
+            style={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>Case Details</h2>
+
+            <p><strong>Case ID:</strong> {selectedComplaint.caseId}</p>
+            <p><strong>User:</strong> {selectedComplaint.user?.name}</p>
+            <p><strong>Crime Type:</strong> {selectedComplaint.crimeType}</p>
+            <p><strong>Priority:</strong> {selectedComplaint.priority}</p>
+            <p><strong>Status:</strong> {selectedComplaint.status}</p>
+            <p><strong>Risk Score:</strong> {selectedComplaint.riskScore}</p>
+            <p><strong>Description:</strong> {selectedComplaint.description}</p>
+
+            <button
+              style={styles.closeBtn}
+              onClick={() => setSelectedComplaint(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -279,8 +318,7 @@ const styles = {
     padding: "8px 15px",
     border: "none",
     borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "500"
+    cursor: "pointer"
   },
   controls: {
     display: "flex",
@@ -304,7 +342,7 @@ const styles = {
     background: "#f4f4f4"
   },
   row: {
-    transition: "0.2s"
+    cursor: "pointer"
   },
   normalCell: {
     padding: "12px",
@@ -315,18 +353,39 @@ const styles = {
     backgroundColor: "#fee2e2",
     borderLeft: "6px solid #ef4444"
   },
-  highRiskCaseId: {
-    padding: "12px",
-    fontWeight: "bold",
-    color: "#b91c1c",
-    borderBottom: "1px solid #f1f1f1",
-    textAlign: "center"
-  },
   pagination: {
     marginTop: "20px",
     display: "flex",
     justifyContent: "center",
     gap: "20px"
+  },
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000
+  },
+  modal: {
+    background: "white",
+    padding: "30px",
+    borderRadius: "12px",
+    width: "500px",
+    maxWidth: "90%"
+  },
+  closeBtn: {
+    marginTop: "20px",
+    padding: "8px 15px",
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer"
   }
 };
 
