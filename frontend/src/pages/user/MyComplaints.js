@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 
+const BASE_URL = "https://cyber-crime-portal-2.onrender.com";
+
 /* ================= HELPER FUNCTIONS ================= */
 
 const getRiskLabel = (score) => {
@@ -142,7 +144,7 @@ const MyComplaints = () => {
                 >
                   {c.evidence ? (
                     <a
-                      href={`http://localhost:5000/${c.evidence}`}
+                      href={`${BASE_URL}/${c.evidence}`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -191,7 +193,7 @@ const MyComplaints = () => {
               <div>
                 <p><strong>Evidence:</strong></p>
                 <img
-                  src={`http://localhost:5000/${selectedComplaint.evidence}`}
+                  src={`${BASE_URL}/${selectedComplaint.evidence}`}
                   alt="Evidence"
                   style={{
                     width: "100%",
