@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API from "../../services/api";   // ✅ use central API
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -14,10 +14,10 @@ function Login() {
     setError("");
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/users/login",
-        { email, password }
-      );
+      const res = await API.post("/users/login", {
+        email,
+        password,
+      });
 
       const { token, user } = res.data;
 
