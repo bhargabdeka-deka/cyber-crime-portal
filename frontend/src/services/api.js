@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL + "/api"
+  baseURL: "https://cyber-crime-portal-2.onrender.com/api"
 });
 
 API.interceptors.request.use((req) => {
