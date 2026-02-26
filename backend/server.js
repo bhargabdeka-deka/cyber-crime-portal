@@ -1,21 +1,17 @@
 require("dotenv").config();
-//
-console.log("TEST_VAR:", process.env.TEST_VAR);
-console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
-//
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
+
 const userRoutes = require("./routes/userRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
 
-// =============================
-// 🌍 CORS Configuration
-// =============================
+// ================= CORS =================
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "*",
@@ -23,43 +19,29 @@ app.use(
   })
 );
 
-// =============================
-// 📦 Middleware
-// =============================
+// ================= Middleware =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// =============================
-// 📂 Static Upload Folder
-// =============================
+// ================= Static Upload Folder =================
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// =============================
-// 🛣 Routes
-// =============================
+// ================= Routes =================
 app.use("/api/users", userRoutes);
 app.use("/api/complaints", complaintRoutes);
-/////////////////
-app.get("/api/test", (req, res) => {
+
+// Health Check
+app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "Backend API working perfectly 🚀"
   });
 });
-///////////
 
-app.get("/", (req, res) => {
-  res.send("🚀 Cyber Crime Portal Backend is Running");
-});
-
-// =============================
-// ❗ Error Handler (MUST BE LAST)
-// =============================
+// ================= Error Handler =================
 app.use(errorHandler);
 
-// =============================
-// 🔌 Connect DB & Start Server
-// =============================
+// ================= Start Server =================
 const PORT = process.env.PORT || 5000;
 
 connectDB()
