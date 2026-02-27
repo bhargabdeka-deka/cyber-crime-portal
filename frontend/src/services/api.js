@@ -4,6 +4,7 @@ const API = axios.create({
   baseURL: "https://cyber-crime-portal-2.onrender.com/api"
 });
 
+// Attach token automatically
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
