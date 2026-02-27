@@ -1,4 +1,3 @@
-
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (subject, text) => {
@@ -12,7 +11,7 @@ const sendEmail = async (subject, text) => {
     });
 
     await transporter.sendMail({
-      from: `"Cyber Crime Alert" <${process.env.EMAIL_USER}>`,
+      from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
       subject,
       text
