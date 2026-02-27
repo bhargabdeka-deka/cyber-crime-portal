@@ -1,7 +1,7 @@
 const Complaint = require("../models/Complaint");
 const analyzeComplaint = require("../utils/riskAnalyzer");
 const mongoose = require("mongoose");
-const sendEmail = require("../utils/sendEmail"); // 🔥 Email import
+const sendEmail = require("../utils/sendEmail");
 
 // ================= CREATE =================
 const createComplaintService = async (userId, title, description, file) => {
@@ -23,8 +23,11 @@ const createComplaintService = async (userId, title, description, file) => {
 
   const savedComplaint = await complaint.save();
 
-  // 🔥 Non-blocking email alert for critical cases
+  // 🔥 EMAIL ALERT FOR CRITICAL CASE
   if (savedComplaint.riskScore >= 80) {
+    console.log("🚨 Critical case detected");
+    console.log("Risk Score:", savedComplaint.riskScore);
+
     sendEmail(
       "🚨 Critical Cyber Crime Alert",
       `
@@ -37,9 +40,16 @@ Priority: ${savedComplaint.priority}
 
 Please log in to the admin dashboard immediately.
 `
-    ).catch(err => {
-      console.error("Email failed:", err.message);
-    });
+    )
+      .then(() => {
+        console.log("📧 Email sent successfully");
+      })
+      .catch((err) => {
+        console.error("❌ Email failed:", err.message);
+      });
+  } else {
+    console.log("ℹ️ Complaint not critical. No email sent.");
+    console.log("Risk Score:", savedComplaint.riskScore);
   }
 
   return savedComplaint;
@@ -92,19 +102,14 @@ const getAllComplaintsService = async (queryParams) => {
 
 // ================= UPDATE STATUS =================
 const updateComplaintStatusService = async (id, status) => {
-
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const error = new Error("Invalid ID format");
-    error.statusCode = 400;
-    throw error;
+    throw new Error("Invalid ID format");
   }
 
   const complaint = await Complaint.findById(id);
 
   if (!complaint) {
-    const error = new Error("Complaint not found");
-    error.statusCode = 404;
-    throw error;
+    throw new Error("Complaint not found");
   }
 
   complaint.status = status;
@@ -135,7 +140,6 @@ const getDashboardStatsService = async () => {
 
 // ================= ADVANCED ANALYTICS =================
 const getAnalyticsService = async () => {
-
   const monthlyTrend = await Complaint.aggregate([
     {
       $group: {
