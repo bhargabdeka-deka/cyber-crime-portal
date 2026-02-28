@@ -1,36 +1,25 @@
-const axios = require("axios");
+const nodemailer = require("nodemailer");
 
 const sendEmail = async (subject, text) => {
   try {
-    await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: {
-          name: "Cyber Crime Portal",
-          email: process.env.ADMIN_EMAIL
-        },
-        to: [
-          {
-            email: process.env.ADMIN_EMAIL
-          }
-        ],
-        subject: subject,
-        textContent: text
-      },
-      {
-        headers: {
-          "api-key": process.env.BREVO_API_KEY,
-          "Content-Type": "application/json"
-        }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
-    );
+    });
 
-    console.log("📧 Email sent successfully via Brevo API");
+    await transporter.sendMail({
+      from: `"Cyber Crime Portal" <${process.env.EMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject,
+      text
+    });
+
+    console.log("📧 Email sent successfully via Gmail");
   } catch (error) {
-    console.error(
-      "❌ Email sending failed:",
-      error.response?.data || error.message
-    );
+    console.error("❌ Email sending failed:", error.message);
   }
 };
 
