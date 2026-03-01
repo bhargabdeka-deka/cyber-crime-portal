@@ -8,8 +8,28 @@ const {
 } = require("../services/complaintService");
 
 // ================= CREATE =================
-const createComplaint = async (req, res,) => {
+// const createComplaint = async (req, res,) => {
+//   try {
+//     const { title, description } = req.body;
+
+//     const complaint = await createComplaintService(
+//       req.user.id,
+//       title,
+//       description,
+//       req.file
+//     );
+
+//     res.status(201).json(complaint);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+const createComplaint = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
     const { title, description } = req.body;
 
     const complaint = await createComplaintService(
@@ -21,7 +41,7 @@ const createComplaint = async (req, res,) => {
 
     res.status(201).json(complaint);
   } catch (error) {
-    console.error(error);
+    console.error("ERROR:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
