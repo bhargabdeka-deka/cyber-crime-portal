@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const helmet = require("helmet");   // ✅ Added
 const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
@@ -10,6 +11,9 @@ const complaintRoutes = require("./routes/complaintRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
+
+// ================= Security Headers =================
+app.use(helmet());
 
 // ================= CORS =================
 app.use(
