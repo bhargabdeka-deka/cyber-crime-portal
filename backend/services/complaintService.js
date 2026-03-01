@@ -20,7 +20,7 @@ const createComplaintService = async (userId, title, description, file) => {
     riskScore,
     priority,
     // ✅ Cloudinary URL stored directly
-    evidence: file ? file.path : null
+    evidence: file ? (file.path || file.secure_url || file.url) : null
   });
 
   const savedComplaint = await complaint.save();
