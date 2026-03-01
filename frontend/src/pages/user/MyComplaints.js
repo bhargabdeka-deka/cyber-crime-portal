@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 
-const BASE_URL = "https://cyber-crime-portal-2.onrender.com";
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 /* ================= HELPER FUNCTIONS ================= */
 
@@ -75,6 +75,12 @@ const MyComplaints = () => {
     }
   };
 
+  const buildImageUrl = (path) => {
+    if (!path) return null;
+    const cleanPath = path.replace(/^\/+/, "");
+    return `${BASE_URL}/${cleanPath}`;
+  };
+
   if (loading) {
     return (
       <UserLayout>
@@ -144,7 +150,7 @@ const MyComplaints = () => {
                 >
                   {c.evidence ? (
                     <a
-                      href={`${BASE_URL}/${c.evidence}`}
+                      href={buildImageUrl(c.evidence)}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -193,12 +199,16 @@ const MyComplaints = () => {
               <div>
                 <p><strong>Evidence:</strong></p>
                 <img
-                  src={`${BASE_URL}/${selectedComplaint.evidence}`}
+                  src={buildImageUrl(selectedComplaint.evidence)}
                   alt="Evidence"
                   style={{
                     width: "100%",
                     marginTop: "10px",
-                    borderRadius: "8px"
+                    borderRadius: "8px",
+                    objectFit: "cover"
+                  }}
+                  onError={(e) => {
+                    e.target.style.display = "none";
                   }}
                 />
               </div>
