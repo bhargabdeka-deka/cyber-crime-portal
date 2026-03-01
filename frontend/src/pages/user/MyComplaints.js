@@ -75,6 +75,16 @@ const MyComplaints = () => {
     }
   };
 
+  /* ✅ NEW: Fetch fresh complaint when row clicked */
+  const openComplaintDetails = async (id) => {
+    try {
+      const res = await API.get(`/complaints/${id}`);
+      setSelectedComplaint(res.data);
+    } catch (error) {
+      console.error("Failed to fetch complaint details", error);
+    }
+  };
+
   const buildImageUrl = (path) => {
     if (!path) return null;
     const cleanPath = path.replace(/^\/+/, "");
@@ -114,7 +124,8 @@ const MyComplaints = () => {
               <tr
                 key={c._id}
                 style={styles.tr}
-                onClick={() => setSelectedComplaint(c)}
+                /* ✅ UPDATED HERE */
+                onClick={() => openComplaintDetails(c._id)}
               >
                 <td style={styles.td}>{c.caseId}</td>
                 <td style={styles.td}>{c.crimeType}</td>
