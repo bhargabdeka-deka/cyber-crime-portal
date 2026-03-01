@@ -5,6 +5,7 @@ const sendEmail = require("../utils/sendEmail");
 
 // ================= CREATE =================
 const createComplaintService = async (userId, title, description, file) => {
+   console.log("🔥 FILE OBJECT RECEIVED:", file);  // 👈 ADD THIS LINE
   const caseId = "CASE-" + Date.now();
 
   const { crimeType, riskScore, priority } =
@@ -18,7 +19,8 @@ const createComplaintService = async (userId, title, description, file) => {
     crimeType,
     riskScore,
     priority,
-    evidence: file ? file.path.replace(/\\/g, "/") : null
+    // ✅ Cloudinary URL stored directly
+    evidence: file ? file.path : null
   });
 
   const savedComplaint = await complaint.save();
