@@ -1,25 +1,19 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (subject, text) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    await transporter.sendMail({
-      from: `"Cyber Crime Portal" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "onboarding@resend.dev",  // Resend default sender (works instantly)
       to: process.env.ADMIN_EMAIL,
-      subject,
-      text
+      subject: subject,
+      text: text,
     });
 
-    console.log("📧 Email sent successfully via Gmail");
+    console.log("📧 Email sent successfully via Resend");
   } catch (error) {
-    console.error("❌ Email sending failed:", error.message);
+    console.error("❌ Email sending failed:", error);
   }
 };
 
