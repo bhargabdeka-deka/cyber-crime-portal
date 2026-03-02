@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
 
-const BASE_URL = "https://cyber-crime-portal-2.onrender.com";
-
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,8 +13,22 @@ const Complaints = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("-createdAt");
 
-  // ✅ Modal state added
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+
+  /* ---------------- SAFE IMAGE BUILDER ---------------- */
+
+  const buildImageUrl = (path) => {
+    if (!path) return null;
+
+    // If already Cloudinary URL
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    // If local upload (future safety)
+    const cleanPath = path.replace(/^\/+/, "");
+    return `${process.env.REACT_APP_API_URL}/${cleanPath}`;
+  };
 
   /* ---------------- FETCH ---------------- */
 
@@ -107,61 +119,10 @@ const Complaints = () => {
 
   return (
     <div style={{ padding: "30px" }}>
-      <div style={styles.header}>
-        <h2>All Complaints</h2>
-        <button style={styles.exportBtn} onClick={handleExport}>
-          Export CSV
-        </button>
-      </div>
+      <h2>All Complaints</h2>
 
-      {/* FILTERS */}
-      <div style={styles.controls}>
-        <input
-          type="text"
-          placeholder="Search by Case ID..."
-          value={search}
-          onChange={(e) => {
-            setPage(1);
-            setSearch(e.target.value);
-          }}
-          style={styles.search}
-        />
-
-        <select
-          value={priorityFilter}
-          onChange={(e) => {
-            setPage(1);
-            setPriorityFilter(e.target.value);
-          }}
-        >
-          <option value="">All Priority</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Low">Low</option>
-        </select>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setPage(1);
-            setStatusFilter(e.target.value);
-          }}
-        >
-          <option value="">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Investigating">Investigating</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-
-        <select value={sort} onChange={(e) => setSort(e.target.value)}>
-          <option value="-createdAt">Newest First</option>
-          <option value="createdAt">Oldest First</option>
-        </select>
-      </div>
-
-      {/* TABLE */}
       <table style={styles.table}>
-        <thead style={styles.thead}>
+        <thead>
           <tr>
             <th>Case ID</th>
             <th>User</th>
@@ -174,100 +135,50 @@ const Complaints = () => {
         </thead>
 
         <tbody>
-          {complaints.map((c) => {
-            const isHighRisk = c.riskScore >= 80;
+          {complaints.map((c) => (
+            <tr key={c._id} onClick={() => setSelectedComplaint(c)}>
+              <td>{c.caseId}</td>
+              <td>{c.user?.name}</td>
+              <td>{c.crimeType}</td>
+              <td>{c.priority}</td>
 
-            return (
-              <tr
-                key={c._id}
-                style={{
-                  ...styles.row,
-                  ...(isHighRisk && styles.highRiskRow)
-                }}
-                onClick={() => setSelectedComplaint(c)}
-              >
-                <td style={styles.normalCell}>{c.caseId}</td>
-                <td style={styles.normalCell}>{c.user?.name}</td>
-                <td style={styles.normalCell}>{c.crimeType}</td>
-
-                <td style={styles.normalCell}>
-                  <span style={getPriorityStyle(c.priority)}>
-                    {c.priority}
-                  </span>
-                </td>
-
-                {/* STOP modal when clicking dropdown */}
-                <td
-                  style={styles.normalCell}
-                  onClick={(e) => e.stopPropagation()}
+              <td onClick={(e) => e.stopPropagation()}>
+                <select
+                  value={c.status}
+                  onChange={(e) =>
+                    handleStatusChange(c._id, e.target.value)
+                  }
                 >
-                  <select
-                    value={c.status}
-                    onChange={(e) =>
-                      handleStatusChange(c._id, e.target.value)
-                    }
+                  <option value="Pending">Pending</option>
+                  <option value="Investigating">Investigating</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+              </td>
+
+              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+
+              <td onClick={(e) => e.stopPropagation()}>
+                {c.evidence ? (
+                  <a
+                    href={buildImageUrl(c.evidence)}
+                    target="_blank"
+                    rel="noreferrer"
                   >
-                    <option value="Pending">Pending</option>
-                    <option value="Investigating">Investigating</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </td>
-
-                <td style={styles.normalCell}>
-                  {new Date(c.createdAt).toLocaleDateString()}
-                </td>
-
-                {/* STOP modal when clicking evidence */}
-                <td
-                  style={styles.normalCell}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {c.evidence ? (
-                    <a
-                      href={`${BASE_URL}/${c.evidence}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View
-                    </a>
-                  ) : (
-                    "No File"
-                  )}
-                </td>
-              </tr>
-            );
-          })}
+                    View
+                  </a>
+                ) : (
+                  "No File"
+                )}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
-      {/* PAGINATION */}
-      <div style={styles.pagination}>
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Previous
-        </button>
-
-        <span>
-          Page {page} of {totalPages}
-        </span>
-
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
-      </div>
-
-      {/* ✅ MODAL */}
+      {/* Modal */}
       {selectedComplaint && (
-        <div
-          style={styles.modalOverlay}
-          onClick={() => setSelectedComplaint(null)}
-        >
-          <div
-            style={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div style={styles.modalOverlay} onClick={() => setSelectedComplaint(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2>Case Details</h2>
 
             <p><strong>Case ID:</strong> {selectedComplaint.caseId}</p>
@@ -278,10 +189,15 @@ const Complaints = () => {
             <p><strong>Risk Score:</strong> {selectedComplaint.riskScore}</p>
             <p><strong>Description:</strong> {selectedComplaint.description}</p>
 
-            <button
-              style={styles.closeBtn}
-              onClick={() => setSelectedComplaint(null)}
-            >
+            {selectedComplaint.evidence && (
+              <img
+                src={buildImageUrl(selectedComplaint.evidence)}
+                alt="Evidence"
+                style={{ width: "100%", marginTop: "10px", borderRadius: "8px" }}
+              />
+            )}
+
+            <button onClick={() => setSelectedComplaint(null)}>
               Close
             </button>
           </div>
@@ -291,73 +207,10 @@ const Complaints = () => {
   );
 };
 
-/* ---------------- HELPERS ---------------- */
-
-const getPriorityStyle = (priority) => {
-  if (priority === "Critical")
-    return { background: "#ef4444", color: "white", padding: "4px 8px", borderRadius: "6px" };
-
-  if (priority === "High")
-    return { background: "#f59e0b", color: "white", padding: "4px 8px", borderRadius: "6px" };
-
-  return { background: "#e5e7eb", padding: "4px 8px", borderRadius: "6px" };
-};
-
-/* ---------------- STYLES ---------------- */
-
 const styles = {
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px"
-  },
-  exportBtn: {
-    background: "#3b82f6",
-    color: "white",
-    padding: "8px 15px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer"
-  },
-  controls: {
-    display: "flex",
-    gap: "15px",
-    marginBottom: "20px",
-    flexWrap: "wrap"
-  },
-  search: {
-    padding: "6px",
-    width: "220px"
-  },
   table: {
     width: "100%",
-    borderCollapse: "collapse",
-    background: "white",
-    borderRadius: "10px",
-    overflow: "hidden",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
-  },
-  thead: {
-    background: "#f4f4f4"
-  },
-  row: {
-    cursor: "pointer"
-  },
-  normalCell: {
-    padding: "12px",
-    borderBottom: "1px solid #f1f1f1",
-    textAlign: "center"
-  },
-  highRiskRow: {
-    backgroundColor: "#fee2e2",
-    borderLeft: "6px solid #ef4444"
-  },
-  pagination: {
-    marginTop: "20px",
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px"
+    borderCollapse: "collapse"
   },
   modalOverlay: {
     position: "fixed",
@@ -368,24 +221,13 @@ const styles = {
     background: "rgba(0,0,0,0.5)",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000
+    alignItems: "center"
   },
   modal: {
     background: "white",
-    padding: "30px",
-    borderRadius: "12px",
-    width: "500px",
-    maxWidth: "90%"
-  },
-  closeBtn: {
-    marginTop: "20px",
-    padding: "8px 15px",
-    background: "#ef4444",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer"
+    padding: "20px",
+    borderRadius: "8px",
+    width: "500px"
   }
 };
 
