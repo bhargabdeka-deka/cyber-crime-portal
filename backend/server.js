@@ -16,12 +16,16 @@ const app = express();
 app.use(helmet());
 
 // ================= CORS =================
+// ================= CORS =================
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: "https://cyber-crime-frontend.onrender.com",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.options("*", cors());
 
 // ================= Middleware =================
 app.use(express.json());
