@@ -27,6 +27,7 @@ const {
 // };
 const createComplaint = async (req, res) => {
   try {
+    console.log("USER ID:", req.user.id);
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
 
