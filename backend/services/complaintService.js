@@ -100,7 +100,7 @@ const getAllComplaintsService = async (queryParams) => {
   const skip = (page - 1) * limit;
 
   const complaints = await Complaint.find(filter)
-    .populate("user", "name email")
+    //.populate("user", "name email")
     .sort(sort)
     .skip(skip)
     .limit(limit);
