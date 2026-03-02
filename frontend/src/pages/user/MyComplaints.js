@@ -75,7 +75,6 @@ const MyComplaints = () => {
     }
   };
 
-  /* ✅ NEW: Fetch fresh complaint when row clicked */
   const openComplaintDetails = async (id) => {
     try {
       const res = await API.get(`/complaints/${id}`);
@@ -85,8 +84,16 @@ const MyComplaints = () => {
     }
   };
 
+  /* ✅ FIXED FUNCTION (Cloudinary Compatible) */
   const buildImageUrl = (path) => {
     if (!path) return null;
+
+    // If already Cloudinary full URL → return directly
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    // If old local upload path → prefix backend URL
     const cleanPath = path.replace(/^\/+/, "");
     return `${BASE_URL}/${cleanPath}`;
   };
@@ -124,7 +131,6 @@ const MyComplaints = () => {
               <tr
                 key={c._id}
                 style={styles.tr}
-                /* ✅ UPDATED HERE */
                 onClick={() => openComplaintDetails(c._id)}
               >
                 <td style={styles.td}>{c.caseId}</td>
@@ -177,8 +183,6 @@ const MyComplaints = () => {
         </table>
       )}
 
-      {/* ================= MODAL ================= */}
-
       {selectedComplaint && (
         <div
           style={styles.modalOverlay}
@@ -217,9 +221,6 @@ const MyComplaints = () => {
                     marginTop: "10px",
                     borderRadius: "8px",
                     objectFit: "cover"
-                  }}
-                  onError={(e) => {
-                    e.target.style.display = "none";
                   }}
                 />
               </div>
