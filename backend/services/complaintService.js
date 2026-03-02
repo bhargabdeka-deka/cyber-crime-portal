@@ -63,8 +63,9 @@ const getUserComplaintsService = async (userId) => {
 };
 
 // ================= ADMIN: FILTER + PAGINATION =================
+// ================= ADMIN: FILTER + PAGINATION =================
 const getAllComplaintsService = async (queryParams) => {
-  const {
+  let {
     priority,
     status,
     crimeType,
@@ -74,13 +75,25 @@ const getAllComplaintsService = async (queryParams) => {
     sort = "-createdAt"
   } = queryParams;
 
+  // ✅ Convert page & limit to numbers safely
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 10;
+
   const filter = {};
 
-  if (priority) filter.priority = priority;
-  if (status) filter.status = status;
-  if (crimeType) filter.crimeType = crimeType;
+  if (priority && priority.trim() !== "") {
+    filter.priority = priority;
+  }
 
-  if (search) {
+  if (status && status.trim() !== "") {
+    filter.status = status;
+  }
+
+  if (crimeType && crimeType.trim() !== "") {
+    filter.crimeType = crimeType;
+  }
+
+  if (search && search.trim() !== "") {
     filter.caseId = { $regex: search, $options: "i" };
   }
 
@@ -90,132 +103,14 @@ const getAllComplaintsService = async (queryParams) => {
     .populate("user", "name email")
     .sort(sort)
     .skip(skip)
-    .limit(parseInt(limit));
+    .limit(limit);
 
   const total = await Complaint.countDocuments(filter);
 
   return {
     total,
-    page: parseInt(page),
+    page,
     pages: Math.ceil(total / limit),
     complaints
   };
-};
-
-// ================= UPDATE STATUS =================
-const updateComplaintStatusService = async (id, status) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error("Invalid ID format");
-  }
-
-  const complaint = await Complaint.findById(id);
-
-  if (!complaint) {
-    throw new Error("Complaint not found");
-  }
-
-  complaint.status = status;
-
-  return await complaint.save();
-};
-
-// ================= DASHBOARD STATS =================
-const getDashboardStatsService = async () => {
-  const totalComplaints = await Complaint.countDocuments();
-  const criticalCases = await Complaint.countDocuments({ priority: "Critical" });
-  const highPriorityCases = await Complaint.countDocuments({ priority: "High" });
-  const pendingCases = await Complaint.countDocuments({ status: "Pending" });
-  const investigatingCases = await Complaint.countDocuments({ status: "Investigating" });
-  const resolvedCases = await Complaint.countDocuments({ status: "Resolved" });
-  const financialFraudCases = await Complaint.countDocuments({ crimeType: "Financial Fraud" });
-
-  return {
-    totalComplaints,
-    criticalCases,
-    highPriorityCases,
-    pendingCases,
-    investigatingCases,
-    resolvedCases,
-    financialFraudCases
-  };
-};
-
-// ================= ADVANCED ANALYTICS =================
-// ================= ADVANCED ANALYTICS =================
-const getAnalyticsService = async () => {
-  try {
-    // 📊 Monthly Trend (only valid Date documents)
-    const monthlyTrend = await Complaint.aggregate([
-      {
-        $match: {
-          createdAt: { $type: "date" }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
-    ]);
-
-    const formattedMonthlyTrend = monthlyTrend.map(item => ({
-      month: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`,
-      count: item.count
-    }));
-
-    // 📊 Crime Distribution (ignore null / invalid)
-    const crimeDistribution = await Complaint.aggregate([
-      {
-        $match: {
-          crimeType: { $type: "string" }
-        }
-      },
-      {
-        $group: {
-          _id: "$crimeType",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    const formattedCrimeDistribution = crimeDistribution.map(item => ({
-      crimeType: item._id || "Unknown",
-      count: item.count
-    }));
-
-    // 📊 Status Distribution (ignore null / invalid)
-    const statusDistribution = await Complaint.aggregate([
-      {
-        $match: {
-          status: { $type: "string" }
-        }
-      },
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    const formattedStatusDistribution = statusDistribution.map(item => ({
-      status: item._id || "Unknown",
-      count: item.count
-    }));
-
-    return {
-      monthlyTrend: formattedMonthlyTrend,
-      crimeDistribution: formattedCrimeDistribution,
-      statusDistribution: formattedStatusDistribution
-    };
-
-  } catch (error) {
-    console.error("❌ Analytics Error:", error);
-    throw error;
-  }
 };
