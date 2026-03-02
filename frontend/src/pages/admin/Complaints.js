@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
+import Layout from "../../components/Layout";
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -20,12 +21,10 @@ const Complaints = () => {
   const buildImageUrl = (path) => {
     if (!path) return null;
 
-    // If already Cloudinary URL
     if (path.startsWith("http")) {
       return path;
     }
 
-    // If local upload (future safety)
     const cleanPath = path.replace(/^\/+/, "");
     return `${process.env.REACT_APP_API_URL}/${cleanPath}`;
   };
@@ -71,163 +70,196 @@ const Complaints = () => {
     }
   };
 
-  /* ---------------- CSV EXPORT ---------------- */
-
-  const handleExport = () => {
-    if (!complaints.length) return;
-
-    const headers = [
-      "Case ID",
-      "User",
-      "Crime Type",
-      "Priority",
-      "Risk Score",
-      "Status",
-      "Date"
-    ];
-
-    const rows = complaints.map((c) => [
-      c.caseId,
-      c.user?.name || "N/A",
-      c.crimeType,
-      c.priority,
-      c.riskScore,
-      c.status,
-      new Date(c.createdAt).toLocaleDateString()
-    ]);
-
-    const csvContent =
-      [headers, ...rows]
-        .map((row) => row.join(","))
-        .join("\n");
-
-    const blob = new Blob([csvContent], {
-      type: "text/csv;charset=utf-8;"
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.setAttribute("download", "complaints_report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  if (loading) return <p style={{ padding: "30px" }}>Loading...</p>;
+  if (loading) return <Layout><p style={{ padding: "30px" }}>Loading...</p></Layout>;
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h2>All Complaints</h2>
+    <Layout>
+      <div style={{ padding: "30px" }}>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>Case ID</th>
-            <th>User</th>
-            <th>Crime Type</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Evidence</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {complaints.map((c) => (
-            <tr key={c._id} onClick={() => setSelectedComplaint(c)}>
-              <td>{c.caseId}</td>
-              <td>{c.user?.name}</td>
-              <td>{c.crimeType}</td>
-              <td>{c.priority}</td>
-
-              <td onClick={(e) => e.stopPropagation()}>
-                <select
-                  value={c.status}
-                  onChange={(e) =>
-                    handleStatusChange(c._id, e.target.value)
-                  }
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Investigating">Investigating</option>
-                  <option value="Resolved">Resolved</option>
-                </select>
-              </td>
-
-              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-
-              <td onClick={(e) => e.stopPropagation()}>
-                {c.evidence ? (
-                  <a
-                    href={buildImageUrl(c.evidence)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    View
-                  </a>
-                ) : (
-                  "No File"
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Modal */}
-      {selectedComplaint && (
-        <div style={styles.modalOverlay} onClick={() => setSelectedComplaint(null)}>
-          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2>Case Details</h2>
-
-            <p><strong>Case ID:</strong> {selectedComplaint.caseId}</p>
-            <p><strong>User:</strong> {selectedComplaint.user?.name}</p>
-            <p><strong>Crime Type:</strong> {selectedComplaint.crimeType}</p>
-            <p><strong>Priority:</strong> {selectedComplaint.priority}</p>
-            <p><strong>Status:</strong> {selectedComplaint.status}</p>
-            <p><strong>Risk Score:</strong> {selectedComplaint.riskScore}</p>
-            <p><strong>Description:</strong> {selectedComplaint.description}</p>
-
-            {selectedComplaint.evidence && (
-              <img
-                src={buildImageUrl(selectedComplaint.evidence)}
-                alt="Evidence"
-                style={{ width: "100%", marginTop: "10px", borderRadius: "8px" }}
-              />
-            )}
-
-            <button onClick={() => setSelectedComplaint(null)}>
-              Close
-            </button>
-          </div>
+        {/* Header */}
+        <div style={styles.header}>
+          <h2>All Complaints</h2>
         </div>
-      )}
-    </div>
+
+        {/* Filters */}
+        <div style={styles.controls}>
+          <input
+            type="text"
+            placeholder="Search by Case ID..."
+            value={search}
+            onChange={(e) => {
+              setPage(1);
+              setSearch(e.target.value);
+            }}
+            style={styles.search}
+          />
+
+          <select
+            value={priorityFilter}
+            onChange={(e) => {
+              setPage(1);
+              setPriorityFilter(e.target.value);
+            }}
+          >
+            <option value="">All Priority</option>
+            <option value="Critical">Critical</option>
+            <option value="High">High</option>
+            <option value="Low">Low</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setPage(1);
+              setStatusFilter(e.target.value);
+            }}
+          >
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Investigating">Investigating</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="-createdAt">Newest First</option>
+            <option value="createdAt">Oldest First</option>
+          </select>
+        </div>
+
+        {/* Table */}
+        <table style={styles.table}>
+          <thead style={styles.thead}>
+            <tr>
+              <th>Case ID</th>
+              <th>User</th>
+              <th>Crime Type</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Evidence</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {complaints.map((c) => {
+              const isCritical = c.priority === "Critical";
+
+              return (
+                <tr
+                  key={c._id}
+                  style={{
+                    ...styles.row,
+                    ...(isCritical && styles.criticalRow)
+                  }}
+                  onClick={() => setSelectedComplaint(c)}
+                >
+                  <td style={styles.cell}>{c.caseId}</td>
+                  <td style={styles.cell}>{c.user?.name}</td>
+                  <td style={styles.cell}>{c.crimeType}</td>
+
+                  <td style={styles.cell}>
+                    <span style={getPriorityStyle(c.priority)}>
+                      {c.priority}
+                    </span>
+                  </td>
+
+                  <td
+                    style={styles.cell}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <select
+                      value={c.status}
+                      onChange={(e) =>
+                        handleStatusChange(c._id, e.target.value)
+                      }
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Investigating">Investigating</option>
+                      <option value="Resolved">Resolved</option>
+                    </select>
+                  </td>
+
+                  <td style={styles.cell}>
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </td>
+
+                  <td
+                    style={styles.cell}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {c.evidence ? (
+                      <a
+                        href={buildImageUrl(c.evidence)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View
+                      </a>
+                    ) : (
+                      "No File"
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+      </div>
+    </Layout>
   );
 };
 
+/* ---------------- STYLES ---------------- */
+
+const getPriorityStyle = (priority) => {
+  if (priority === "Critical")
+    return { background: "#ef4444", color: "white", padding: "4px 8px", borderRadius: "6px" };
+
+  if (priority === "High")
+    return { background: "#f59e0b", color: "white", padding: "4px 8px", borderRadius: "6px" };
+
+  return { background: "#e5e7eb", padding: "4px 8px", borderRadius: "6px" };
+};
+
 const styles = {
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "20px"
+  },
+  controls: {
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+    flexWrap: "wrap"
+  },
+  search: {
+    padding: "6px",
+    width: "220px"
+  },
   table: {
     width: "100%",
-    borderCollapse: "collapse"
-  },
-  modalOverlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "rgba(0,0,0,0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  modal: {
+    borderCollapse: "collapse",
     background: "white",
-    padding: "20px",
-    borderRadius: "8px",
-    width: "500px"
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+  },
+  thead: {
+    background: "#f4f4f4"
+  },
+  row: {
+    cursor: "pointer"
+  },
+  criticalRow: {
+    backgroundColor: "#fee2e2",
+    borderLeft: "6px solid #ef4444"
+  },
+  cell: {
+    padding: "12px",
+    borderBottom: "1px solid #f1f1f1",
+    textAlign: "center"
   }
 };
 
