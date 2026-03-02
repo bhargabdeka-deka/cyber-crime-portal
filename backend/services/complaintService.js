@@ -141,65 +141,81 @@ const getDashboardStatsService = async () => {
 };
 
 // ================= ADVANCED ANALYTICS =================
+// ================= ADVANCED ANALYTICS =================
 const getAnalyticsService = async () => {
-  const monthlyTrend = await Complaint.aggregate([
-    {
-      $group: {
-        _id: {
-          year: { $year: "$createdAt" },
-          month: { $month: "$createdAt" }
-        },
-        count: { $sum: 1 }
+  try {
+    // 📊 Monthly Trend (only valid Date documents)
+    const monthlyTrend = await Complaint.aggregate([
+      {
+        $match: {
+          createdAt: { $type: "date" }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]);
+
+    const formattedMonthlyTrend = monthlyTrend.map(item => ({
+      month: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`,
+      count: item.count
+    }));
+
+    // 📊 Crime Distribution (ignore null / invalid)
+    const crimeDistribution = await Complaint.aggregate([
+      {
+        $match: {
+          crimeType: { $type: "string" }
+        }
+      },
+      {
+        $group: {
+          _id: "$crimeType",
+          count: { $sum: 1 }
+        }
       }
-    },
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
-  ]);
+    ]);
 
-  const formattedMonthlyTrend = monthlyTrend.map(item => ({
-    month: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`,
-    count: item.count
-  }));
+    const formattedCrimeDistribution = crimeDistribution.map(item => ({
+      crimeType: item._id || "Unknown",
+      count: item.count
+    }));
 
-  const crimeDistribution = await Complaint.aggregate([
-    {
-      $group: {
-        _id: "$crimeType",
-        count: { $sum: 1 }
+    // 📊 Status Distribution (ignore null / invalid)
+    const statusDistribution = await Complaint.aggregate([
+      {
+        $match: {
+          status: { $type: "string" }
+        }
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
       }
-    }
-  ]);
+    ]);
 
-  const formattedCrimeDistribution = crimeDistribution.map(item => ({
-    crimeType: item._id,
-    count: item.count
-  }));
+    const formattedStatusDistribution = statusDistribution.map(item => ({
+      status: item._id || "Unknown",
+      count: item.count
+    }));
 
-  const statusDistribution = await Complaint.aggregate([
-    {
-      $group: {
-        _id: "$status",
-        count: { $sum: 1 }
-      }
-    }
-  ]);
+    return {
+      monthlyTrend: formattedMonthlyTrend,
+      crimeDistribution: formattedCrimeDistribution,
+      statusDistribution: formattedStatusDistribution
+    };
 
-  const formattedStatusDistribution = statusDistribution.map(item => ({
-    status: item._id,
-    count: item.count
-  }));
-
-  return {
-    monthlyTrend: formattedMonthlyTrend,
-    crimeDistribution: formattedCrimeDistribution,
-    statusDistribution: formattedStatusDistribution
-  };
-};
-
-module.exports = {
-  createComplaintService,
-  getUserComplaintsService,
-  getAllComplaintsService,
-  updateComplaintStatusService,
-  getDashboardStatsService,
-  getAnalyticsService
+  } catch (error) {
+    console.error("❌ Analytics Error:", error);
+    throw error;
+  }
 };
