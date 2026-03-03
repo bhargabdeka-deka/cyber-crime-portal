@@ -17,7 +17,7 @@ const {
 } = require("../controllers/complaintController");
 
 const upload = require("../middleware/uploadMiddleware");
-const Complaint = require("../models/Complaint"); // ✅ Added
+const Complaint = require("../models/Complaint");
 
 const router = express.Router();
 
@@ -36,7 +36,30 @@ router.post(
 // Get logged-in user's complaints
 router.get("/my", protect, getUserComplaints);
 
-// ✅ NEW ROUTE — Get Single Complaint by ID (User Only)
+// ================= ADMIN ROUTES =================
+
+// Dashboard stats (ADMIN)
+router.get("/stats", protect, adminOnly, getDashboardStats);
+
+// Analytics (ADMIN)
+router.get("/analytics", protect, adminOnly, getAnalytics);
+
+// Get all complaints (ADMIN)
+router.get("/", protect, adminOnly, getAllComplaints);
+
+// Update complaint status (ADMIN)
+router.put(
+  "/:id/status",
+  protect,
+  adminOnly,
+  validateStatusUpdate,
+  handleValidationErrors,
+  updateComplaintStatus
+);
+
+// ================= DYNAMIC ROUTE (MUST BE LAST) =================
+
+// Get single complaint by ID (User Only)
 router.get("/:id", protect, async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id);
@@ -45,7 +68,6 @@ router.get("/:id", protect, async (req, res) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    // Ensure user owns the complaint
     if (complaint.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized" });
     }
@@ -56,26 +78,5 @@ router.get("/:id", protect, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-// ================= ADMIN ROUTES =================
-
-// Dashboard stats
-router.get("/stats", protect, adminOnly, getDashboardStats);
-
-// Analytics
-router.get("/analytics", protect, adminOnly, getAnalytics);
-
-// Get all complaints (Admin only)
-router.get("/", protect, adminOnly, getAllComplaints);
-
-// Update complaint status (Admin only)
-router.put(
-  "/:id/status",
-  protect,
-  adminOnly,
-  validateStatusUpdate,
-  handleValidationErrors,
-  updateComplaintStatus
-);
 
 module.exports = router;
