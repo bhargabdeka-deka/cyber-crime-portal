@@ -21,7 +21,7 @@ export default function ScamChecker() {
     if (!query.trim()) return;
     setLoading(true); setError(""); setResult(null);
     try {
-      const res = await API.get("/complaints/check", { params: { query: query.trim() } });
+      const res = await API.post("/scam/check", { value: query.trim() });
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Check failed. Try again.");
@@ -103,9 +103,9 @@ export default function ScamChecker() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
                 {[
-                  { label: "Reports Found", value: result.reportCount },
-                  { label: "Avg Risk Score", value: result.avgRisk || "—" },
-                  { label: "Scam Types", value: result.scamTypes?.length || 0 },
+                  { label: "Reports Found",  value: result.reports },
+                  { label: "Avg Risk Score", value: result.avgRiskScore || result.avgRisk || "—" },
+                  { label: "Risk Level",     value: result.riskLevel || "—" },
                 ].map(s => (
                   <div key={s.label} style={{ background: "rgba(0,0,0,0.2)", borderRadius: 10, padding: "12px 14px", textAlign: "center" }}>
                     <div style={{ color: vc.color, fontSize: 24, fontWeight: 800 }}>{s.value}</div>
@@ -113,31 +113,47 @@ export default function ScamChecker() {
                   </div>
                 ))}
               </div>
-              {result.scamTypes?.length > 0 && (
-                <div style={{ marginTop: 14, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {result.scamTypes.map(t => (
-                    <span key={t} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{t}</span>
-                  ))}
+
+              {/* Category + Locations */}
+              <div style={{ marginTop: 14, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {result.category && (
+                  <span style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>
+                    🎯 {result.category}
+                  </span>
+                )}
+                {result.type && (
+                  <span style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>
+                    {result.type}
+                  </span>
+                )}
+                {result.locations?.map(loc => (
+                  <span key={loc} style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", color: "#93c5fd", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>
+                    📍 {loc}
+                  </span>
+                ))}
+              </div>
+
+              {result.description && result.status !== "SAFE" && (
+                <div style={{ marginTop: 14, background: "rgba(0,0,0,0.2)", borderRadius: 8, padding: "10px 14px" }}>
+                  <div style={{ color: "#64748b", fontSize: 11, marginBottom: 4 }}>LATEST REPORT DESCRIPTION</div>
+                  <div style={{ color: "#e2e8f0", fontSize: 13, lineHeight: 1.6 }}>{result.description}</div>
+                </div>
+              )}
+
+              {result.lastReportedAt && result.status !== "SAFE" && (
+                <div style={{ marginTop: 10, color: "#475569", fontSize: 12 }}>
+                  Last reported: {new Date(result.lastReportedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                 </div>
               )}
             </div>
 
-            {/* Report list */}
-            {result.reports?.length > 0 && (
+            {/* Related Case IDs */}
+            {result.relatedCaseIds?.length > 0 && (
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-                <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 14px" }}>Related Reports ({result.reports.length})</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {result.reports.map((r, i) => (
-                    <div key={r.caseId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < result.reports.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                      <div>
-                        <div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{r.title}</div>
-                        <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>{r.scamType} · {r.caseId} {r.location ? `· ${r.location}` : ""}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ color: r.riskScore >= 80 ? "#ef4444" : r.riskScore >= 50 ? "#f59e0b" : "#10b981", fontSize: 13, fontWeight: 700 }}>Risk {r.riskScore}</div>
-                        <div style={{ color: "#475569", fontSize: 11 }}>{new Date(r.createdAt).toLocaleDateString()}</div>
-                      </div>
-                    </div>
+                <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>Related Case IDs ({result.relatedCaseIds.length})</h3>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {result.relatedCaseIds.map(id => (
+                    <span key={id} style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", color: "#93c5fd", padding: "4px 12px", borderRadius: 8, fontSize: 12, fontFamily: "monospace" }}>{id}</span>
                   ))}
                 </div>
               </div>

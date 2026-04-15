@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
+const scamRoutes = require("./routes/scamRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -38,8 +39,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ================= Routes =================
-app.use("/api/users", userRoutes);
+app.use("/api/users",      userRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/scam",       scamRoutes);
 
 // Health Check
 app.get("/", (req, res) => {

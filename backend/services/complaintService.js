@@ -2,6 +2,7 @@ const Complaint = require("../models/Complaint");
 const analyzeComplaint = require("../utils/riskAnalyzer");
 const mongoose = require("mongoose");
 const sendEmail = require("../utils/sendEmail");
+const { upsertScamIntelligence } = require("../controllers/scamController");
 
 // ================= CREATE =================
 const createComplaintService = async (userId, title, description, file, extras = {}) => {
@@ -23,6 +24,18 @@ const createComplaintService = async (userId, title, description, file, extras =
   });
 
   const saved = await complaint.save();
+
+  // ── Update Scam Intelligence DB ──────────────────────────────────────────
+  if (extras.scamTarget) {
+    upsertScamIntelligence({
+      value:       extras.scamTarget,
+      category:    extras.scamType || scamType,
+      description: description.slice(0, 200),
+      riskScore,
+      caseId:      saved.caseId,
+      location:    extras.location || ""
+    }).catch(() => {}); // non-blocking
+  }
 
   if (saved.riskScore >= 80) {
     sendEmail(

@@ -16,7 +16,7 @@ export default function Trending() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    API.get("/complaints/trending")
+    API.get("/scam/trending")
       .then(res => setData(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -63,10 +63,10 @@ export default function Trending() {
             {/* Stats row */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 36 }}>
               {[
-                { icon: "📋", label: "Total Reports",    value: (data.topTargets?.reduce((s, t) => s + t.count, 0) || 0), color: "#60a5fa" },
-                { icon: "🔥", label: "Reports This Week", value: data.recentCount || 0,                                    color: "#f59e0b" },
-                { icon: "🎯", label: "Scam Types Tracked", value: data.topScamTypes?.length || 0,                          color: "#a78bfa" },
-                { icon: "🚨", label: "High Risk Targets",  value: data.topTargets?.filter(t => t.avgRisk >= 70).length || 0, color: "#ef4444" },
+                { icon: "📋", label: "Unique Scam Targets", value: data.stats?.totalScams    || 0, color: "#60a5fa" },
+                { icon: "🔥", label: "Active This Week",    value: data.stats?.recentCount   || 0, color: "#f59e0b" },
+                { icon: "🚨", label: "Critical Targets",    value: data.stats?.criticalCount || 0, color: "#ef4444" },
+                { icon: "⚠️", label: "High Risk Targets",   value: data.stats?.highCount     || 0, color: "#a78bfa" },
               ].map(s => (
                 <div key={s.label} style={{ background: `${s.color}12`, border: `1px solid ${s.color}30`, borderRadius: 12, padding: "18px 16px" }}>
                   <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
@@ -78,27 +78,27 @@ export default function Trending() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
 
-              {/* Top Scam Types */}
+              {/* Top Scam Categories */}
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
                 <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🎯 Top Scam Categories</h3>
-                {data.topScamTypes?.length === 0 ? (
+                {!data.topCategories?.length ? (
                   <p style={{ color: "#475569", fontSize: 13 }}>No data yet.</p>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {data.topScamTypes?.map((t, i) => {
-                      const maxCount = data.topScamTypes[0]?.count || 1;
+                    {data.topCategories.map((t) => {
+                      const maxCount = data.topCategories[0]?.count || 1;
                       const pct = Math.round((t.count / maxCount) * 100);
                       return (
-                        <div key={t.scamType}>
+                        <div key={t.category}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                            <span style={{ color: "#e2e8f0", fontSize: 13 }}>{scamTypeIcon[t.scamType] || "⚠️"} {t.scamType}</span>
+                            <span style={{ color: "#e2e8f0", fontSize: 13 }}>{scamTypeIcon[t.category] || "⚠️"} {t.category}</span>
                             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                               <span style={{ color: riskColor(t.avgRisk), fontSize: 11 }}>Avg Risk {t.avgRisk}</span>
                               <span style={{ color: "white", fontSize: 13, fontWeight: 700 }}>{t.count}</span>
                             </div>
                           </div>
                           <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
-                            <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, #3b82f6, #8b5cf6)`, borderRadius: 2, transition: "width 0.6s" }} />
+                            <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #3b82f6, #8b5cf6)", borderRadius: 2, transition: "width 0.6s" }} />
                           </div>
                         </div>
                       );
@@ -107,22 +107,26 @@ export default function Trending() {
                 )}
               </div>
 
-              {/* Latest Reports */}
+              {/* Most Reported Targets (top 5 in right panel) */}
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-                <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🕐 Latest Reports</h3>
-                {data.latest?.length === 0 ? (
-                  <p style={{ color: "#475569", fontSize: 13 }}>No reports yet.</p>
+                <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🔴 Highest Risk Targets</h3>
+                {!data.topTargets?.length ? (
+                  <p style={{ color: "#475569", fontSize: 13 }}>No data yet.</p>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                    {data.latest?.map((r, i) => (
-                      <div key={r.caseId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < data.latest.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                    {data.topTargets.slice(0, 5).map((t, i) => (
+                      <div key={t.value} onClick={() => navigate(`/check-scam`)}
+                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", cursor: "pointer" }}>
                         <div>
-                          <div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{r.title}</div>
-                          <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>{scamTypeIcon[r.scamType] || "⚠️"} {r.scamType} {r.location ? `· ${r.location}` : ""}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ background: "rgba(239,68,68,0.15)", color: "#f87171", width: 18, height: 18, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700 }}>{i + 1}</span>
+                            <span style={{ color: "white", fontSize: 13, fontWeight: 600, fontFamily: "monospace" }}>{t.value}</span>
+                          </div>
+                          <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>{scamTypeIcon[t.category] || "⚠️"} {t.category}</div>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                          <div style={{ color: riskColor(r.riskScore), fontSize: 12, fontWeight: 700 }}>Risk {r.riskScore}</div>
-                          <div style={{ color: "#475569", fontSize: 11 }}>{new Date(r.createdAt).toLocaleDateString()}</div>
+                          <div style={{ color: "#ef4444", fontSize: 14, fontWeight: 800 }}>{t.reports}×</div>
+                          <div style={{ color: riskColor(t.avgRiskScore), fontSize: 11 }}>Risk {t.avgRiskScore}</div>
                         </div>
                       </div>
                     ))}
@@ -131,26 +135,24 @@ export default function Trending() {
               </div>
             </div>
 
-            {/* Most Reported Targets */}
-            {data.topTargets?.length > 0 && (
+            {/* Full Most Reported Grid */}
+            {data.topTargets?.length > 5 && (
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px", marginBottom: 24 }}>
-                <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🎯 Most Reported Numbers / Links</h3>
+                <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🎯 All Reported Numbers / Links</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
                   {data.topTargets.map((t, i) => (
-                    <div key={t.target} onClick={() => navigate(`/check-scam?q=${encodeURIComponent(t.target)}`)}
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: "14px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "border-color 0.2s" }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
+                    <div key={t.value}
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                           <span style={{ background: "rgba(239,68,68,0.15)", color: "#f87171", width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700 }}>{i + 1}</span>
-                          <span style={{ color: "white", fontSize: 13, fontWeight: 600, fontFamily: "monospace" }}>{t.target}</span>
+                          <span style={{ color: "white", fontSize: 13, fontWeight: 600, fontFamily: "monospace" }}>{t.value}</span>
                         </div>
-                        <div style={{ color: "#64748b", fontSize: 11 }}>{scamTypeIcon[t.scamType] || "⚠️"} {t.scamType}</div>
+                        <div style={{ color: "#64748b", fontSize: 11 }}>{scamTypeIcon[t.category] || "⚠️"} {t.category} · {t.type}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ color: "#ef4444", fontSize: 14, fontWeight: 800 }}>{t.count}×</div>
-                        <div style={{ color: riskColor(t.avgRisk), fontSize: 11 }}>Risk {t.avgRisk}</div>
+                        <div style={{ color: "#ef4444", fontSize: 14, fontWeight: 800 }}>{t.reports}×</div>
+                        <div style={{ color: riskColor(t.avgRiskScore), fontSize: 11 }}>Risk {t.avgRiskScore}</div>
                       </div>
                     </div>
                   ))}
