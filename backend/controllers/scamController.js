@@ -10,11 +10,18 @@ const detectType = (value = "") => {
   return "other";
 };
 
-// ── Compute risk level from report count ─────────────────────────────────────
-const computeRiskLevel = (reports) => {
-  if (reports >= 10) return "CRITICAL";
-  if (reports >= 5)  return "HIGH";
-  if (reports >= 2)  return "MEDIUM";
+// ── Compute risk level from report count + recency ───────────────────────────
+const computeRiskLevel = (reports, lastReportedAt) => {
+  // Recency boost: reported in last 7 days = +2 virtual reports
+  const daysSince = lastReportedAt
+    ? (Date.now() - new Date(lastReportedAt)) / (1000 * 60 * 60 * 24)
+    : 999;
+  const recencyBoost = daysSince < 7 ? 2 : daysSince < 30 ? 1 : 0;
+  const effective = reports + recencyBoost;
+
+  if (effective >= 10) return "CRITICAL";
+  if (effective >= 5)  return "HIGH";
+  if (effective >= 2)  return "MEDIUM";
   return "LOW";
 };
 
@@ -100,14 +107,44 @@ const checkScamGet = async (req, res) => {
       reports: scam.reports, riskLevel: scam.riskLevel,
       avgRiskScore: scam.avgRiskScore, category: scam.category,
       description: scam.description, locations: scam.locations,
-      lastReportedAt: scam.lastReportedAt, relatedCaseIds: scam.relatedCaseIds
+      lastReportedAt: scam.lastReportedAt, relatedCaseIds: scam.relatedCaseIds,
+      actionAdvice: getActionAdvice(scam.category, scam.riskLevel)
     });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ── GET /api/scam/trending ────────────────────────────────────────────────────
+// ── Action advice based on category ─────────────────────────────────────────
+const getActionAdvice = (category, riskLevel) => {
+  if (riskLevel === "LOW" || riskLevel === undefined) return null;
+  const avoid = {
+    "UPI Fraud":       ["Share your UPI PIN or OTP", "Send money to verify your account", "Click payment links from unknown numbers"],
+    "Phishing":        ["Click links in this message", "Enter your password on this site", "Download attachments from this source"],
+    "Job Scam":        ["Pay any registration or training fee", "Share Aadhaar/PAN for 'verification'", "Work before receiving a written offer"],
+    "Lottery Scam":    ["Pay any 'processing fee' to claim prize", "Share bank details to receive winnings", "Believe you won something you didn't enter"],
+    "Investment Scam": ["Send money for guaranteed returns", "Invest in unregistered schemes", "Trust promises of daily/weekly profits"],
+    "Romance Scam":    ["Send money to someone you haven't met", "Share personal photos or documents", "Trust urgent financial requests"],
+    "Identity Theft":  ["Share Aadhaar, PAN, or passport details", "Complete KYC on unofficial platforms", "Give biometric data to unknown agents"],
+    "Account Hacking": ["Share OTP or 2FA codes", "Click 'verify account' links", "Give remote access to your device"],
+    "Cyber Harassment":["Engage or respond to threats", "Share personal information", "Pay any demanded amount"],
+  };
+  const doThis = ["Block this number/contact immediately", "Report to cybercrime.gov.in", "Warn your contacts about this scam"];
+  return { avoid: avoid[category] || ["Share personal information", "Send money", "Click unknown links"], doThis };
+};
+
+// ── GET /api/scam/activity — recent scam activity feed ───────────────────────
+const getActivity = async (req, res) => {
+  try {
+    const recent = await Scam.find()
+      .sort({ lastReportedAt: -1 })
+      .limit(8)
+      .select("value type category reports riskLevel lastReportedAt");
+    res.json(recent);
+  } catch {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Public. Returns top reported scams + stats.
 const getTrending = async (req, res) => {
   try {
@@ -173,4 +210,4 @@ const upsertScamIntelligence = async ({ value, category, description, riskScore,
   }
 };
 
-module.exports = { checkScam, checkScamGet, getTrending, upsertScamIntelligence };
+module.exports = { checkScam, checkScamGet, getTrending, getActivity, upsertScamIntelligence };

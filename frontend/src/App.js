@@ -20,6 +20,7 @@ function App() {
         <Route path="/login"      element={<Login />} />
         <Route path="/register"   element={<UserRegister />} />
         <Route path="/check-scam" element={<ScamChecker />} />
+        <Route path="/check/:value" element={<ScamChecker />} />
         <Route path="/trending"   element={<Trending />} />
 
         {/* Admin */}

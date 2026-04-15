@@ -203,6 +203,20 @@ const getTrendingScamsService = async () => {
   };
 };
 
+// ================= USER IMPACT =================
+const getUserImpactService = async (userId) => {
+  const complaints = await require("../models/Complaint").find({ user: userId, scamTarget: { $ne: "" } });
+  let totalProtected = 0;
+  const Scam = require("../models/Scam");
+  for (const c of complaints) {
+    if (c.scamTarget) {
+      const scam = await Scam.findOne({ value: c.scamTarget.toLowerCase() });
+      if (scam && scam.reports > 1) totalProtected += scam.reports - 1;
+    }
+  }
+  return { complaintsWithTarget: complaints.length, estimatedProtected: totalProtected };
+};
+
 module.exports = {
   createComplaintService,
   getUserComplaintsService,
@@ -210,6 +224,5 @@ module.exports = {
   updateComplaintStatusService,
   getDashboardStatsService,
   getAnalyticsService,
-  checkScamService,
-  getTrendingScamsService
+  getUserImpactService
 };

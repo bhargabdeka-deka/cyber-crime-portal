@@ -115,24 +115,21 @@ router.post(
 router.get("/profile", protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      user
-    });
-
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ================= USER IMPACT =================
+router.get("/impact", protect, async (req, res) => {
+  try {
+    const { getUserImpactService } = require("../services/complaintService");
+    const impact = await getUserImpactService(req.user.id);
+    res.json(impact);
+  } catch {
+    res.status(500).json({ message: "Server error" });
   }
 });
 

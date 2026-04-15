@@ -31,15 +31,20 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function UserDashboard() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [impact, setImpact] = useState(null);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const w = useWindowWidth();
   const isMobile = w < 640;
+
   useEffect(() => {
     API.get("/complaints/my")
       .then(res => setComplaints(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
+    API.get("/users/impact")
+      .then(res => setImpact(res.data))
+      .catch(() => {});
   }, []);
 
   const total        = complaints.length;
@@ -93,6 +98,21 @@ export default function UserDashboard() {
           {total === 0 ? "You haven't filed any complaints yet." : `You have ${total} complaint${total > 1 ? "s" : ""} on record.`}
         </p>
       </div>
+
+      {/* Impact Banner — shown when user has reports with targets */}
+      {impact && impact.estimatedProtected > 0 && (
+        <div style={{ background:"rgba(16,185,129,0.08)", border:"1px solid rgba(16,185,129,0.2)", borderRadius:12, padding:"14px 18px", marginBottom:20, display:"flex", alignItems:"center", gap:14 }}>
+          <span style={{ fontSize:28 }}>🛡️</span>
+          <div>
+            <div style={{ color:"#6ee7b7", fontSize:15, fontWeight:700 }}>
+              Your reports helped ~{impact.estimatedProtected} {impact.estimatedProtected === 1 ? "person" : "people"} avoid this scam
+            </div>
+            <div style={{ color:"#64748b", fontSize:13, marginTop:2 }}>
+              Keep reporting — every complaint makes the database smarter.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Action — show only if no complaints */}
       {total === 0 && (
