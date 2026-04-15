@@ -17,24 +17,12 @@ const app = express();
 app.use(helmet());
 
 // ================= CORS =================
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://cyber-crime-fronten.onrender.com",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (Postman, mobile apps, curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`CORS blocked: ${origin}`));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
+// Allow all origins — safe for a public reporting platform
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.options("*", cors());
 
 // ================= Middleware =================
