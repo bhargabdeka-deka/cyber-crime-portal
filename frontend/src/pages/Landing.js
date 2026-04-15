@@ -58,7 +58,9 @@ export default function Landing() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <a href="#features" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 14, padding: "8px 12px" }}>Features</a>
             <a href="#how" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 14, padding: "8px 12px" }}>How It Works</a>
-            <button onClick={() => navigate("/login")} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontSize: 14, marginLeft: 8 }}>Login</button>
+            <button onClick={() => navigate("/check-scam")} style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>🔍 Scam Checker</button>
+            <button onClick={() => navigate("/trending")} style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)", color: "#fcd34d", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>🔥 Trending</button>
+            <button onClick={() => navigate("/login")} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontSize: 14, marginLeft: 4 }}>Login</button>
             <button onClick={() => navigate("/register")} style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Get Started</button>
           </div>
         </div>

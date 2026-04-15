@@ -4,45 +4,21 @@ const {
   getAllComplaintsService,
   updateComplaintStatusService,
   getDashboardStatsService,
-  getAnalyticsService
+  getAnalyticsService,
+  checkScamService,
+  getTrendingScamsService
 } = require("../services/complaintService");
 
 // ================= CREATE =================
-// const createComplaint = async (req, res,) => {
-//   try {
-//     const { title, description } = req.body;
-
-//     const complaint = await createComplaintService(
-//       req.user.id,
-//       title,
-//       description,
-//       req.file
-//     );
-
-//     res.status(201).json(complaint);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
 const createComplaint = async (req, res) => {
   try {
-    console.log("USER ID:", req.user.id);
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
-
-    const { title, description } = req.body;
-
+    const { title, description, scamType, scamTarget, location } = req.body;
     const complaint = await createComplaintService(
-      req.user.id,
-      title,
-      description,
-      req.file
+      req.user.id, title, description, req.file,
+      { scamType, scamTarget, location }
     );
-
     res.status(201).json(complaint);
   } catch (error) {
-    console.error("ERROR:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -53,7 +29,6 @@ const getUserComplaints = async (req, res) => {
     const complaints = await getUserComplaintsService(req.user.id);
     res.status(200).json(complaints);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -64,7 +39,6 @@ const getAllComplaints = async (req, res) => {
     const data = await getAllComplaintsService(req.query);
     res.status(200).json(data);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -72,19 +46,9 @@ const getAllComplaints = async (req, res) => {
 // ================= UPDATE STATUS =================
 const updateComplaintStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-
-    const complaint = await updateComplaintStatusService(
-      req.params.id,
-      status
-    );
-
-    res.status(200).json({
-      message: "Status updated",
-      complaint
-    });
+    const complaint = await updateComplaintStatusService(req.params.id, req.body.status);
+    res.status(200).json({ message: "Status updated", complaint });
   } catch (error) {
-    console.error(error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -95,12 +59,11 @@ const getDashboardStats = async (req, res) => {
     const stats = await getDashboardStatsService();
     res.status(200).json(stats);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
-// ================= ANALYTICS =================
 
+// ================= ANALYTICS =================
 const getAnalytics = async (req, res, next) => {
   try {
     const analytics = await getAnalyticsService();
@@ -110,12 +73,30 @@ const getAnalytics = async (req, res, next) => {
   }
 };
 
+// ================= SCAM CHECKER (PUBLIC) =================
+const checkScam = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ message: "Query is required" });
+    const result = await checkScamService(query);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ================= TRENDING SCAMS (PUBLIC) =================
+const getTrendingScams = async (req, res) => {
+  try {
+    const data = await getTrendingScamsService();
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
-  createComplaint,
-  getUserComplaints,
-  getAllComplaints,
-  updateComplaintStatus,
-  getDashboardStats,
-  getAnalytics
+  createComplaint, getUserComplaints, getAllComplaints,
+  updateComplaintStatus, getDashboardStats, getAnalytics,
+  checkScam, getTrendingScams
 };

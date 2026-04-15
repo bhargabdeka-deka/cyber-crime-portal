@@ -7,25 +7,29 @@ import Complaints from "./pages/admin/Complaints";
 import UserDashboard from "./pages/user/UserDashboard";
 import SubmitComplaint from "./pages/user/SubmitComplaint";
 import MyComplaints from "./pages/user/MyComplaints";
+import ScamChecker from "./pages/ScamChecker";
+import Trending from "./pages/Trending";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public - Landing page is the entry point */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<UserRegister />} />
+        {/* Public */}
+        <Route path="/"           element={<Landing />} />
+        <Route path="/login"      element={<Login />} />
+        <Route path="/register"   element={<UserRegister />} />
+        <Route path="/check-scam" element={<ScamChecker />} />
+        <Route path="/trending"   element={<Trending />} />
 
-        {/* Admin Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />
+        {/* Admin */}
+        <Route path="/dashboard"  element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />
         <Route path="/complaints" element={<ProtectedRoute allowedRole="admin"><Complaints /></ProtectedRoute>} />
 
-        {/* User Routes */}
-        <Route path="/user-dashboard" element={<ProtectedRoute allowedRole="user"><UserDashboard /></ProtectedRoute>} />
+        {/* User */}
+        <Route path="/user-dashboard"   element={<ProtectedRoute allowedRole="user"><UserDashboard /></ProtectedRoute>} />
         <Route path="/submit-complaint" element={<ProtectedRoute allowedRole="user"><SubmitComplaint /></ProtectedRoute>} />
-        <Route path="/my-complaints" element={<ProtectedRoute allowedRole="user"><MyComplaints /></ProtectedRoute>} />
+        <Route path="/my-complaints"    element={<ProtectedRoute allowedRole="user"><MyComplaints /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={

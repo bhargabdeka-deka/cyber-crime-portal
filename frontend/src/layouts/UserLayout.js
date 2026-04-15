@@ -2,9 +2,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 const NAV = [
-  { path: "/user-dashboard", icon: "⊞", label: "Dashboard" },
+  { path: "/user-dashboard",   icon: "⊞", label: "Dashboard" },
+  { path: "/check-scam",       icon: "🔍", label: "Scam Checker" },
+  { path: "/trending",         icon: "🔥", label: "Trending Scams" },
   { path: "/submit-complaint", icon: "＋", label: "Submit Complaint" },
-  { path: "/my-complaints", icon: "☰", label: "My Complaints" },
+  { path: "/my-complaints",    icon: "☰", label: "My Complaints" },
 ];
 
 const UserLayout = ({ children }) => {
