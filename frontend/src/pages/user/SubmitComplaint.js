@@ -25,6 +25,7 @@ export default function SubmitComplaint() {
   const [status, setStatus] = useState({ type: "", msg: "" });
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [scamIntel, setScamIntel] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,8 +56,17 @@ export default function SubmitComplaint() {
       if (formData.evidence) data.append("evidence", formData.evidence);
 
       await API.post("/complaints", data, { headers: { "Content-Type": "multipart/form-data" } });
-      setStatus({ type: "success", msg: "Complaint submitted! Redirecting..." });
-      setTimeout(() => navigate("/my-complaints"), 1800);
+
+      // Fetch scam intel for the target to show feedback
+      if (formData.scamTarget) {
+        try {
+          const intel = await API.get("/scam/check", { params: { query: formData.scamTarget } });
+          setScamIntel(intel.data);
+        } catch {}
+      }
+
+      setStatus({ type: "success", msg: "Complaint submitted successfully!" });
+      setTimeout(() => navigate("/my-complaints"), 3000);
     } catch (err) {
       setStatus({ type: "error", msg: err.response?.data?.message || "Failed to submit. Try again." });
     } finally { setLoading(false); }
@@ -75,6 +85,24 @@ export default function SubmitComplaint() {
         {status.msg && (
           <div style={{ background: status.type === "success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${status.type === "success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`, color: status.type === "success" ? "#6ee7b7" : "#fca5a5", padding: "12px 16px", borderRadius: 10, fontSize: 14, marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
             {status.type === "success" ? "✅" : "⚠️"} {status.msg}
+          </div>
+        )}
+
+        {/* Scam Intel Feedback after submit */}
+        {scamIntel && status.type === "success" && (
+          <div style={{ background: scamIntel.reports > 0 ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)", border: `1px solid ${scamIntel.reports > 0 ? "rgba(239,68,68,0.25)" : "rgba(16,185,129,0.25)"}`, borderRadius: 12, padding: "16px 18px", marginBottom: 20 }}>
+            <div style={{ color: "white", fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+              {scamIntel.reports > 1
+                ? `⚠️ This target has been reported ${scamIntel.reports} times in our database.`
+                : scamIntel.reports === 1
+                ? "📋 This is the first report for this target. Thank you for reporting!"
+                : "✅ No previous reports found for this target. Your report has been recorded."}
+            </div>
+            {scamIntel.reports > 0 && (
+              <div style={{ color: "#94a3b8", fontSize: 13 }}>
+                Category: {scamIntel.category} · Risk Level: {scamIntel.riskLevel} · Avg Risk Score: {scamIntel.avgRiskScore}
+              </div>
+            )}
           </div>
         )}
 
