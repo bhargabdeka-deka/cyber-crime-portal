@@ -74,10 +74,37 @@ const checkScam = async (req, res) => {
 };
 
 // ── GET /api/scam/check?query= ────────────────────────────────────────────────
-// Public. Query param version (for GET requests from frontend).
 const checkScamGet = async (req, res) => {
-  req.body = { value: req.query.query };
-  return checkScam(req, res);
+  try {
+    const value = req.query.query;
+    if (!value || value.trim().length < 3)
+      return res.status(400).json({ message: "Please provide a valid phone, URL, or UPI ID." });
+
+    const scam = await Scam.findOne({ value: value.trim().toLowerCase() });
+
+    if (!scam) {
+      return res.json({
+        status: "SAFE", verdict: "safe",
+        verdictLabel: "No Reports Found", verdictColor: "#10b981",
+        reports: 0, riskLevel: "LOW",
+        message: "This number/link has not been reported in our database.",
+        value: value.trim()
+      });
+    }
+
+    const { verdict, label, color } = riskToVerdict(scam.riskLevel, scam.reports);
+    return res.json({
+      status: "SCAM", verdict,
+      verdictLabel: label, verdictColor: color,
+      value: scam.value, type: scam.type,
+      reports: scam.reports, riskLevel: scam.riskLevel,
+      avgRiskScore: scam.avgRiskScore, category: scam.category,
+      description: scam.description, locations: scam.locations,
+      lastReportedAt: scam.lastReportedAt, relatedCaseIds: scam.relatedCaseIds
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // ── GET /api/scam/trending ────────────────────────────────────────────────────
