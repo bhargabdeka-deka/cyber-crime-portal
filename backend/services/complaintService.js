@@ -150,10 +150,23 @@ const getAnalyticsService = async () => {
     count: item.count
   }));
 
+  const priorityDistribution = await Complaint.aggregate([
+    { $group: { _id: "$priority", count: { $sum: 1 } } }
+  ]);
+
+  const formattedPriorityDistribution = priorityDistribution.map(item => ({
+    priority: item._id,
+    count: item.count
+  }));
+
+  const criticalCases = await Complaint.countDocuments({ priority: "Critical" });
+
   return {
     monthlyTrend: formattedMonthlyTrend,
     crimeDistribution: formattedCrimeDistribution,
-    statusDistribution: formattedStatusDistribution
+    statusDistribution: formattedStatusDistribution,
+    priorityDistribution: formattedPriorityDistribution,
+    criticalCases
   };
 };
 

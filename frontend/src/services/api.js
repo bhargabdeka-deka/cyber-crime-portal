@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://cyber-crime-portal-2.onrender.com/api"
+  baseURL: process.env.REACT_APP_API_URL
+    ? `${process.env.REACT_APP_API_URL}/api`
+    : "https://cyber-crime-portal-2.onrender.com/api"
 });
 
 // Attach token automatically

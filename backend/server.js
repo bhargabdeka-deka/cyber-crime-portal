@@ -19,7 +19,10 @@ app.use(helmet());
 // ================= CORS =================
 app.use(
   cors({
-    origin: "https://cyber-crime-fronten.onrender.com",
+    origin: [
+      "http://localhost:3000",
+      "https://cyber-crime-fronten.onrender.com",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })

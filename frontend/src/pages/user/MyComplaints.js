@@ -1,235 +1,245 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
-/* ================= HELPER FUNCTIONS ================= */
-
-const getRiskLabel = (score) => {
-  if (score >= 80) return "HIGH";
-  if (score >= 50) return "MEDIUM";
-  return "LOW";
+const statusMeta = {
+  Pending:       { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)",  icon: "⏳" },
+  Investigating: { color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)",  icon: "🔍" },
+  Resolved:      { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)",  icon: "✅" },
 };
 
-const getRiskBadgeStyle = (score) => {
-  if (score >= 80)
-    return {
-      background: "#ef4444",
-      color: "white",
-      padding: "4px 10px",
-      borderRadius: "20px",
-      fontWeight: "bold"
-    };
-
-  if (score >= 50)
-    return {
-      background: "#f59e0b",
-      color: "white",
-      padding: "4px 10px",
-      borderRadius: "20px",
-      fontWeight: "bold"
-    };
-
-  return {
-    background: "#10b981",
-    color: "white",
-    padding: "4px 10px",
-    borderRadius: "20px",
-    fontWeight: "bold"
-  };
+const priorityMeta = {
+  Critical: { color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.25)" },
+  High:     { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)" },
+  Medium:   { color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)" },
+  Low:      { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)" },
 };
 
-const getStepStyle = (currentStatus, step) => {
-  const active = currentStatus === step;
-
-  return {
-    padding: "4px 8px",
-    borderRadius: "20px",
-    fontSize: "12px",
-    background: active ? "#3b82f6" : "#e5e7eb",
-    color: active ? "white" : "#555",
-    fontWeight: active ? "600" : "400"
-  };
+const riskMeta = (score) => {
+  if (score >= 80) return { label: "High",   color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.25)" };
+  if (score >= 50) return { label: "Medium", color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)" };
+  return               { label: "Low",    color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)" };
 };
 
-/* ================= COMPONENT ================= */
+const buildImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${BASE_URL}/${path.replace(/^\/+/, "")}`;
+};
 
-const MyComplaints = () => {
+const STEPS = ["Pending", "Investigating", "Resolved"];
+
+export default function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState("All");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchComplaints();
+    API.get("/complaints/my")
+      .then(res => setComplaints(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchComplaints = async () => {
-    try {
-      const res = await API.get("/complaints/my");
-      setComplaints(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error("Failed to fetch complaints");
-      setLoading(false);
-    }
-  };
-
-  const openComplaintDetails = async (id) => {
+  const openDetails = async (id) => {
     try {
       const res = await API.get(`/complaints/${id}`);
-      setSelectedComplaint(res.data);
-    } catch (error) {
-      console.error("Failed to fetch complaint details", error);
-    }
+      setSelected(res.data);
+    } catch {}
   };
 
-  /* ✅ FIXED FUNCTION (Cloudinary Compatible) */
-  const buildImageUrl = (path) => {
-    if (!path) return null;
-
-    // If already Cloudinary full URL → return directly
-    if (path.startsWith("http")) {
-      return path;
-    }
-
-    // If old local upload path → prefix backend URL
-    const cleanPath = path.replace(/^\/+/, "");
-    return `${BASE_URL}/${cleanPath}`;
-  };
+  const filtered = filter === "All" ? complaints : complaints.filter(c => c.status === filter);
 
   if (loading) {
     return (
       <UserLayout>
-        <p>Loading complaints...</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ width: 36, height: 36, border: "3px solid rgba(59,130,246,0.3)", borderTop: "3px solid #3b82f6", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
+            <p style={{ color: "#64748b", fontSize: 14 }}>Loading complaints...</p>
+          </div>
+        </div>
       </UserLayout>
     );
   }
 
   return (
     <UserLayout>
-      <h2 style={{ marginBottom: "20px" }}>My Complaints</h2>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>My Complaints</h1>
+          <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>{complaints.length} complaint{complaints.length !== 1 ? "s" : ""} filed</p>
+        </div>
+        <button onClick={() => navigate("/submit-complaint")}
+          style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+          + New Complaint
+        </button>
+      </div>
 
-      {complaints.length === 0 ? (
-        <p>No complaints submitted yet.</p>
-      ) : (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Case ID</th>
-              <th style={styles.th}>Crime Type</th>
-              <th style={styles.th}>Priority</th>
-              <th style={styles.th}>Risk</th>
-              <th style={styles.th}>Status</th>
-              <th style={styles.th}>Date</th>
-              <th style={styles.th}>Evidence</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {complaints.map((c) => (
-              <tr
-                key={c._id}
-                style={styles.tr}
-                onClick={() => openComplaintDetails(c._id)}
-              >
-                <td style={styles.td}>{c.caseId}</td>
-                <td style={styles.td}>{c.crimeType}</td>
-                <td style={styles.td}>{c.priority}</td>
-
-                <td style={styles.td}>
-                  <span style={getRiskBadgeStyle(c.riskScore)}>
-                    {getRiskLabel(c.riskScore)}
-                  </span>
-                </td>
-
-                <td style={styles.td}>
-                  <div style={styles.timeline}>
-                    <span style={getStepStyle(c.status, "Pending")}>
-                      Pending
-                    </span>
-                    <span style={getStepStyle(c.status, "Investigating")}>
-                      Investigating
-                    </span>
-                    <span style={getStepStyle(c.status, "Resolved")}>
-                      Resolved
-                    </span>
-                  </div>
-                </td>
-
-                <td style={styles.td}>
-                  {new Date(c.createdAt).toLocaleDateString()}
-                </td>
-
-                <td
-                  style={styles.td}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {c.evidence ? (
-                    <a
-                      href={buildImageUrl(c.evidence)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View
-                    </a>
-                  ) : (
-                    "No File"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Filter Tabs */}
+      {complaints.length > 0 && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+          {["All", "Pending", "Investigating", "Resolved"].map(f => (
+            <button key={f} onClick={() => setFilter(f)}
+              style={{ padding: "6px 16px", borderRadius: 20, border: filter === f ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)", background: filter === f ? "rgba(59,130,246,0.15)" : "transparent", color: filter === f ? "#60a5fa" : "#64748b", cursor: "pointer", fontSize: 13, fontWeight: filter === f ? 600 : 400 }}>
+              {f} {f === "All" ? `(${complaints.length})` : `(${complaints.filter(c => c.status === f).length})`}
+            </button>
+          ))}
+        </div>
       )}
 
-      {selectedComplaint && (
-        <div
-          style={styles.modalOverlay}
-          onClick={() => setSelectedComplaint(null)}
-        >
-          <div
-            style={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Complaint Details</h3>
+      {/* Empty State */}
+      {complaints.length === 0 ? (
+        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "60px 24px", textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
+          <h3 style={{ color: "white", fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>No complaints yet</h3>
+          <p style={{ color: "#64748b", fontSize: 14, margin: "0 0 20px" }}>When you file a complaint, it will appear here.</p>
+          <button onClick={() => navigate("/submit-complaint")}
+            style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 22px", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+            File First Complaint
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "40px 24px", textAlign: "center" }}>
+          <p style={{ color: "#64748b", fontSize: 14 }}>No {filter} complaints.</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {filtered.map(c => {
+            const sm = statusMeta[c.status] || statusMeta.Pending;
+            const pm = priorityMeta[c.priority] || priorityMeta.Low;
+            const rm = riskMeta(c.riskScore);
+            return (
+              <div key={c._id} onClick={() => openDetails(c._id)}
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "16px 20px", cursor: "pointer", transition: "border-color 0.2s, background 0.2s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"; e.currentTarget.style.background = "rgba(59,130,246,0.04)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
 
-            <p><strong>Case ID:</strong> {selectedComplaint.caseId}</p>
-            <p><strong>Crime Type:</strong> {selectedComplaint.crimeType}</p>
-            <p><strong>Priority:</strong> {selectedComplaint.priority}</p>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  {/* Left */}
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ color: "white", fontSize: 14, fontWeight: 700 }}>{c.caseId}</span>
+                      <span style={{ background: pm.bg, color: pm.color, border: `1px solid ${pm.border}`, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{c.priority}</span>
+                    </div>
+                    <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 4 }}>{c.title}</div>
+                    <div style={{ color: "#64748b", fontSize: 12 }}>{c.crimeType} · {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+                  </div>
 
-            <p>
-              <strong>Risk Level:</strong>{" "}
-              <span style={getRiskBadgeStyle(selectedComplaint.riskScore)}>
-                {getRiskLabel(selectedComplaint.riskScore)}
-              </span>
-            </p>
+                  {/* Right */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ background: rm.bg, color: rm.color, border: `1px solid ${rm.border}`, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                      Risk {rm.label} · {c.riskScore}
+                    </span>
+                    <span style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}`, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                      {sm.icon} {c.status}
+                    </span>
+                  </div>
+                </div>
 
-            <p><strong>Status:</strong> {selectedComplaint.status}</p>
+                {/* Progress bar */}
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ display: "flex", gap: 0 }}>
+                    {STEPS.map((step, i) => {
+                      const stepIdx = STEPS.indexOf(c.status);
+                      const done = i <= stepIdx;
+                      return (
+                        <div key={step} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: i === 0 ? "flex-start" : i === STEPS.length - 1 ? "flex-end" : "center" }}>
+                          <div style={{ height: 3, width: "100%", background: done ? sm.color : "rgba(255,255,255,0.07)", borderRadius: i === 0 ? "2px 0 0 2px" : i === STEPS.length - 1 ? "0 2px 2px 0" : 0, transition: "background 0.3s" }} />
+                          <span style={{ color: done ? sm.color : "#475569", fontSize: 10, marginTop: 4 }}>{step}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-            <p><strong>Description:</strong></p>
-            <p>{selectedComplaint.description}</p>
+      {/* MODAL */}
+      {selected && (
+        <div onClick={() => setSelected(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, width: "100%", maxWidth: 520, maxHeight: "85vh", overflowY: "auto", padding: 28 }}>
 
-            {selectedComplaint.evidence && (
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
               <div>
-                <p><strong>Evidence:</strong></p>
-                <img
-                  src={buildImageUrl(selectedComplaint.evidence)}
-                  alt="Evidence"
-                  style={{
-                    width: "100%",
-                    marginTop: "10px",
-                    borderRadius: "8px",
-                    objectFit: "cover"
-                  }}
-                />
+                <h3 style={{ color: "white", fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>{selected.caseId}</h3>
+                <span style={{ color: "#64748b", fontSize: 13 }}>{selected.crimeType}</span>
+              </div>
+              <button onClick={() => setSelected(null)}
+                style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            </div>
+
+            {/* Badges */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+              {[
+                { label: `${(statusMeta[selected.status] || statusMeta.Pending).icon} ${selected.status}`, meta: statusMeta[selected.status] || statusMeta.Pending },
+                { label: selected.priority, meta: priorityMeta[selected.priority] || priorityMeta.Low },
+                { label: `Risk ${riskMeta(selected.riskScore).label} · ${selected.riskScore}`, meta: riskMeta(selected.riskScore) },
+              ].map((b, i) => (
+                <span key={i} style={{ background: b.meta.bg, color: b.meta.color, border: `1px solid ${b.meta.border}`, padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{b.label}</span>
+              ))}
+            </div>
+
+            {/* Description */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ color: "#64748b", fontSize: 12, marginBottom: 6 }}>DESCRIPTION</div>
+              <p style={{ color: "#e2e8f0", fontSize: 14, lineHeight: 1.7, margin: 0, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "12px 14px" }}>
+                {selected.description}
+              </p>
+            </div>
+
+            {/* Status Timeline */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ color: "#64748b", fontSize: 12, marginBottom: 10 }}>STATUS TIMELINE</div>
+              <div style={{ display: "flex", gap: 0 }}>
+                {STEPS.map((step, i) => {
+                  const stepIdx = STEPS.indexOf(selected.status);
+                  const done = i <= stepIdx;
+                  const sm = statusMeta[selected.status] || statusMeta.Pending;
+                  return (
+                    <div key={step} style={{ flex: 1, textAlign: "center" }}>
+                      <div style={{ height: 4, background: done ? sm.color : "rgba(255,255,255,0.07)", borderRadius: i === 0 ? "2px 0 0 2px" : i === STEPS.length - 1 ? "0 2px 2px 0" : 0 }} />
+                      <span style={{ color: done ? sm.color : "#475569", fontSize: 11, marginTop: 6, display: "block" }}>{step}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Date */}
+            <div style={{ color: "#64748b", fontSize: 12, marginBottom: 20 }}>
+              Filed on {new Date(selected.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+            </div>
+
+            {/* Evidence */}
+            {selected.evidence && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>EVIDENCE</div>
+                {selected.evidence.match(/\.(jpg|jpeg|png|gif|webp)$/i) || selected.evidence.startsWith("http") ? (
+                  <img src={buildImageUrl(selected.evidence)} alt="Evidence"
+                    style={{ width: "100%", borderRadius: 10, objectFit: "cover", maxHeight: 240, border: "1px solid rgba(255,255,255,0.08)" }} />
+                ) : null}
+                <a href={buildImageUrl(selected.evidence)} target="_blank" rel="noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, color: "#60a5fa", fontSize: 13, textDecoration: "none" }}>
+                  📎 View / Download Evidence
+                </a>
               </div>
             )}
 
-            <button
-              style={styles.closeBtn}
-              onClick={() => setSelectedComplaint(null)}
-            >
+            <button onClick={() => setSelected(null)}
+              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "11px", borderRadius: 8, cursor: "pointer", fontSize: 14 }}>
               Close
             </button>
           </div>
@@ -237,70 +247,4 @@ const MyComplaints = () => {
       )}
     </UserLayout>
   );
-};
-
-/* ================= STYLES ================= */
-
-const styles = {
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    background: "white",
-    borderRadius: "10px",
-    overflow: "hidden",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
-  },
-  th: {
-    padding: "12px",
-    textAlign: "center",
-    background: "#f3f4f6",
-    fontWeight: "600",
-    borderBottom: "1px solid #e5e7eb"
-  },
-  td: {
-    padding: "12px",
-    textAlign: "center",
-    borderBottom: "1px solid #f1f1f1"
-  },
-  tr: {
-    cursor: "pointer",
-    transition: "0.2s"
-  },
-  timeline: {
-    display: "flex",
-    gap: "6px",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  modalOverlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "rgba(0,0,0,0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000
-  },
-  modal: {
-    background: "white",
-    padding: "25px",
-    width: "500px",
-    borderRadius: "12px",
-    maxHeight: "80vh",
-    overflowY: "auto"
-  },
-  closeBtn: {
-    marginTop: "20px",
-    padding: "8px 15px",
-    background: "#ef4444",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer"
-  }
-};
-
-export default MyComplaints;
+}
