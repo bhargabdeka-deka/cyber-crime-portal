@@ -3,17 +3,12 @@ const { protect, adminOnly } = require("../middleware/authMiddleware");
 const { validateComplaint, validateStatusUpdate, handleValidationErrors } = require("../validators/complaintValidator");
 const {
   createComplaint, getUserComplaints, getAllComplaints,
-  updateComplaintStatus, getDashboardStats, getAnalytics,
-  checkScam, getTrendingScams
+  updateComplaintStatus, getDashboardStats, getAnalytics
 } = require("../controllers/complaintController");
 const upload = require("../middleware/uploadMiddleware");
 const Complaint = require("../models/Complaint");
 
 const router = express.Router();
-
-// ── PUBLIC (no auth needed) ──────────────────────────────
-router.get("/check",    checkScam);        // GET /api/complaints/check?query=9876543210
-router.get("/trending", getTrendingScams); // GET /api/complaints/trending
 
 // ── USER ─────────────────────────────────────────────────
 router.post("/", protect, upload.single("evidence"), validateComplaint, handleValidationErrors, createComplaint);
