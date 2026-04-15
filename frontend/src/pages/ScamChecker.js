@@ -21,6 +21,9 @@ export default function ScamChecker() {
   const navigate = useNavigate();
   const w = useWindowWidth();
   const isMobile = w < 640;
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isLoggedIn = !!localStorage.getItem("token") && !!user;
+  const initials = user?.name ? user.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "";
 
   // Auto-check if URL has a value param
   useEffect(() => {
@@ -76,9 +79,22 @@ export default function ScamChecker() {
           <span style={{ fontSize:18 }}>⚔️</span>
           <span style={{ fontWeight:700, fontSize:15 }}>CyberShield</span>
         </div>
-        <div style={{ display:"flex", gap:8 }}>
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
           <button onClick={() => navigate("/trending")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:13 }}>🔥 Trending</button>
-          <button onClick={() => navigate("/login")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"6px 14px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Login</button>
+          {isLoggedIn ? (
+            <>
+              <button onClick={() => navigate(user.role === "admin" ? "/dashboard" : "/user-dashboard")}
+                style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:13 }}>
+                Dashboard
+              </button>
+              <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", padding:"4px 12px 4px 6px", borderRadius:8 }}>
+                <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:11, fontWeight:700 }}>{initials}</div>
+                <span style={{ color:"white", fontSize:13, fontWeight:500 }}>{user.name?.split(" ")[0]}</span>
+              </div>
+            </>
+          ) : (
+            <button onClick={() => navigate("/login")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"6px 14px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Login</button>
+          )}
         </div>
       </nav>
 

@@ -17,6 +17,9 @@ export default function Trending() {
   const navigate = useNavigate();
   const w = useWindowWidth();
   const isMobile = w < 640;
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isLoggedIn = !!localStorage.getItem("token") && !!user;
+  const initials = user?.name ? user.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "";
 
   useEffect(() => {
     API.get("/scam/trending")
@@ -35,9 +38,22 @@ export default function Trending() {
           <span style={{ fontSize: 20 }}>⚔️</span>
           <span style={{ fontWeight: 700, fontSize: 16 }}>CyberShield</span>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={() => navigate("/check-scam")} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "7px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Scam Checker</button>
-          <button onClick={() => navigate("/login")} style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "7px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Login</button>
+          {isLoggedIn ? (
+            <>
+              <button onClick={() => navigate(user.role === "admin" ? "/dashboard" : "/user-dashboard")}
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "7px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>
+                Dashboard
+              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "5px 12px 5px 6px", borderRadius: 8 }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 11, fontWeight: 700 }}>{initials}</div>
+                <span style={{ color: "white", fontSize: 13, fontWeight: 500 }}>{user.name?.split(" ")[0]}</span>
+              </div>
+            </>
+          ) : (
+            <button onClick={() => navigate("/login")} style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "7px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Login</button>
+          )}
         </div>
       </nav>
 
