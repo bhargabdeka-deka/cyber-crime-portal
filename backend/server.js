@@ -17,23 +17,37 @@ const app = express();
 app.use(helmet());
 
 // ================= CORS =================
-// ================= CORS =================
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://cyber-crime-fronten.onrender.com",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://cyber-crime-fronten.onrender.com",
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (Postman, mobile apps, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
-
 app.options("*", cors());
 
 // ================= Middleware =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Handle malformed JSON body gracefully
+app.use((err, req, res, next) => {
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({ success: false, message: "Invalid JSON in request body" });
+  }
+  next(err);
+});
 
 // ================= Static Upload Folder =================
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
