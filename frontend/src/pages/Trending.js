@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import useWindowWidth from "../hooks/useWindowWidth";
 
 const scamTypeIcon = {
   "UPI Fraud": "💳", "Phishing": "🎣", "Job Scam": "💼",
@@ -14,6 +15,8 @@ export default function Trending() {
   const [data, setData]     = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const w = useWindowWidth();
+  const isMobile = w < 640;
 
   useEffect(() => {
     API.get("/scam/trending")
@@ -38,7 +41,7 @@ export default function Trending() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "80px 16px 40px" : "60px 24px", position: "relative", zIndex: 1 }}>
 
         {/* Header */}
         <div style={{ marginBottom: 40 }}>
@@ -61,7 +64,7 @@ export default function Trending() {
         ) : (
           <>
             {/* Stats row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 36 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 32 }}>
               {[
                 { icon: "📋", label: "Unique Scam Targets", value: data.stats?.totalScams    || 0, color: "#60a5fa" },
                 { icon: "🔥", label: "Active This Week",    value: data.stats?.recentCount   || 0, color: "#f59e0b" },
@@ -76,7 +79,7 @@ export default function Trending() {
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 20 }}>
 
               {/* Top Scam Categories */}
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
@@ -139,7 +142,7 @@ export default function Trending() {
             {data.topTargets?.length > 5 && (
               <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px", marginBottom: 24 }}>
                 <h3 style={{ color: "white", fontSize: 15, fontWeight: 600, margin: "0 0 18px" }}>🎯 All Reported Numbers / Links</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
                   {data.topTargets.map((t, i) => (
                     <div key={t.value}
                       style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

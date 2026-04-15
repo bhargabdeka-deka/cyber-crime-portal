@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import useWindowWidth from "../hooks/useWindowWidth";
 
 const verdictConfig = {
   safe:      { color: "#10b981", bg: "rgba(16,185,129,0.1)",  border: "rgba(16,185,129,0.3)",  icon: "✅", title: "No Reports Found",   sub: "This number/link has not been reported in our database." },
@@ -15,6 +16,8 @@ export default function ScamChecker() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
   const navigate = useNavigate();
+  const w = useWindowWidth();
+  const isMobile = w < 640;
 
   const handleCheck = async (e) => {
     e.preventDefault();
@@ -47,7 +50,7 @@ export default function ScamChecker() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "60px 24px", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: isMobile ? "80px 16px 40px" : "60px 24px", position: "relative", zIndex: 1 }}>
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -101,7 +104,7 @@ export default function ScamChecker() {
                   <div style={{ color: "#94a3b8", fontSize: 14, marginTop: 2 }}>{vc.sub}</div>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
                 {[
                   { label: "Reports Found",  value: result.reports },
                   { label: "Avg Risk Score", value: result.avgRiskScore || result.avgRisk || "—" },
@@ -175,7 +178,7 @@ export default function ScamChecker() {
 
         {/* How it works */}
         {!result && !loading && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginTop: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 16 }}>
             {[
               { icon: "📱", title: "Phone Numbers", desc: "Check if a number has been reported for fraud calls or SMS scams." },
               { icon: "🔗", title: "URLs & Links", desc: "Verify if a website or link is a known phishing or scam site." },

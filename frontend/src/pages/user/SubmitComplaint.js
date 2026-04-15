@@ -3,6 +3,7 @@ import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import UserLayout from "../../layouts/UserLayout";
 import analyzeComplaint from "../../utils/riskAnalyzer";
+import useWindowWidth from "../../hooks/useWindowWidth";
 
 const SCAM_TYPES = [
   "UPI Fraud","Phishing","Job Scam","Lottery Scam",
@@ -73,6 +74,8 @@ export default function SubmitComplaint() {
   };
 
   const meta = analysis ? (priorityMeta[analysis.priority] || priorityMeta.Low) : null;
+  const w = useWindowWidth();
+  const isMobile = w < 640;
 
   return (
     <UserLayout>
@@ -118,7 +121,7 @@ export default function SubmitComplaint() {
             </div>
 
             {/* Scam Type + Target row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
               <div>
                 <label style={lbl}>Scam Type</label>
                 <select name="scamType" value={formData.scamType} onChange={handleChange}
@@ -157,7 +160,7 @@ export default function SubmitComplaint() {
             {analysis && meta && (
               <div style={{ background: meta.bg, border: `1px solid ${meta.border}`, borderRadius: 10, padding: "14px 16px" }}>
                 <div style={{ color: meta.color, fontWeight: 600, fontSize: 13, marginBottom: 10 }}>⚡ AI Analysis Preview</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 12 }}>
                   <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Crime Type</div><div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{analysis.crimeType}</div></div>
                   <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Scam Type</div><div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{analysis.scamType}</div></div>
                   <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Priority</div><span style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color, padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{meta.icon} {analysis.priority}</span></div>

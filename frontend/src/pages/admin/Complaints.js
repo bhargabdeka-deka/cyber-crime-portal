@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
+import useWindowWidth from "../../hooks/useWindowWidth";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -44,6 +45,8 @@ export default function Complaints() {
   const [selected, setSelected]         = useState(null);
   const [updating, setUpdating]         = useState(null);
   const [toast, setToast]               = useState(null);
+  const w = useWindowWidth();
+  const isMobile = w < 768;
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -149,12 +152,14 @@ export default function Complaints() {
       ) : (
         <>
           <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, overflow: "hidden" }}>
-            {/* Table Header */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.2fr 0.8fr 0.8fr 1.4fr 0.7fr 0.6fr", gap: 0, padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
-              {["Case ID", "User", "Crime Type", "Priority", "Risk", "Status", "Date", "Evidence"].map(h => (
-                <div key={h} style={{ color: "#64748b", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</div>
-              ))}
-            </div>
+            {/* Table Header — desktop only */}
+            {!isMobile && (
+              <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.2fr 0.8fr 0.8fr 1.4fr 0.7fr 0.6fr", gap: 0, padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+                {["Case ID", "User", "Crime Type", "Priority", "Risk", "Status", "Date", "Evidence"].map(h => (
+                  <div key={h} style={{ color: "#64748b", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</div>
+                ))}
+              </div>
+            )}
 
             {/* Rows */}
             {complaints.map((c, idx) => {
@@ -162,6 +167,36 @@ export default function Complaints() {
               const sm = statusMeta[c.status] || statusMeta.Pending;
               const rm = riskMeta(c.riskScore);
               const isCritical = c.priority === "Critical";
+
+              if (isMobile) {
+                return (
+                  <div key={c._id} onClick={() => setSelected(c)}
+                    style={{ padding:"14px 16px", borderBottom: idx < complaints.length-1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCritical ? "rgba(239,68,68,0.04)" : "transparent", borderLeft: isCritical ? "3px solid rgba(239,68,68,0.5)" : "3px solid transparent", cursor:"pointer" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                      <div>
+                        <div style={{ color:"white", fontSize:13, fontWeight:700 }}>{c.caseId}</div>
+                        <div style={{ color:"#64748b", fontSize:12, marginTop:2 }}>{c.user?.name} · {c.crimeType}</div>
+                      </div>
+                      <span style={{ background:pm.bg, color:pm.color, border:`1px solid ${pm.border}`, padding:"2px 8px", borderRadius:20, fontSize:11, fontWeight:600, flexShrink:0 }}>{c.priority}</span>
+                    </div>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8 }}>
+                      <div onClick={e => e.stopPropagation()}>
+                        <select value={c.status} disabled={updating===c._id} onChange={e => handleStatusChange(c._id, e.target.value)}
+                          style={{ background:sm.bg, border:`1px solid ${sm.border}`, color:sm.color, padding:"5px 10px", borderRadius:8, fontSize:12, fontWeight:600, cursor:"pointer", outline:"none" }}>
+                          <option value="Pending" style={{ background:"#1e293b",color:"white" }}>⏳ Pending</option>
+                          <option value="Investigating" style={{ background:"#1e293b",color:"white" }}>🔍 Investigating</option>
+                          <option value="Resolved" style={{ background:"#1e293b",color:"white" }}>✅ Resolved</option>
+                        </select>
+                      </div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <span style={{ color:rm.color, fontSize:13, fontWeight:700 }}>Risk {c.riskScore}</span>
+                        <span style={{ color:"#64748b", fontSize:12 }}>{new Date(c.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div key={c._id}
                   style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.2fr 0.8fr 0.8fr 1.4fr 0.7fr 0.6fr", gap: 0, padding: "14px 20px", borderBottom: idx < complaints.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCritical ? "rgba(239,68,68,0.04)" : "transparent", borderLeft: isCritical ? "3px solid rgba(239,68,68,0.5)" : "3px solid transparent", cursor: "pointer", transition: "background 0.15s", alignItems: "center" }}
@@ -241,9 +276,9 @@ export default function Complaints() {
       {/* DETAIL MODAL */}
       {selected && (
         <div onClick={() => setSelected(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", display: "flex", alignItems: isMobile ? "flex-end" : "center", justifyContent: "center", zIndex: 1000, padding: isMobile ? 0 : 16 }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, width: "100%", maxWidth: 540, maxHeight: "88vh", overflowY: "auto", padding: 28 }}>
+            style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: isMobile ? "16px 16px 0 0" : 16, width: "100%", maxWidth: isMobile ? "100%" : 540, maxHeight: isMobile ? "90vh" : "88vh", overflowY: "auto", padding: isMobile ? "20px 16px" : 28 }}>
 
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>

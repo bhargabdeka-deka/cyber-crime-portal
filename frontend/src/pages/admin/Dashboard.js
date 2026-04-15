@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
+import useWindowWidth from "../../hooks/useWindowWidth";
 import {
   LineChart, Line, PieChart, Pie, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -46,6 +47,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const w = useWindowWidth();
+  const isMobile = w < 640;
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -119,7 +122,7 @@ export default function Dashboard() {
       )}
 
       {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 24 }}>
         {statCards.map(card => (
           <div key={card.label} style={{ background: card.bg, border: `1px solid ${card.border}`, borderRadius: 12, padding: "18px 16px" }}>
             <div style={{ fontSize: 22, marginBottom: 10 }}>{card.icon}</div>
@@ -130,7 +133,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr", gap: 16, marginBottom: 16 }}>
 
         {/* Monthly Trend */}
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
@@ -186,7 +189,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row 2 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
 
         {/* Status Distribution Bar */}
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>

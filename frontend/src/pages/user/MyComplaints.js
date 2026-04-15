@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
+import useWindowWidth from "../../hooks/useWindowWidth";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -38,6 +39,8 @@ export default function MyComplaints() {
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
+  const w = useWindowWidth();
+  const isMobile = w < 640;
 
   useEffect(() => {
     API.get("/complaints/my")
@@ -167,9 +170,9 @@ export default function MyComplaints() {
       {/* MODAL */}
       {selected && (
         <div onClick={() => setSelected(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(4px)", display:"flex", alignItems: isMobile ? "flex-end" : "center", justifyContent:"center", zIndex:1000, padding: isMobile ? 0 : 16 }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, width: "100%", maxWidth: 520, maxHeight: "85vh", overflowY: "auto", padding: 28 }}>
+            style={{ background:"#1e293b", border:"1px solid rgba(255,255,255,0.1)", borderRadius: isMobile ? "16px 16px 0 0" : 16, width:"100%", maxWidth: isMobile ? "100%" : 520, maxHeight: isMobile ? "90vh" : "85vh", overflowY:"auto", padding: isMobile ? "20px 16px" : 28 }}>
 
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
