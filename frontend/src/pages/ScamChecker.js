@@ -21,7 +21,7 @@ export default function ScamChecker() {
     if (!query.trim()) return;
     setLoading(true); setError(""); setResult(null);
     try {
-      const res = await API.post("/scam/check", { value: query.trim() });
+      const res = await API.get("/scam/check", { params: { query: query.trim() } });
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Check failed. Try again.");
