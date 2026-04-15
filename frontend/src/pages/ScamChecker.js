@@ -54,11 +54,11 @@ export default function ScamChecker() {
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ display: "inline-block", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd", padding: "5px 14px", borderRadius: 20, fontSize: 12, marginBottom: 16 }}>🔍 Scam Intelligence Database</div>
-          <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.5px" }}>
-            Check Before You <span style={{ background: "linear-gradient(135deg, #60a5fa, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Trust</span>
+          <div style={{ display: "inline-block", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd", padding: "5px 14px", borderRadius: 20, fontSize: 12, marginBottom: 16 }}>🔍 Community-powered scam database</div>
+          <h1 style={{ fontSize: "clamp(26px, 5vw, 38px)", fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.5px" }}>
+            Is this number safe?
           </h1>
-          <p style={{ color: "#94a3b8", fontSize: 16, margin: 0 }}>Search any phone number, URL, UPI ID, or email to check if it's been reported as a scam.</p>
+          <p style={{ color: "#94a3b8", fontSize: 15, margin: 0, lineHeight: 1.7 }}>Search any phone number, URL, UPI ID, or email to see if others have reported it as a scam.</p>
         </div>
 
         {/* Search Box */}
@@ -180,9 +180,9 @@ export default function ScamChecker() {
         {!result && !loading && (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 16 }}>
             {[
-              { icon: "📱", title: "Phone Numbers", desc: "Check if a number has been reported for fraud calls or SMS scams." },
-              { icon: "🔗", title: "URLs & Links", desc: "Verify if a website or link is a known phishing or scam site." },
-              { icon: "💳", title: "UPI / Email IDs", desc: "Check if a UPI ID or email has been used in financial fraud." },
+              { icon: "📱", title: "Phone numbers", desc: "Someone called you asking for OTP or money? Check if others reported the same number." },
+              { icon: "🔗", title: "Websites & links", desc: "Got a suspicious link on WhatsApp? Paste it here before clicking." },
+              { icon: "💳", title: "UPI & email IDs", desc: "Verify a UPI ID before sending money to someone you don't know." },
             ].map(c => (
               <div key={c.title} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "18px 16px" }}>
                 <div style={{ fontSize: 28, marginBottom: 10 }}>{c.icon}</div>

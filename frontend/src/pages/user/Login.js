@@ -42,7 +42,7 @@ export default function Login() {
               <span style={{ color:"white", fontWeight:700, fontSize:20 }}>CyberShield</span>
             </div>
             <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 12px", lineHeight:1.3 }}>Fight cyber crime with confidence.</h2>
-            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:14, lineHeight:1.6, margin:"0 0 28px" }}>Secure, AI-powered complaint management trusted by thousands.</p>
+            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:14, lineHeight:1.6, margin:"0 0 28px" }}>A platform to report and track cyber crime complaints — built for Indian citizens.</p>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {["AI Risk Analysis","Evidence Upload","Real-Time Tracking","Instant Alerts"].map(f => (
                 <div key={f} style={{ color:"rgba(255,255,255,0.8)", fontSize:14, display:"flex", alignItems:"center", gap:10 }}>

@@ -101,18 +101,16 @@ export default function Landing() {
       {/* HERO */}
       <section style={{ maxWidth:1200, margin:"0 auto", padding: isMobile ? "100px 16px 60px" : "130px 24px 80px", position:"relative", zIndex:1 }}>
         <div style={{ textAlign:"center", marginBottom: isMobile ? 32 : 48 }}>
-          <div style={{ display:"inline-block", background:"rgba(239,68,68,0.12)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"5px 14px", borderRadius:20, fontSize:12, marginBottom:16 }}>
-            🛡️ India's Scam Detection & Reporting Platform
+          <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.25)", color:"#fca5a5", padding:"4px 12px", borderRadius:6, fontSize:12, marginBottom:20, fontFamily:"monospace" }}>
+            ⚠️ Cyber scams are rising in India — stay protected
           </div>
-          <h1 style={{ fontSize: isMobile ? "clamp(28px,8vw,40px)" : "clamp(36px,6vw,64px)", fontWeight:800, lineHeight:1.1, margin:"0 0 16px", letterSpacing:"-1px" }}>
-            Check Before You<br />
-            <span style={{ background:"linear-gradient(135deg,#60a5fa,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Trust Anyone.</span>
+          <h1 style={{ fontSize: isMobile ? "clamp(26px,7vw,38px)" : "clamp(32px,5vw,56px)", fontWeight:800, lineHeight:1.15, margin:"0 0 18px", letterSpacing:"-0.5px" }}>
+            Got a suspicious call or link?<br />
+            <span style={{ color:"#60a5fa" }}>Check it here first.</span>
           </h1>
-          <p style={{ color:"#94a3b8", fontSize: isMobile ? 15 : 18, lineHeight:1.7, margin:"0 auto 32px", maxWidth:520, padding: isMobile ? "0 8px" : 0 }}>
-            Search any phone number, link, or UPI ID instantly. See if it's been reported as a scam.
-          </p>
-
-          {/* SCAM CHECKER */}
+          <p style={{ color:"#94a3b8", fontSize: isMobile ? 14 : 16, lineHeight:1.8, margin:"0 auto 32px", maxWidth:480, padding: isMobile ? "0 4px" : 0 }}>
+            CyberShield lets you look up any phone number, website, or UPI ID to see if others have reported it as a scam. Built to help people in India stay safe online.
+          </p>          {/* SCAM CHECKER */}
           <div ref={checkerRef} style={{ maxWidth:600, margin:"0 auto" }}>
             <form onSubmit={handleCheck}>
               <div style={{ display:"flex", flexDirection: isMobile ? "column" : "row", gap:8, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:14, padding:8 }}>
@@ -234,22 +232,22 @@ export default function Landing() {
 
       {/* HOW IT WORKS */}
       <section style={{ maxWidth:1200, margin:"0 auto", padding: isMobile ? "50px 16px" : "80px 24px", position:"relative", zIndex:1 }}>
-        <div style={{ textAlign:"center", marginBottom:36 }}>
-          <div style={{ display:"inline-block", background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", color:"#93c5fd", padding:"4px 12px", borderRadius:20, fontSize:12, marginBottom:12 }}>How It Works</div>
-          <h2 style={{ fontSize: isMobile ? 22 : 32, fontWeight:700, letterSpacing:"-0.5px" }}>Simple. Fast. Effective.</h2>
+        <div style={{ marginBottom:36 }}>
+          <h2 style={{ fontSize: isMobile ? 20 : 28, fontWeight:700, margin:"0 0 6px" }}>How does it work?</h2>
+          <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Pretty straightforward, honestly.</p>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: isMobile ? 12 : 20 }}>
+        <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: isMobile ? 12 : 16 }}>
           {[
-            { step:"01", icon:"🔍", title:"Check First", desc:"Enter any phone, URL, or UPI ID to see if it's been reported." },
-            { step:"02", icon:"📝", title:"Report a Scam", desc:"File a complaint with evidence. AI classifies it instantly." },
-            { step:"03", icon:"🧠", title:"AI Analysis", desc:"Every report updates our intelligence database." },
-            { step:"04", icon:"🛡️", title:"Stay Safe", desc:"The more people report, the smarter detection becomes." },
+            { num:"1", icon:"🔍", title:"Search anything", desc:"Type a phone number, website link, or UPI ID you're unsure about." },
+            { num:"2", icon:"📝", title:"File a report", desc:"If you got scammed, report it. Takes about 2 minutes." },
+            { num:"3", icon:"⚡", title:"AI checks it", desc:"Our system scores the complaint and flags the scam target." },
+            { num:"4", icon:"🛡️", title:"Others stay safe", desc:"Next person who searches that number sees your report." },
           ].map(item => (
-            <div key={item.step} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:12, padding: isMobile ? "16px 12px" : "22px 18px", textAlign:"center" }}>
-              <div style={{ fontSize: isMobile ? 24 : 30, marginBottom:8 }}>{item.icon}</div>
-              <div style={{ fontSize:10, color:"#475569", fontWeight:700, marginBottom:6, letterSpacing:"0.05em" }}>STEP {item.step}</div>
+            <div key={item.num} style={{ padding: isMobile ? "14px 10px" : "20px 16px", borderLeft: "2px solid rgba(59,130,246,0.3)" }}>
+              <div style={{ fontSize: isMobile ? 22 : 26, marginBottom:10 }}>{item.icon}</div>
+              <div style={{ color:"#3b82f6", fontSize:11, fontWeight:700, marginBottom:4 }}>0{item.num}</div>
               <h3 style={{ fontSize: isMobile ? 13 : 15, fontWeight:600, margin:"0 0 6px", color:"white" }}>{item.title}</h3>
-              <p style={{ color:"#64748b", fontSize: isMobile ? 11 : 13, lineHeight:1.5, margin:0 }}>{item.desc}</p>
+              <p style={{ color:"#64748b", fontSize: isMobile ? 11 : 13, lineHeight:1.6, margin:0 }}>{item.desc}</p>
             </div>
           ))}
         </div>
@@ -258,9 +256,9 @@ export default function Landing() {
       {/* FEATURES */}
       <section style={{ background:"rgba(255,255,255,0.02)", borderTop:"1px solid rgba(255,255,255,0.06)", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:1200, margin:"0 auto", padding: isMobile ? "50px 16px" : "80px 24px" }}>
-          <div style={{ textAlign:"center", marginBottom:36 }}>
-            <div style={{ display:"inline-block", background:"rgba(139,92,246,0.12)", border:"1px solid rgba(139,92,246,0.25)", color:"#c4b5fd", padding:"4px 12px", borderRadius:20, fontSize:12, marginBottom:12 }}>Features</div>
-            <h2 style={{ fontSize: isMobile ? 22 : 32, fontWeight:700, letterSpacing:"-0.5px" }}>Everything you need to stay safe</h2>
+          <div style={{ marginBottom:36 }}>
+            <h2 style={{ fontSize: isMobile ? 20 : 28, fontWeight:700, margin:"0 0 6px" }}>What CyberShield does</h2>
+            <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Built this to solve a real problem — too many people getting scammed with no way to check.</p>
           </div>
           <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: isMobile ? 10 : 16 }}>
             {[
@@ -285,8 +283,7 @@ export default function Landing() {
       <section style={{ position:"relative", zIndex:1, padding: isMobile ? "50px 16px" : "80px 24px", textAlign:"center" }}>
         <div style={{ maxWidth:520, margin:"0 auto" }}>
           <h2 style={{ fontSize: isMobile ? 22 : 34, fontWeight:700, margin:"0 0 12px", letterSpacing:"-0.5px" }}>Spotted a scam? Report it now.</h2>
-          <p style={{ color:"#94a3b8", fontSize: isMobile ? 14 : 15, margin:"0 0 28px" }}>Every report helps protect someone else from being scammed.</p>
-          <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
+          <p style={{ color:"#94a3b8", fontSize: isMobile ? 14 : 15, margin:"0 0 28px" }}>Every report helps protect someone else from being scammed.</p>          <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
             <button onClick={() => navigate("/register")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, flex: isMobile ? 1 : "none" }}>Create Free Account →</button>
             <button onClick={() => navigate("/check-scam")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, flex: isMobile ? 1 : "none" }}>Check a Number</button>
           </div>
