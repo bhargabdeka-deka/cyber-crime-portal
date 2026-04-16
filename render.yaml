@@ -2,10 +2,9 @@ services:
   - type: web
     name: cyber-crime-portal-2
     env: node
-    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
-    startCommand: cd backend && node server.js
+    rootDir: .
+    buildCommand: npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend
+    startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
         value: production
-      - key: REACT_APP_API_URL
-        sync: false

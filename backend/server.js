@@ -47,18 +47,22 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/scam",       scamRoutes);
 
 // ================= Serve React Frontend (Production) =================
+// Render runs from repo root, so path is relative to backend folder
 const frontendBuild = path.join(__dirname, "..", "frontend", "build");
 
 if (process.env.NODE_ENV === "production") {
-  // Serve static files from React build
   app.use(express.static(frontendBuild));
-
-  // ALL non-API routes → serve index.html (fixes 404 on refresh)
   app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendBuild, "index.html"));
+    const indexPath = path.join(frontendBuild, "index.html");
+    // Check file exists before sending
+    const fs = require("fs");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(200).json({ success: true, message: "API running. Frontend build not found." });
+    }
   });
 } else {
-  // Dev health check
   app.get("/", (req, res) => {
     res.json({ success: true, message: "Backend API running 🚀" });
   });
