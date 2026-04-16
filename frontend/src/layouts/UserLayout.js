@@ -19,7 +19,9 @@ function ProfileDropdown({ user, initials, onClose }) {
     <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, width:260, background:"#1e293b", border:"1px solid rgba(255,255,255,0.1)", borderRadius:14, boxShadow:"0 20px 60px rgba(0,0,0,0.5)", zIndex:200, overflow:"hidden" }}>
       {/* Header */}
       <div style={{ padding:"16px", borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", alignItems:"center", gap:12 }}>
-        <div style={{ width:44, height:44, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:16, fontWeight:800, flexShrink:0 }}>{initials}</div>
+        <div style={{ width:44, height:44, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:16, fontWeight:800, flexShrink:0, overflow:"hidden", padding:0 }}>
+        {user?.avatar ? <img src={user.avatar} alt="avatar" style={{ width:"100%", height:"100%", objectFit:"cover" }} /> : initials}
+      </div>
         <div style={{ minWidth:0 }}>
           <div style={{ color:"white", fontSize:14, fontWeight:700, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.name}</div>
           <div style={{ color:"#64748b", fontSize:12, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.email}</div>
@@ -83,8 +85,10 @@ export default function UserLayout({ children }) {
   const AvatarBtn = () => (
     <div ref={dropdownRef} style={{ position:"relative" }}>
       <button onClick={() => setDropdownOpen(!dropdownOpen)}
-        style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border: dropdownOpen ? "2px solid rgba(99,102,241,0.8)" : "2px solid transparent", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:13, fontWeight:700, cursor:"pointer", transition:"border-color 0.2s" }}>
-        {initials}
+        style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border: dropdownOpen ? "2px solid rgba(99,102,241,0.8)" : "2px solid transparent", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:13, fontWeight:700, cursor:"pointer", transition:"border-color 0.2s", overflow:"hidden", padding:0 }}>
+        {user?.avatar
+          ? <img src={user.avatar} alt="avatar" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+          : initials}
       </button>
       {dropdownOpen && <ProfileDropdown user={user} initials={initials} onClose={() => setDropdownOpen(false)} />}
     </div>

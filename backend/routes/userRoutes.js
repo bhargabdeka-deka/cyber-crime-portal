@@ -111,6 +111,20 @@ router.post(
   }
 );
 
+// ================= UPLOAD AVATAR =================
+router.post("/avatar", protect, require("../middleware/uploadMiddleware").single("avatar"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    user.avatar = req.file.path || req.file.secure_url || req.file.url;
+    await user.save();
+    res.json({ success: true, avatar: user.avatar });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Upload failed" });
+  }
+});
+
 // ================= UPDATE PROFILE =================
 router.put("/profile", protect, async (req, res) => {
   try {

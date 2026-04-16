@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
@@ -16,10 +16,13 @@ export default function Profile() {
     location: storedUser.location || "",
     bio:      storedUser.bio      || "",
   });
-  const [loading, setLoading]   = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [status, setStatus]     = useState({ type:"", msg:"" });
+  const [loading, setLoading]       = useState(false);
+  const [fetching, setFetching]     = useState(true);
+  const [status, setStatus]         = useState({ type:"", msg:"" });
   const [complaints, setComplaints] = useState([]);
+  const [avatar, setAvatar]         = useState(storedUser.avatar || "");
+  const [uploading, setUploading]   = useState(false);
+  const fileInputRef = useRef(null);
 
   const initials = form.name ? form.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "U";
 
@@ -28,11 +31,39 @@ export default function Profile() {
     API.get("/users/profile").then(res => {
       const u = res.data.user;
       setForm({ name: u.name||"", phone: u.phone||"", location: u.location||"", bio: u.bio||"" });
+      setAvatar(u.avatar || "");
     }).catch(() => {}).finally(() => setFetching(false));
 
     // Fetch complaint count
     API.get("/complaints/my").then(res => setComplaints(res.data)).catch(() => {});
   }, []);
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { setStatus({ type:"error", msg:"Image must be under 5MB" }); return; }
+
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatar(ev.target.result);
+    reader.readAsDataURL(file);
+
+    // Upload to server
+    setUploading(true);
+    try {
+      const data = new FormData();
+      data.append("avatar", file);
+      const res = await API.post("/users/avatar", data, { headers: { "Content-Type": "multipart/form-data" } });
+      setAvatar(res.data.avatar);
+      const current = JSON.parse(localStorage.getItem("user") || "{}");
+      localStorage.setItem("user", JSON.stringify({ ...current, avatar: res.data.avatar }));
+      setStatus({ type:"success", msg:"Profile photo updated!" });
+    } catch {
+      setStatus({ type:"error", msg:"Photo upload failed. Try again." });
+    } finally { setUploading(false); }
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -74,12 +105,26 @@ export default function Profile() {
 
           {/* Avatar + name */}
           <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:24, paddingBottom:20, borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ position:"relative" }}>
-              <div style={{ width:72, height:72, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:26, fontWeight:800, flexShrink:0 }}>
-                {initials}
+            <div style={{ position:"relative", cursor:"pointer" }} onClick={handleAvatarClick} title="Click to change photo">
+              {/* Hidden file input */}
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display:"none" }} />
+
+              {/* Avatar circle */}
+              <div style={{ width:72, height:72, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:26, fontWeight:800, flexShrink:0, overflow:"hidden", position:"relative" }}>
+                {avatar ? (
+                  <img src={avatar} alt="avatar" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                ) : initials}
+                {/* Hover overlay */}
+                <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", opacity:0, transition:"opacity 0.2s", borderRadius:"50%", fontSize:20 }}
+                  onMouseEnter={e => e.currentTarget.style.opacity=1}
+                  onMouseLeave={e => e.currentTarget.style.opacity=0}>
+                  📷
+                </div>
               </div>
-              <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, borderRadius:"50%", background:"#1e293b", border:"2px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11 }}>
-                ✏️
+
+              {/* Edit badge */}
+              <div style={{ position:"absolute", bottom:0, right:0, width:24, height:24, borderRadius:"50%", background: uploading ? "#f59e0b" : "#3b82f6", border:"2px solid #0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11 }}>
+                {uploading ? <span style={{ width:10, height:10, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "📷"}
               </div>
             </div>
             <div>
