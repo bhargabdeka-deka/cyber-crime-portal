@@ -111,6 +111,28 @@ router.post(
   }
 );
 
+// ================= UPDATE PROFILE =================
+router.put("/profile", protect, async (req, res) => {
+  try {
+    const { name, phone, location, bio } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (name)     user.name     = name.trim();
+    if (phone !== undefined)    user.phone    = phone.trim();
+    if (location !== undefined) user.location = location.trim();
+    if (bio !== undefined)      user.bio      = bio.trim();
+
+    await user.save();
+
+    // Update localStorage token data
+    const updated = { id: user._id, name: user.name, email: user.email, role: user.role, phone: user.phone, location: user.location, bio: user.bio };
+    res.json({ success: true, message: "Profile updated", user: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 // ================= PROTECTED PROFILE =================
 router.get("/profile", protect, async (req, res) => {
   try {
@@ -121,7 +143,6 @@ router.get("/profile", protect, async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 // ================= USER IMPACT =================
 router.get("/impact", protect, async (req, res) => {
   try {

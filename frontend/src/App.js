@@ -7,6 +7,7 @@ import Complaints from "./pages/admin/Complaints";
 import UserDashboard from "./pages/user/UserDashboard";
 import SubmitComplaint from "./pages/user/SubmitComplaint";
 import MyComplaints from "./pages/user/MyComplaints";
+import Profile from "./pages/user/Profile";
 import ScamChecker from "./pages/ScamChecker";
 import Trending from "./pages/Trending";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -31,6 +32,7 @@ function App() {
         <Route path="/user-dashboard"   element={<ProtectedRoute allowedRole="user"><UserDashboard /></ProtectedRoute>} />
         <Route path="/submit-complaint" element={<ProtectedRoute allowedRole="user"><SubmitComplaint /></ProtectedRoute>} />
         <Route path="/my-complaints"    element={<ProtectedRoute allowedRole="user"><MyComplaints /></ProtectedRoute>} />
+        <Route path="/profile"          element={<ProtectedRoute allowedRole="user"><Profile /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={
