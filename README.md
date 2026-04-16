@@ -1,31 +1,32 @@
-# ⚔️ CyberShield — AI-Powered Cyber Crime Reporting Portal
+# ⚔️ CyberShield — Scam Detection & Cyber Crime Reporting Platform
 
-A full-stack web application for reporting, tracking, and managing cyber crime complaints. Built with React, Node.js, Express, and MongoDB — featuring real-time AI risk analysis, evidence upload, and a role-based admin dashboard.
+CyberShield is a full-stack web application that lets anyone instantly check if a phone number, URL, or UPI ID has been reported as a scam — and file detailed cyber crime complaints that feed a live intelligence database.
+
+Built with React, Node.js, Express, and MongoDB.
 
 ---
 
-## Features
+## What It Does
 
-### For Citizens (Users)
-- Register and log in securely with JWT authentication
-- File cyber crime complaints with title, description, and evidence upload
-- Real-time AI analysis — detects crime type, risk score, and priority as you type
+### Public (no login needed)
+- **Scam Checker** — search any phone number, URL, UPI ID, or email and get an instant verdict (Safe / Caution / Suspicious / Highly Dangerous) with report count, risk score, and action advice
+- **Trending Scams** — live feed of most-reported scam targets and top scam categories from real community data
+- **Public scam pages** — shareable URLs like `/check/9876543210` for any target
+
+### For Users (after login)
+- File detailed cyber crime complaints with title, description, scam type, scam target, location, and evidence upload
+- Real-time AI analysis while typing — detects crime type, risk score, and priority
 - Track complaint status (Pending → Investigating → Resolved)
-- View all past complaints with detailed modal view
+- View all past complaints with detailed modal and status timeline
+- User impact counter — see how many people your reports helped protect
+- Profile page — edit name, phone, location, bio, and upload a profile photo
 
-### For Administrators
+### For Admins
 - Full analytics dashboard — monthly trends, crime type distribution, status breakdown, priority breakdown
+- Manage all complaints with filters (priority, status, search, sort) and pagination
+- Update complaint status directly from table or detail modal
 - Critical case alerts for high-risk complaints (risk score ≥ 80)
-- Manage all complaints with filters (priority, status, search, sort)
-- Update complaint status directly from the table or detail modal
 - Automatic email alerts via Resend for critical cases
-
-### General
-- Premium dark UI — responsive, modern design
-- Public landing page with feature overview (no login required)
-- Role-based route protection (user / admin)
-- Evidence stored securely on Cloudinary
-- Password strength indicator on registration
 
 ---
 
@@ -39,7 +40,7 @@ A full-stack web application for reporting, tracking, and managing cyber crime c
 | Auth | JWT (jsonwebtoken), bcryptjs |
 | File Upload | Multer + Cloudinary |
 | Email | Resend API |
-| Security | Helmet, CORS, express-rate-limit, express-validator |
+| Security | Helmet, CORS, express-validator |
 
 ---
 
@@ -48,27 +49,33 @@ A full-stack web application for reporting, tracking, and managing cyber crime c
 ```
 cyber-crime-portal/
 ├── backend/
-│   ├── config/          # DB + Cloudinary config
-│   ├── controllers/     # Route handlers
-│   ├── middleware/      # Auth, error, upload middleware
-│   ├── models/          # Mongoose schemas (User, Complaint)
-│   ├── routes/          # API routes
-│   ├── services/        # Business logic
-│   ├── utils/           # Risk analyzer, email sender
-│   ├── validators/      # Input validation
+│   ├── config/          # DB connection + Cloudinary config + auto-seed
+│   ├── controllers/     # complaintController, scamController
+│   ├── middleware/       # auth, error, upload
+│   ├── models/          # User, Complaint, Scam
+│   ├── routes/          # userRoutes, complaintRoutes, scamRoutes
+│   ├── services/        # complaintService (business logic + user impact)
+│   ├── utils/           # riskAnalyzer (8 scam categories), sendEmail
+│   ├── validators/      # input validation
+│   ├── seed.js          # manual seed script
 │   └── server.js
 └── frontend/
     ├── src/
-    │   ├── components/  # Admin Layout
-    │   ├── layouts/     # User Layout
+    │   ├── components/  # Admin Layout (with sidebar)
+    │   ├── hooks/       # useWindowWidth (responsive)
+    │   ├── layouts/     # UserLayout (sidebar + bottom nav + profile dropdown)
     │   ├── pages/
-    │   │   ├── Landing.js
-    │   │   ├── admin/   # Dashboard, Complaints
-    │   │   └── user/    # Login, Register, Dashboard, Submit, MyComplaints
+    │   │   ├── Landing.js        # public homepage with inline scam checker
+    │   │   ├── ScamChecker.js    # full scam check page
+    │   │   ├── Trending.js       # trending scams page
+    │   │   ├── admin/            # Dashboard, Complaints
+    │   │   └── user/             # Login, Register, Dashboard, Submit,
+    │   │                         # MyComplaints, Profile
     │   ├── routes/      # ProtectedRoute
     │   ├── services/    # Axios API instance
-    │   └── utils/       # Frontend risk analyzer
+    │   └── utils/       # frontend riskAnalyzer
     └── public/
+        └── _redirects   # Render SPA routing fix
 ```
 
 ---
@@ -84,7 +91,7 @@ cyber-crime-portal/
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/cyber-crime-portal.git
+git clone https://github.com/bhargabdeka-deka/cyber-crime-portal.git
 cd cyber-crime-portal
 ```
 
@@ -95,7 +102,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in `backend/`:
+Create `backend/.env`:
 
 ```env
 PORT=5000
@@ -108,11 +115,13 @@ RESEND_API_KEY=your_resend_api_key
 ADMIN_EMAIL=your_admin_email@example.com
 ```
 
-Start the backend:
+Start backend:
 
 ```bash
 npm run dev
 ```
+
+The backend auto-seeds 16 scam records into the database on first startup if the collection is empty.
 
 ### 3. Frontend setup
 
@@ -121,66 +130,89 @@ cd frontend
 npm install
 ```
 
-Create a `.env` file in `frontend/`:
+Create `frontend/.env`:
 
 ```env
 REACT_APP_API_URL=http://localhost:5000
 ```
 
-Start the frontend:
+Start frontend:
 
 ```bash
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open `http://localhost:3000`
 
 ---
 
-## API Endpoints
+## API Reference
+
+### Public (no auth)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/scam/check?query=` | Check if a phone/URL/UPI is a scam |
+| GET | `/api/scam/trending` | Get trending scams + stats |
+| GET | `/api/scam/activity` | Recent scam activity feed |
 
 ### Users
-| Method | Endpoint | Access |
+| Method | Endpoint | Auth |
 |---|---|---|
 | POST | `/api/users/register` | Public |
 | POST | `/api/users/login` | Public |
 | GET | `/api/users/profile` | Protected |
+| PUT | `/api/users/profile` | Protected |
+| POST | `/api/users/avatar` | Protected |
+| GET | `/api/users/impact` | Protected |
 
 ### Complaints
-| Method | Endpoint | Access |
+| Method | Endpoint | Auth |
 |---|---|---|
 | POST | `/api/complaints` | User |
 | GET | `/api/complaints/my` | User |
 | GET | `/api/complaints/:id` | User |
 | GET | `/api/complaints` | Admin |
 | PUT | `/api/complaints/:id/status` | Admin |
-| GET | `/api/complaints/stats` | Admin |
 | GET | `/api/complaints/analytics` | Admin |
 
 ---
 
 ## AI Risk Analyzer
 
-The built-in keyword-based analyzer classifies complaints into:
+Classifies complaints into 8 categories using keyword matching with recency weighting:
 
-| Crime Type | Example Keywords |
+| Category | Example Keywords |
 |---|---|
-| Financial Fraud | otp, bank, upi, transaction, credit card |
-| Identity Theft | aadhaar, pan, kyc, identity |
+| UPI Fraud | otp, bank, upi, transaction, credit card |
+| Identity Theft | aadhaar, pan, kyc, passport |
 | Account Hacking | hacked, password, phishing, breach |
 | Cyber Harassment | threat, blackmail, stalking, extortion |
+| Job Scam | job, work from home, registration fee, offer letter |
+| Lottery Scam | lottery, winner, prize, lucky draw |
+| Investment Scam | invest, crypto, guaranteed returns, ponzi |
+| Romance Scam | love, dating, send money, emergency |
 
-Risk score (0–100) determines priority:
-- **Critical** — score ≥ 80 (triggers email alert)
-- **High** — score ≥ 60
-- **Medium** — score ≥ 40
-- **Low** — score < 40
+Risk score (0–100) → Priority:
+- **Critical** ≥ 75 — triggers email alert + scam DB upsert
+- **High** ≥ 55
+- **Medium** ≥ 35
+- **Low** < 35
+
+---
+
+## Scam Intelligence Database
+
+Every complaint filed with a `scamTarget` (phone/URL/UPI) automatically upserts a `Scam` document:
+- Tracks total report count, average risk score, locations, related case IDs
+- Risk level auto-upgrades: 1 report = LOW → 2-4 = MEDIUM → 5-9 = HIGH → 10+ = CRITICAL
+- Recency factor: targets reported in the last 7 days get a higher effective risk score
+- Powers the public Scam Checker and Trending pages
 
 ---
 
 ## Creating an Admin Account
 
-Admin accounts must be created directly in MongoDB. Register a normal user, then update their role in the database:
+Register a normal user, then update their role directly in MongoDB:
 
 ```js
 db.users.updateOne({ email: "admin@example.com" }, { $set: { role: "admin" } })
@@ -188,13 +220,22 @@ db.users.updateOne({ email: "admin@example.com" }, { $set: { role: "admin" } })
 
 ---
 
-## Deployment
+## Deployment (Render)
 
-The app is deployed on Render:
+**Backend service:**
+- Build command: `npm install`
+- Start command: `node server.js`
+- Add all 7 environment variables in Render → Environment
+
+**Frontend service:**
+- Build command: `npm install && npm run build`
+- Publish directory: `build`
+- Add env var: `REACT_APP_API_URL=https://your-backend.onrender.com`
+- The `public/_redirects` file handles SPA routing (no 404 on refresh)
+
+Live demo:
 - Frontend: `https://cyber-crime-fronten.onrender.com`
 - Backend: `https://cyber-crime-portal-2.onrender.com`
-
-For production, set environment variables in your hosting platform instead of `.env` files.
 
 ---
 

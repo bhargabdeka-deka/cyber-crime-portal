@@ -1,6 +1,6 @@
 # CyberShield — Frontend
 
-React frontend for the CyberShield cyber crime reporting portal.
+React frontend for the CyberShield scam detection and cyber crime reporting platform.
 
 ## Setup
 
@@ -8,17 +8,15 @@ React frontend for the CyberShield cyber crime reporting portal.
 npm install
 ```
 
-Create `.env`:
+Create `.env` for local development:
 
 ```env
 REACT_APP_API_URL=http://localhost:5000
 ```
 
-Run:
-
 ```bash
-npm start     # development
-npm run build # production build
+npm start        # development server → http://localhost:3000
+npm run build    # production build
 ```
 
-See the root [README.md](../README.md) for full project documentation.
+See the root [README.md](../README.md) for full project documentation, API reference, and deployment guide.
