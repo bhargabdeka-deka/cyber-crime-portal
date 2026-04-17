@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "CyberShield",
+  "name": "CyberShield — Scam Detection Platform",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,7 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0a0f1e",
+  "background_color": "#0a0f1e",
+  "description": "Check if a phone number, URL, or UPI ID has been reported as a scam."
 }
