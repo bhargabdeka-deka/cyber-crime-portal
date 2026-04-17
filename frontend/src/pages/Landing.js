@@ -26,6 +26,7 @@ export default function Landing() {
   const [checking, setChecking] = useState(false);
   const [checkResult, setCheckResult] = useState(null);
   const [trending, setTrending] = useState(null);
+  const [ticker, setTicker] = useState([]);
   const checkerRef = useRef(null);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function Landing() {
 
   useEffect(() => {
     API.get("/scam/trending").then(r => setTrending(r.data)).catch(() => {});
+    API.get("/scam/activity").then(r => setTicker(r.data || [])).catch(() => {});
   }, []);
 
   const handleCheck = async (e) => {
@@ -92,11 +94,34 @@ export default function Landing() {
           <div style={{ padding:"12px 16px", display:"flex", flexDirection:"column", gap:8, borderTop:"1px solid rgba(255,255,255,0.07)" }}>
             <button onClick={() => { checkerRef.current?.scrollIntoView({behavior:"smooth"}); setMenuOpen(false); }} style={mobileNavBtn}>🔍 Check Scam</button>
             <button onClick={() => { navigate("/trending"); setMenuOpen(false); }} style={mobileNavBtn}>🔥 Trending Scams</button>
+            <button onClick={() => { navigate("/report"); setMenuOpen(false); }} style={mobileNavBtn}>🚨 Report Anonymously</button>
             <button onClick={() => { navigate("/login"); setMenuOpen(false); }} style={mobileNavBtn}>Login</button>
             <button onClick={() => { navigate("/register"); setMenuOpen(false); }} style={{ ...mobileNavBtn, background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", fontWeight:600 }}>Get Started Free</button>
           </div>
         )}
       </nav>
+
+      {/* LIVE TICKER */}
+      {ticker.length > 0 && (
+        <div style={{ background:"rgba(239,68,68,0.08)", borderBottom:"1px solid rgba(239,68,68,0.15)", padding:"8px 0", overflow:"hidden", position:"relative", zIndex:99, marginTop:48 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:0, whiteSpace:"nowrap" }}>
+            <div style={{ background:"rgba(239,68,68,0.2)", color:"#fca5a5", padding:"2px 12px", fontSize:11, fontWeight:700, flexShrink:0, marginRight:16 }}>🔴 LIVE</div>
+            <div style={{ display:"flex", gap:32, animation:"ticker 30s linear infinite", willChange:"transform" }}>
+              {[...ticker, ...ticker].map((a, i) => (
+                <span key={i} style={{ color:"#94a3b8", fontSize:12 }}>
+                  <span style={{ color: a.riskLevel==="CRITICAL"?"#ef4444":a.riskLevel==="HIGH"?"#f59e0b":"#94a3b8", fontWeight:600 }}>{a.riskLevel}</span>
+                  {" · "}
+                  <span style={{ color:"white", fontFamily:"monospace" }}>{a.value}</span>
+                  {" · "}
+                  <span>{a.category}</span>
+                  <span style={{ color:"#475569", marginLeft:8 }}>just reported</span>
+                  <span style={{ color:"#374151", margin:"0 16px" }}>|</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* HERO */}
       <section style={{ maxWidth:1200, margin:"0 auto", padding: isMobile ? "100px 16px 60px" : "130px 24px 80px", position:"relative", zIndex:1 }}>
@@ -156,8 +181,8 @@ export default function Landing() {
           </div>
 
           <div style={{ display:"flex", gap:10, justifyContent:"center", marginTop:28, flexWrap:"wrap", padding: isMobile ? "0 16px" : 0 }}>
-            <button onClick={() => navigate("/register")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, flex: isMobile ? 1 : "none" }}>Report a Scam →</button>
-            <button onClick={() => navigate("/trending")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, flex: isMobile ? 1 : "none" }}>🔥 Trending</button>
+            <button onClick={() => navigate("/report")} style={{ background:"linear-gradient(135deg,#ef4444,#f59e0b)", border:"none", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, flex: isMobile ? 1 : "none" }}>🚨 Report Anonymously</button>
+            <button onClick={() => navigate("/register")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"12px 24px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, flex: isMobile ? 1 : "none" }}>Create Account →</button>
           </div>
         </div>
       </section>
@@ -301,6 +326,8 @@ export default function Landing() {
             <div style={{ display:"flex", gap:16 }}>
               <button onClick={() => navigate("/check-scam")} style={{ background:"none", border:"none", color:"#475569", fontSize:13, cursor:"pointer" }}>Scam Checker</button>
               <button onClick={() => navigate("/trending")} style={{ background:"none", border:"none", color:"#475569", fontSize:13, cursor:"pointer" }}>Trending</button>
+              <button onClick={() => navigate("/report")} style={{ background:"none", border:"none", color:"#475569", fontSize:13, cursor:"pointer" }}>Report Anonymously</button>
+              <button onClick={() => navigate("/api-docs")} style={{ background:"none", border:"none", color:"#475569", fontSize:13, cursor:"pointer" }}>API Docs</button>
               <button onClick={() => navigate("/login")} style={{ background:"none", border:"none", color:"#475569", fontSize:13, cursor:"pointer" }}>Login</button>
             </div>
           )}

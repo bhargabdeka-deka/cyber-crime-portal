@@ -14,6 +14,47 @@ const router = express.Router();
 router.post("/", protect, upload.single("evidence"), validateComplaint, handleValidationErrors, createComplaint);
 router.get("/my", protect, getUserComplaints);
 
+// ── ANONYMOUS REPORT (no login needed) ───────────────────
+router.post("/anonymous", upload.single("evidence"), async (req, res) => {
+  try {
+    const { title, description, scamType, scamTarget, location } = req.body;
+    if (!title || title.trim().length < 5) return res.status(400).json({ message: "Title must be at least 5 characters" });
+    if (!description || description.trim().length < 10) return res.status(400).json({ message: "Description must be at least 10 characters" });
+
+    const analyzeComplaint = require("../utils/riskAnalyzer");
+    const { upsertScamIntelligence } = require("../controllers/scamController");
+    const Scam = require("../models/Scam");
+    const { crimeType, scamType: detectedScamType, riskScore, priority } = analyzeComplaint(title, description);
+
+    // Use a system anonymous user ID (fixed ObjectId)
+    const mongoose = require("mongoose");
+    const ANON_ID = new mongoose.Types.ObjectId("000000000000000000000001");
+
+    const complaint = new Complaint({
+      caseId: "ANON-" + Date.now(),
+      user: ANON_ID,
+      title: title.trim(),
+      description: description.trim(),
+      crimeType,
+      scamType: scamType || detectedScamType,
+      scamTarget: scamTarget || "",
+      location: location || "",
+      riskScore,
+      priority,
+      evidence: req.file ? (req.file.path || req.file.secure_url || req.file.url) : null
+    });
+    await complaint.save();
+
+    if (scamTarget) {
+      upsertScamIntelligence({ value: scamTarget, category: scamType || detectedScamType, description: description.slice(0,200), riskScore, caseId: complaint.caseId, location: location || "" }).catch(() => {});
+    }
+
+    res.status(201).json({ success: true, message: "Report submitted. Thank you for helping the community!", caseId: complaint.caseId });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ── ADMIN ─────────────────────────────────────────────────
 router.get("/stats",     protect, adminOnly, getDashboardStats);
 router.get("/analytics", protect, adminOnly, getAnalytics);

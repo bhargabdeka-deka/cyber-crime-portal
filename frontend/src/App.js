@@ -13,6 +13,8 @@ import MyComplaints from "./pages/user/MyComplaints";
 import Profile from "./pages/user/Profile";
 import ScamChecker from "./pages/ScamChecker";
 import Trending from "./pages/Trending";
+import AnonReport from "./pages/AnonReport";
+import ApiDocs from "./pages/ApiDocs";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         <Route path="/check-scam"     element={<ScamChecker />} />
         <Route path="/check/:value" element={<ScamChecker />} />
         <Route path="/trending"   element={<Trending />} />
+        <Route path="/report"     element={<AnonReport />} />
+        <Route path="/api-docs"   element={<ApiDocs />} />
 
         {/* Admin */}
         <Route path="/dashboard"  element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />

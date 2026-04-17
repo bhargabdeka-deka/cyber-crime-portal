@@ -46,13 +46,20 @@ export default function ScamChecker() {
   const handleShare = () => {
     if (!result) return;
     const url  = `${window.location.origin}/check/${encodeURIComponent(result.value || query)}`;
-    const text = result.reports > 0
-      ? `⚠️ SCAM ALERT: "${result.value}" reported ${result.reports} times as ${result.category}.\nRisk: ${result.riskLevel}\nCheck: ${url}`
-      : `✅ "${result.value}" has no scam reports on CyberShield.\nVerify: ${url}`;
-    if (navigator.share) {
-      navigator.share({ title:"CyberShield Scam Check", text, url }).catch(() => {});
+    const waText = result.reports > 0
+      ? `⚠️ *SCAM ALERT* ⚠️\n\n*${result.value}* has been reported *${result.reports} times* as *${result.category}*\nRisk Level: *${result.riskLevel}*\n\nDo NOT engage with this number/link.\n\n🔍 Verify yourself: ${url}\n\n_Powered by CyberShield — India's Scam Detection Platform_`
+      : `✅ "${result.value}" has no scam reports on CyberShield.\n\n🔍 Check any number/link: ${url}`;
+
+    // Try WhatsApp share first on mobile
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+    if (navigator.share && isMobile) {
+      navigator.share({ title:"CyberShield Scam Check", text:waText, url }).catch(() => {
+        window.open(waUrl, "_blank");
+      });
+    } else if (isMobile) {
+      window.open(waUrl, "_blank");
     } else {
-      navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+      navigator.clipboard.writeText(waText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
     }
   };
 
@@ -106,8 +113,8 @@ export default function ScamChecker() {
                   <div style={{ color:"#94a3b8", fontSize:13, marginTop:2 }}>{vc.sub}</div>
                 </div>
               </div>
-              <button onClick={handleShare} style={{ background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)", color:"white", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:12, flexShrink:0 }}>
-                {copied ? "✅ Copied!" : "📤 Share"}
+              <button onClick={handleShare} style={{ background:"rgba(37,211,102,0.12)", border:"1px solid rgba(37,211,102,0.3)", color:"#25d366", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:12, flexShrink:0, display:"flex", alignItems:"center", gap:5 }}>
+                {copied ? "✅ Copied!" : isMobile ? "📲 WhatsApp" : "📤 Share"}
               </button>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom: result.reports > 0 ? 14 : 0 }}>
