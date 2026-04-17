@@ -124,8 +124,7 @@ export default function Trending() {
               <button onClick={() => navigate(isLoggedIn ? "/submit-complaint" : "/register")}
                 style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"9px 20px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:600 }}>
                 {isLoggedIn ? "Report a Scam →" : "Register & Report →"}
-              </button>
-            </div>
+              </button>            </div>
           </div>
         </>
       )}

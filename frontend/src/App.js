@@ -2,8 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Login from "./pages/user/Login";
 import UserRegister from "./pages/user/UserRegister";
+import ForgotPassword from "./pages/user/ForgotPassword";
+import ResetPassword from "./pages/user/ResetPassword";
 import Dashboard from "./pages/admin/Dashboard";
 import Complaints from "./pages/admin/Complaints";
+import Users from "./pages/admin/Users";
 import UserDashboard from "./pages/user/UserDashboard";
 import SubmitComplaint from "./pages/user/SubmitComplaint";
 import MyComplaints from "./pages/user/MyComplaints";
@@ -18,15 +21,18 @@ function App() {
       <Routes>
         {/* Public */}
         <Route path="/"           element={<Landing />} />
-        <Route path="/login"      element={<Login />} />
-        <Route path="/register"   element={<UserRegister />} />
-        <Route path="/check-scam" element={<ScamChecker />} />
+        <Route path="/login"          element={<Login />} />
+        <Route path="/register"       element={<UserRegister />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/check-scam"     element={<ScamChecker />} />
         <Route path="/check/:value" element={<ScamChecker />} />
         <Route path="/trending"   element={<Trending />} />
 
         {/* Admin */}
         <Route path="/dashboard"  element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />
         <Route path="/complaints" element={<ProtectedRoute allowedRole="admin"><Complaints /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><Users /></ProtectedRoute>} />
 
         {/* User */}
         <Route path="/user-dashboard"   element={<ProtectedRoute allowedRole="user"><UserDashboard /></ProtectedRoute>} />

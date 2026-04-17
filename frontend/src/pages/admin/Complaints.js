@@ -106,6 +106,10 @@ export default function Complaints() {
           <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>All Complaints</h1>
           <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>{totalCount} total complaint{totalCount !== 1 ? "s" : ""}</p>
         </div>
+        <a href={`${process.env.REACT_APP_API_URL || ""}/api/complaints/export/csv`}
+          style={{ background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.25)", color:"#6ee7b7", padding:"9px 16px", borderRadius:8, fontSize:13, fontWeight:600, textDecoration:"none", display:"flex", alignItems:"center", gap:6 }}>
+          📥 Export CSV
+        </a>
       </div>
 
       {/* Filters */}

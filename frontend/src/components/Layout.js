@@ -5,6 +5,7 @@ import useWindowWidth from "../hooks/useWindowWidth";
 const NAV = [
   { path:"/dashboard",  icon:"⊞", label:"Dashboard" },
   { path:"/complaints", icon:"☰", label:"Complaints" },
+  { path:"/admin/users", icon:"👥", label:"Users" },
 ];
 
 export default function Layout({ children }) {

@@ -89,6 +89,9 @@ export default function Login() {
           <p style={{ color:"#94a3b8", fontSize:14, textAlign:"center", marginTop:20 }}>
             Don't have an account? <span onClick={() => navigate("/register")} style={{ color:"#60a5fa", cursor:"pointer", fontWeight:500 }}>Create one free</span>
           </p>
+          <p style={{ color:"#64748b", fontSize:13, textAlign:"center", marginTop:8 }}>
+            <span onClick={() => navigate("/forgot-password")} style={{ color:"#94a3b8", cursor:"pointer" }}>Forgot password?</span>
+          </p>
         </div>
       </div>
     </div>

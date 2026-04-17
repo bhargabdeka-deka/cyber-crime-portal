@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
   bio:      { type: String, default: "" },
   avatar:   { type: String, default: "" }, // initials color or future upload URL
 
+  // ── Password reset ──────────────────────────────────────────────────────
+  resetToken:       { type: String },
+  resetTokenExpiry: { type: Date },
+
   createdAt: { type: Date, default: Date.now }
 });
 

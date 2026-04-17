@@ -1,7 +1,7 @@
 const Complaint = require("../models/Complaint");
 const analyzeComplaint = require("../utils/riskAnalyzer");
 const mongoose = require("mongoose");
-const sendEmail = require("../utils/sendEmail");
+const { sendEmail, sendEmailTo } = require("../utils/sendEmail");
 const { upsertScamIntelligence } = require("../controllers/scamController");
 
 // ================= CREATE =================
@@ -80,10 +80,34 @@ const getAllComplaintsService = async (queryParams) => {
 // ================= UPDATE STATUS =================
 const updateComplaintStatusService = async (id, status) => {
   if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid ID format");
-  const complaint = await Complaint.findById(id);
+  const complaint = await Complaint.findById(id).populate("user", "name email");
   if (!complaint) throw new Error("Complaint not found");
+
+  const oldStatus = complaint.status;
   complaint.status = status;
-  return await complaint.save();
+  const saved = await complaint.save();
+
+  // Email user when status changes
+  if (oldStatus !== status && complaint.user?.email) {
+    const statusEmoji = { Pending:"⏳", Investigating:"🔍", Resolved:"✅" };
+    sendEmailTo(
+      complaint.user.email,
+      `CyberShield: Your complaint ${complaint.caseId} is now ${status}`,
+      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;background:#0f172a;color:white;border-radius:12px">
+        <h2 style="color:#60a5fa">⚔️ CyberShield Update</h2>
+        <p>Hi ${complaint.user.name},</p>
+        <p>Your complaint status has been updated:</p>
+        <div style="background:#1e293b;padding:16px;border-radius:8px;margin:16px 0">
+          <p><strong>Case ID:</strong> ${complaint.caseId}</p>
+          <p><strong>Title:</strong> ${complaint.title}</p>
+          <p><strong>New Status:</strong> ${statusEmoji[status] || ""} <strong style="color:#60a5fa">${status}</strong></p>
+        </div>
+        <p style="color:#94a3b8;font-size:13px">Log in to CyberShield to view full details.</p>
+      </div>`
+    ).catch(() => {});
+  }
+
+  return saved;
 };
 
 // ================= DASHBOARD STATS =================
