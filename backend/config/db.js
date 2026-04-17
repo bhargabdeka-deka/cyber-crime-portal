@@ -40,15 +40,9 @@ const autoSeed = async () => {
 
 const connectDB = async () => {
   try {
-    console.log("Connecting to MongoDB...");
-    console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
-
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected Successfully");
-
-    // Run auto-seed after connection — safe to call every startup
+    console.log("✅ MongoDB Connected");
     await autoSeed();
-
   } catch (error) {
     console.error("❌ MongoDB Connection Error:", error.message);
     process.exit(1);

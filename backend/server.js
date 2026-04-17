@@ -30,6 +30,10 @@ app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Prevent NoSQL injection attacks
+const mongoSanitize = require("express-mongo-sanitize");
+app.use(mongoSanitize());
+
 // Handle malformed JSON gracefully
 app.use((err, req, res, next) => {
   if (err.type === "entity.parse.failed") {
