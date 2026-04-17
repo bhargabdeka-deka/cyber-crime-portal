@@ -38,7 +38,7 @@ export default function Login() {
         {!isMobile && (
           <div style={{ flex:1, background:"linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2))", padding:"48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32 }}>
-              <span style={{ fontSize:26 }}>⚔️</span>
+              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:32, height:32, borderRadius:8, objectFit:"cover" }} />
               <span style={{ color:"white", fontWeight:700, fontSize:20 }}>CyberShield</span>
             </div>
             <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 12px", lineHeight:1.3 }}>Fight cyber crime with confidence.</h2>
@@ -57,7 +57,7 @@ export default function Login() {
         <div style={{ flex:1, padding: isMobile ? "32px 20px" : "48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
           {isMobile && (
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:24 }}>
-              <span style={{ fontSize:22 }}>⚔️</span>
+              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
               <span style={{ color:"white", fontWeight:700, fontSize:18 }}>CyberShield</span>
             </div>
           )}

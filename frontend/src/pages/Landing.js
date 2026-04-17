@@ -67,7 +67,7 @@ export default function Landing() {
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, padding:"12px 0", background: scrolled||menuOpen ? "rgba(10,15,30,0.97)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none", transition:"all 0.3s" }}>
         <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:20 }}>⚔️</span>
+          <img src="/logo1.jpeg" alt="CyberShield" style={{ width:28, height:28, borderRadius:6, objectFit:"cover" }} />
             <span style={{ fontSize:18, fontWeight:700 }}>CyberShield</span>
           </div>
 
@@ -319,7 +319,7 @@ export default function Landing() {
       <footer style={{ borderTop:"1px solid rgba(255,255,255,0.06)", padding:"24px 16px", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:16 }}>⚔️</span>
+            <img src="/logo1.jpeg" alt="CyberShield" style={{ width:16, height:16, borderRadius:4, objectFit:"cover" }} />
             <span style={{ fontSize:15, fontWeight:700, color:"#94a3b8" }}>CyberShield</span>
           </div>
           {!isMobile && (

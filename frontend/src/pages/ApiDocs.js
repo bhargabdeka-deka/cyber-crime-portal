@@ -82,7 +82,7 @@ export default function ApiDocs() {
 
       <nav style={{ position:"sticky", top:0, zIndex:50, background:"rgba(10,15,30,0.92)", backdropFilter:"blur(12px)", borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"12px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => navigate("/")}>
-          <span style={{ fontSize:18 }}>⚔️</span>
+          <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
           <span style={{ fontWeight:700, fontSize:15 }}>CyberShield</span>
           <span style={{ color:"#64748b", fontSize:13 }}>/ API Docs</span>
         </div>

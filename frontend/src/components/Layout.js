@@ -24,7 +24,7 @@ export default function Layout({ children }) {
       <div style={{ display:"flex", flexDirection:"column", minHeight:"100vh", background:"#0f172a", fontFamily:"'Segoe UI',system-ui,sans-serif" }}>
         <div style={{ background:"rgba(255,255,255,0.02)", borderBottom:"1px solid rgba(255,255,255,0.06)", padding:"0 16px", height:56, display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, position:"sticky", top:0, zIndex:50 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:16 }}>⚔️</span>
+            <img src="/logo1.jpeg" alt="CyberShield" style={{ width:24, height:24, borderRadius:5, objectFit:"cover" }} />
             <span style={{ color:"white", fontWeight:700, fontSize:14 }}>CyberShield</span>
             <span style={{ background:"rgba(239,68,68,0.15)", color:"#f87171", fontSize:10, fontWeight:700, padding:"2px 6px", borderRadius:4 }}>ADMIN</span>
           </div>
@@ -54,7 +54,7 @@ export default function Layout({ children }) {
     <div style={{ display:"flex", height:"100vh", fontFamily:"'Segoe UI',system-ui,sans-serif", background:"#0f172a" }}>
       <div style={{ width: collapsed ? 64 : 220, background:"#0f172a", borderRight:"1px solid rgba(255,255,255,0.06)", display:"flex", flexDirection:"column", transition:"width 0.25s", flexShrink:0, overflow:"hidden" }}>
         <div style={{ padding: collapsed ? "20px 16px" : "20px", display:"flex", alignItems:"center", justifyContent: collapsed ? "center" : "space-between", borderBottom:"1px solid rgba(255,255,255,0.06)", minHeight:64 }}>
-          {!collapsed && <div style={{ display:"flex", alignItems:"center", gap:8 }}><span style={{ fontSize:18 }}>⚔️</span><span style={{ color:"white", fontWeight:700, fontSize:15 }}>CyberShield</span></div>}
+          {!collapsed && <div style={{ display:"flex", alignItems:"center", gap:8 }}><img src="/logo1.jpeg" alt="CyberShield" style={{ width:22, height:22, borderRadius:5, objectFit:"cover" }} /><span style={{ color:"white", fontWeight:700, fontSize:15 }}>CyberShield</span></div>}
           <button onClick={() => setCollapsed(!collapsed)} style={{ background:"rgba(255,255,255,0.06)", border:"none", color:"#94a3b8", width:28, height:28, borderRadius:6, cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{collapsed?"→":"←"}</button>
         </div>
         {!collapsed && <div style={{ margin:"10px 8px 4px", background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:6, padding:"4px 10px", display:"flex", alignItems:"center", gap:6 }}><span style={{ fontSize:10 }}>🔴</span><span style={{ color:"#f87171", fontSize:11, fontWeight:600 }}>ADMIN PANEL</span></div>}
