@@ -99,7 +99,7 @@ export default function MyComplaints() {
 
       {/* Filter Matrix */}
       {complaints.length > 0 && (
-        <div className="bg-slate-50 p-6 rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-3 mb-10 shadow-sm">
+        <div className="bg-slate-50 p-4 md:p-6 rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-2 md:gap-3 mb-8 md:mb-10 shadow-sm">
            <Filter className="text-slate-600 ml-4 hidden md:block" size={18} />
            {["All", "Pending", "Investigating", "Resolved"].map(f => {
              const active = filter === f;
@@ -107,9 +107,9 @@ export default function MyComplaints() {
                <button 
                  key={f} 
                  onClick={() => setFilter(f)}
-                 className={`px-6 py-3 rounded-full text-sm font-medium tracking-wide transition-all ${active ? 'bg-soft-teal text-white shadow-lg' : 'text-slate-600 hover:text-slate-700'}`}
+                 className={`flex-grow md:flex-none px-4 md:px-6 py-3 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-widest transition-all ${active ? 'bg-soft-teal text-white shadow-lg' : 'text-slate-600 hover:text-slate-700'}`}
                >
-                 {f} <span className="opacity-40 ml-2">[{f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}]</span>
+                 {f} <span className="opacity-40 ml-1 md:ml-2">[{f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}]</span>
                </button>
              );
            })}
@@ -144,27 +144,27 @@ export default function MyComplaints() {
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex-grow">
-                    <div className="flex items-center gap-4 mb-4">
-                        <span className="text-sm font-bold text-slate-900 tracking-tight">{c.caseId}</span>
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-semibold border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
+                    <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                        <span className="text-[10px] md:text-sm font-black text-slate-800 tracking-tight uppercase whitespace-nowrap">{c.caseId.slice(0,12)}...</span>
+                        <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
                      </div>
-                     <div className="text-lg font-semibold text-slate-900 leading-snug mb-2 group-hover:text-soft-teal transition-colors">{c.title}</div>
-                     <div className="text-xs font-medium text-slate-500 flex items-center gap-2">
+                     <div className="text-base md:text-lg font-black text-slate-900 leading-tight mb-2 group-hover:text-soft-teal transition-colors uppercase tracking-tight">{c.title}</div>
+                     <div className="text-[10px] md:text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-widest">
                         <span>{c.crimeType}</span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                        <span>{new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                        <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                        <span>{new Date(c.createdAt).toLocaleDateString()}</span>
                      </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className={`px-4 py-2 rounded-full text-xs font-semibold ${rm.color} ${rm.bg} border ${rm.border}`}>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                    <div className={`px-3 md:px-4 py-2 rounded-full text-[9px] md:text-xs font-black uppercase ${rm.color} ${rm.bg} border ${rm.border}`}>
                        Risk: {c.riskScore}
                     </div>
-                    <div className={`px-4 py-2 rounded-full text-xs font-semibold ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
-                       <sm.icon size={14} /> {c.status}
+                    <div className={`px-3 md:px-4 py-2 rounded-full text-[9px] md:text-xs font-black uppercase ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
+                       <sm.icon size={12} className="md:w-[14px] md:h-[14px]" /> {c.status}
                     </div>
-                    <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-soft-teal/20 group-hover:text-soft-teal transition-all hidden md:flex">
-                       <ChevronRight size={22} />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-soft-teal/10 group-hover:text-soft-teal transition-all shrink-0">
+                       <ChevronRight size={20} />
                     </div>
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export default function MyComplaints() {
                <X size={20} />
             </button>
 
-            <div className="flex-grow overflow-y-auto pr-6 custom-scrollbar">
+            <div className="flex-grow overflow-y-auto p-4 md:p-6 pt-16 md:pt-20 text-slate-900">
                <div className="mb-12">
                   <div className="flex items-center gap-4 mb-6">
                      <div className="w-14 h-14 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-lg">

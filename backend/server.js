@@ -15,14 +15,40 @@ const app = express();
 
 // ================= Security Headers =================
 app.use(helmet({
-  contentSecurityPolicy: false, // allow React app assets
+  contentSecurityPolicy: false,
 }));
 
+// ================= Rate Limiting =================
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests, please try again later." }
+});
+
+// Apply rate limiting to all API routes
+app.use("/api/", limiter);
+
 // ================= CORS =================
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:3000",
+  "https://cyber-crime-fronten.onrender.com"
+].filter(Boolean);
+
 app.use(cors({
-  origin: "*",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
 app.options("*", cors());
 

@@ -59,12 +59,12 @@ export default function Trending() {
 
   const pageContent = (
     <div className="max-w-6xl mx-auto py-10 px-4 md:px-0">
-      <div className="mb-10 md:mb-16">
-        <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full text-[10px] md:text-xs font-semibold text-rose-500 tracking-wide mb-4 border border-rose-100 shadow-sm">
+      <div className="mb-10 md:mb-16 text-center">
+        <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full text-[10px] md:text-xs font-semibold text-rose-500 tracking-wide mb-4 border border-rose-100 shadow-sm mx-auto">
            <Flame size={14} className="fill-rose-500" /> Live Threat Intel
         </div>
-        <h1 className="text-3xl md:text-6xl font-bold font-brand text-slate-900 tracking-tight mb-3">Threat Advisories</h1>
-        <p className="text-sm md:text-lg font-medium text-slate-500 tracking-wide">Real-time pattern analysis from the Cyber Intelligence Network.</p>
+        <h1 className="text-3xl md:text-6xl font-black font-brand text-slate-900 tracking-tight mb-4 mx-auto text-center">Threat Advisories</h1>
+        <p className="text-sm md:text-lg font-medium text-slate-500 tracking-wide max-w-xl mx-auto text-center px-4">Real-time pattern analysis from the Cyber Intelligence Network.</p>
       </div>
 
       {loading ? (
@@ -165,18 +165,18 @@ export default function Trending() {
 
       {/* Header Navigation */}
       <header className={`px-4 md:px-6 py-4 md:py-6 sticky top-[37px] z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
-        <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+        <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-2 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
+          <div className="flex items-center gap-2 md:gap-3 cursor-pointer shrink-0" onClick={() => navigate("/")}>
             <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
               <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
             </div>
-            <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
+            <span className="text-base md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
               CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
             </span>
           </div>
-          <div className="flex gap-2 md:gap-4">
-            <button onClick={() => navigate("/check-scam")} className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all px-2 md:px-4 tracking-wide">Checker</button>
-            <button onClick={() => navigate("/login")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm font-semibold tracking-wide shadow-lg">Access</button>
+          <div className="flex gap-1 md:gap-4 items-center shrink-0">
+            <button onClick={() => navigate("/login")} className="text-[10px] md:text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all px-2 md:px-4 uppercase">Sign In</button>
+            <button onClick={() => navigate("/register")} className="bg-slate-900 text-white rounded-full px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-sm font-semibold shadow-lg uppercase">Join</button>
           </div>
         </nav>
       </header>

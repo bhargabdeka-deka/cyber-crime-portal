@@ -67,31 +67,48 @@ export default function Layout({ children }) {
 
             {/* Mobile Overlay Menu */}
             {mobileMenuOpen && (
-              <div className="fixed inset-0 bg-white z-[100] pt-24 px-8 flex flex-col animate-in fade-in zoom-in-95">
-                <nav className="flex flex-col gap-6">
-                  {NAV.map(item => {
-                    const active = location.pathname === item.path;
-                    return (
-                      <button
-                        key={item.path}
-                        onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
-                        className={`flex items-center gap-6 text-xl font-black uppercase tracking-tighter p-6 rounded-[2rem] transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-900 bg-slate-50'}`}
-                      >
-                        <item.icon size={28} />
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                  <div className="h-px bg-slate-100 my-4" />
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-6 text-xl font-black uppercase tracking-tighter p-6 rounded-[2rem] text-rose-500 bg-rose-50"
-                  >
-                    <LogOut size={28} />
-                    SIGNOUT
-                  </button>
-                </nav>
-              </div>
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] animate-in fade-in duration-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                />
+                {/* Drawer */}
+                <div className="fixed inset-y-0 right-0 w-[75%] max-w-[320px] bg-white z-[100] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+                  <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                    <span className="font-brand font-bold text-lg text-slate-900">Menu</span>
+                    <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-slate-500 hover:text-slate-800 bg-slate-50 rounded-md transition-colors">
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <nav className="flex flex-col gap-2 p-6 flex-grow overflow-y-auto">
+                    {NAV.map(item => {
+                      const active = location.pathname === item.path;
+                      return (
+                        <button
+                          key={item.path}
+                          onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
+                          className={`flex items-center gap-4 text-sm font-semibold px-4 py-3 rounded-lg transition-all w-full text-left ${active ? 'bg-soft-blue/50 text-soft-teal border-l-4 border-soft-teal' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'}`}
+                        >
+                          <item.icon size={20} />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </nav>
+                  
+                  <div className="p-6 border-t border-slate-100">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-4 text-sm font-semibold px-4 py-3 rounded-lg text-rose-600 hover:bg-rose-50 transition-all w-full text-left"
+                    >
+                      <LogOut size={20} />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
             <div className="flex-grow overflow-y-auto p-6 pt-16 text-slate-900">{children}</div>
           </div>

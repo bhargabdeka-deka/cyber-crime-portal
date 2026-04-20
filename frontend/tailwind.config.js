@@ -13,8 +13,26 @@ module.exports = {
         'nav-bg': 'rgba(255,255,255,0.85)',
       },
       fontFamily: {
-        'sans': ['Montserrat', 'Poppins', 'system-ui', 'sans-serif'],
-        'display': [' Montserrat', 'sans-serif'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'display': ['Poppins', 'sans-serif'],
+        'brand': ['Poppins', 'sans-serif'],
+        'serif': ['Lora', 'serif'],
+      },
+      letterSpacing: {
+        tighter: '-0.03em',
+        tight: '-0.02em',
+        normal: '0',
+        wide: '0.2px',
+        wider: '0.3px',
+        widest: '0.5px',
+      },
+      fontWeight: {
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '600',       /* Tone down bold */
+        extrabold: '700',  /* Tone down extrabold */
+        black: '800',      /* Tone down black from 900 to 800 */
       },
       borderRadius: {
         'xl': '1rem',

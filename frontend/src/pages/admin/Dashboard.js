@@ -85,8 +85,8 @@ export default function Dashboard() {
     <Layout>
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Operations Analytics</h1>
-           <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3">"Data Driven Intelligence for a Secure Tomorrow"</p>
+           <h1 className="text-4xl font-bold font-brand text-slate-900 tracking-[-0.5px] uppercase leading-none text-center">Operations Analytics</h1>
+           <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3 text-center">"Data Driven Intelligence for a Secure Tomorrow"</p>
            <div className="flex items-center gap-3 mt-5">
               <div className="h-1 w-12 bg-soft-teal rounded-full" />
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Sector 7G Intelligence Feed</p>
@@ -119,14 +119,14 @@ export default function Dashboard() {
       )}
 
       {/* Top Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mb-12">
         {summaryStats.map(stat => (
-          <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] transition-soft hover:scale-105 cursor-default border border-white/50`}>
-            <div className="bg-white/60 w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-               <stat.icon className={`${stat.text} md:w-[22px] md:h-[22px]`} size={20} />
+          <div key={stat.label} className={`${stat.bg} p-5 md:p-8 rounded-[2rem] md:rounded-[3rem] transition-soft hover:scale-105 border border-white/50 shadow-sm`}>
+            <div className="bg-white/60 w-9 h-9 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+               <stat.icon className={`${stat.text} w-4 h-4 md:w-[22px] md:h-[22px]`} size={18} />
             </div>
-            <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter`}>{stat.value}</div>
-            <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2">{stat.label}</div>
+            <div className="text-xl md:text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
+            <div className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1 md:mt-2">{stat.label}</div>
           </div>
         ))}
       </div>

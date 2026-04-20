@@ -35,7 +35,7 @@ export default function Users() {
            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
               <UsersIcon size={14} /> Identity Registry
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Registered Nodes</h1>
+           <h1 className="text-4xl font-bold font-brand text-slate-900 tracking-[-0.5px] uppercase leading-none">Registered Nodes</h1>
            <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-3">{total} Authenticated Users</p>
         </div>
         

@@ -101,7 +101,7 @@ export default function UserDashboard() {
            <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[11px] font-bold text-soft-teal tracking-wide mb-4 shadow-sm border border-white">
               <Zap size={14} className="fill-soft-teal" /> Network Access Verified
            </div>
-           <h1 className="text-3xl md:text-5xl font-black font-brand text-slate-900 tracking-tighter leading-none">
+           <h1 className="text-3xl md:text-5xl font-bold font-brand text-slate-900 tracking-[-0.5px] leading-none">
              {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
            </h1>
            <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
@@ -134,11 +134,11 @@ export default function UserDashboard() {
       )}
 
       {/* 3. Stat Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-12">
         {statCards.map(stat => (
-          <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft`}>
-            <div className={`text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-2`}>{stat.value}</div>
-            <div className="text-xs font-semibold text-slate-500 tracking-wide">{stat.label}</div>
+          <div key={stat.label} className={`${stat.bg} p-5 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft flex flex-col justify-between`}>
+            <div className="text-xl md:text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
+            <div className="text-[10px] md:text-sm font-bold text-slate-500 uppercase tracking-widest mt-1 md:mt-2">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -224,29 +224,29 @@ export default function UserDashboard() {
       </div>
       
       {/* 5. Quick Actions Section */}
-      <section className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="bg-slate-900 rounded-[3rem] p-10 flex flex-col md:flex-row items-center gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/check-scam")}>
-            <div className="w-16 h-16 bg-soft-teal rounded-3xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
-               <Search size={32} />
+      <section className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-10">
+         <div className="bg-slate-900 rounded-[2.5rem] p-6 md:p-10 flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 md:gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/check-scam")}>
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-soft-teal rounded-2xl md:rounded-3xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+               <Search size={28} className="md:w-8 md:h-8" />
             </div>
-            <div>
-               <h4 className="text-xl font-bold text-white tracking-tight">Global Integrity Scan</h4>
-               <p className="text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
+            <div className="flex-grow">
+               <h4 className="text-lg md:text-xl font-bold text-white tracking-tight">Global Integrity Scan</h4>
+               <p className="text-xs md:text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
             </div>
-            <div className="ml-auto">
+            <div className="hidden sm:block">
                <ArrowRight className="text-slate-700 group-hover:text-soft-teal" size={24} />
             </div>
          </div>
          
-         <div className="bg-soft-blue p-10 rounded-[3rem] border border-white flex flex-col md:flex-row items-center gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/trending")}>
-            <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-soft-teal shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-               <Zap size={32} />
+         <div className="bg-soft-blue p-6 md:p-10 rounded-[2.5rem] border border-white flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 md:gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/trending")}>
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl md:rounded-3xl flex items-center justify-center text-soft-teal shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+               <Zap size={28} className="md:w-8 md:h-8" />
             </div>
-            <div>
-               <h4 className="text-xl font-bold text-slate-900 tracking-tight">Threat Advisories</h4>
-               <p className="text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
+            <div className="flex-grow">
+               <h4 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Threat Advisories</h4>
+               <p className="text-xs md:text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
             </div>
-            <div className="ml-auto">
+            <div className="hidden sm:block">
                <ArrowRight className="text-slate-300 group-hover:text-soft-teal" size={24} />
             </div>
          </div>

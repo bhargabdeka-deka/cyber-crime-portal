@@ -70,8 +70,8 @@ export default function ScamChecker() {
         <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 shadow-sm border border-slate-100">
            <Zap size={14} className="fill-soft-teal" /> Global Intelligence Scan
         </div>
-        <h1 className="text-4xl md:text-6xl font-black font-brand text-slate-900 tracking-tighter mb-6">Verify Safety</h1>
-        <p className="text-sm md:text-lg font-medium font-serif text-slate-600 max-w-xl mx-auto leading-relaxed px-4">
+        <h1 className="text-4xl md:text-6xl font-bold font-brand text-slate-900 tracking-[-0.5px] mb-6 text-center">Verify Safety</h1>
+        <p className="text-sm md:text-lg font-medium font-serif text-slate-600 max-w-xl mx-auto leading-relaxed px-4 text-center">
           Search any phone number, URL, or UPI ID to verify against our global threat database.
         </p>
       </div>

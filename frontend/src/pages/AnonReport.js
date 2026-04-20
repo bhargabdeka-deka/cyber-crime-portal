@@ -94,13 +94,13 @@ export default function AnonReport() {
          </div>
        ) : (
          <>
-           <div className="mb-12 md:mb-16">
-             <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-500 tracking-widest uppercase mb-6 border border-emerald-100">
-               <Lock size={14} /> Anonymous Entry Authorized
-             </div>
-             <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">File Incident</h1>
-             <p className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-[0.15em] md:tracking-[0.2em] px-1">No identity verification required for public logs.</p>
-           </div>
+            <div className="mb-12 md:mb-16 text-center">
+              <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-500 tracking-widest uppercase mb-6 border border-emerald-100 mx-auto">
+                <Lock size={14} /> Anonymous Entry Authorized
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4 mx-auto">File Incident</h1>
+              <p className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-[0.15em] md:tracking-[0.2em] px-1 mx-auto">No identity verification required for public logs.</p>
+            </div>
 
            <form onSubmit={handleSubmit} className="space-y-8 md:space-y-10 group mb-20">
               <div className="bg-slate-50 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] border border-slate-100 space-y-6 md:space-y-8 shadow-sm">

@@ -117,7 +117,7 @@ export default function Complaints() {
            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
               <Activity size={14} /> Intelligence Index
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Incident Log</h1>
+           <h1 className="text-4xl font-bold font-brand text-slate-900 tracking-[-0.5px] uppercase leading-none">Incident Log</h1>
            <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-3">{totalCount} Record Entries</p>
         </div>
         <div className="flex gap-4">
@@ -129,39 +129,50 @@ export default function Complaints() {
       </div>
 
       {/* Filter Pillbox */}
-      <div className="bg-slate-50 p-6 rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-4 mb-12">
-        <div className="relative flex-grow min-w-[280px]">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+      <div className="bg-slate-50 p-4 md:p-6 rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 flex flex-col lg:flex-row lg:items-center gap-4 mb-8 md:mb-12">
+        <div className="relative flex-grow">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
-            placeholder="SEARCH BY CASE ID OR KEYWORD..." 
+            placeholder="Search by Case ID or Keyword..." 
             value={search}
             onChange={e => { setPage(1); setSearch(e.target.value); }}
-            className="w-full bg-white border border-transparent pl-14 pr-6 py-4 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none transition-all shadow-sm"
+            className="w-full bg-white border border-transparent pl-14 pr-6 py-4 rounded-full text-xs font-bold uppercase tracking-widest focus:border-soft-teal/20 outline-none transition-all shadow-sm"
           />
         </div>
 
-        <div className="flex items-center gap-4">
-          {[
-            { value: priorityFilter, setter: setPriority, options: [["", "Priorities"], ["Critical", "Critical"], ["High", "High"], ["Medium", "Medium"], ["Low", "Low"]] },
-            { value: statusFilter,   setter: setStatus,   options: [["", "Statuses"], ["Pending", "Pending"], ["Investigating", "Investigating"], ["Resolved", "Resolved"]] },
-            { value: sort,           setter: setSort,     options: [["-createdAt", "Newest"], ["createdAt", "Oldest"], ["-riskScore", "High Risk"]] },
-          ].map((sel, i) => (
-            <select 
-              key={i} 
-              value={sel.value} 
-              onChange={e => { setPage(1); sel.setter(e.target.value); }}
-              className="bg-white border border-transparent px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none cursor-pointer shadow-sm"
-            >
-              {sel.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          ))}
+        <div className="flex flex-wrap items-center gap-3 md:gap-4 justify-between lg:justify-end">
+          <div className="grid grid-cols-2 sm:flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+            {[
+              { value: priorityFilter, setter: setPriority, options: [["", "Priorities"], ["Critical", "Critical"], ["High", "High"], ["Medium", "Medium"], ["Low", "Low"]] },
+              { value: statusFilter,   setter: setStatus,   options: [["", "Statuses"], ["Pending", "Pending"], ["Investigating", "Investigating"], ["Resolved", "Resolved"]] },
+            ].map((sel, i) => (
+              <select 
+                key={i} 
+                value={sel.value} 
+                onChange={e => { setPage(1); sel.setter(e.target.value); }}
+                className="flex-grow sm:flex-none bg-white border border-transparent px-4 md:px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none cursor-pointer shadow-sm appearance-none"
+              >
+                {sel.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            ))}
+          </div>
           
-          {(priorityFilter || statusFilter || search) && (
-            <button onClick={resetFilters} className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors">
-              <X size={18} />
-            </button>
-          )}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <select 
+              value={sort} 
+              onChange={e => { setPage(1); setSort(e.target.value); }}
+              className="flex-grow sm:flex-none bg-white border border-transparent px-4 md:px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none cursor-pointer shadow-sm appearance-none"
+            >
+              {[["-createdAt", "Newest"], ["createdAt", "Oldest"], ["-riskScore", "High Risk"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+            
+            {(priorityFilter || statusFilter || search) && (
+              <button onClick={resetFilters} className="shrink-0 w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors shadow-sm">
+                <X size={18} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -174,7 +185,7 @@ export default function Complaints() {
            </div>
         </div>
       ) : complaints.length === 0 ? (
-        <div className="bg-slate-50 rounded-[4rem] py-32 text-center border border-slate-100">
+        <div className="bg-slate-50 rounded-[4rem] py-32 text-center border border-slate-100 px-6">
           <div className="inline-flex w-20 h-20 bg-white rounded-3xl items-center justify-center mb-8 shadow-soft">
              <FileText className="text-slate-200" size={32} />
           </div>
@@ -183,69 +194,71 @@ export default function Complaints() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="overflow-x-auto pb-10">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-transparent border-b-2 border-slate-100">
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Identification</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Reporter</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Type</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Rank</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Risk</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Status</th>
-                  <th className="text-right py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {complaints.map((c) => (
-                  <tr 
-                    key={c._id} 
-                    onClick={() => setSelected(c)}
-                    className="hover:bg-soft-blue/20 cursor-pointer transition-all group rounded-3xl"
-                  >
-                    <td className="py-8 px-8">
-                      <div className="text-sm font-black text-slate-900 tracking-tighter uppercase">{c.caseId}</div>
-                    </td>
-                    <td className="py-8 px-8">
-                       <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-400 uppercase">
-                             {c.user?.name?.[0]}
-                          </div>
-                          <span className="text-[11px] font-bold text-slate-700 uppercase">{c.user?.name || "REDACTED"}</span>
-                       </div>
-                    </td>
-                    <td className="py-8 px-8">
-                       <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{c.crimeType}</span>
-                    </td>
-                    <td className="py-8 px-8">
-                       <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase border ${priorityConfig[c.priority]?.color || 'bg-slate-50'}`}>
-                         {c.priority}
-                       </span>
-                    </td>
-                    <td className="py-8 px-8">
-                       <div className={`text-lg font-black ${c.riskScore >= 80 ? 'text-rose-500' : 'text-slate-900'}`}>
-                         {c.riskScore}
-                       </div>
-                    </td>
-                    <td className="py-8 px-8 text-center" onClick={e => e.stopPropagation()}>
-                       <select 
-                         value={c.status} 
-                         disabled={updating === c._id}
-                         onChange={e => handleStatusChange(c._id, e.target.value)}
-                         className={`text-[9px] font-black uppercase px-4 py-2 rounded-full border outline-none cursor-pointer transition-all ${statusConfig[c.status]?.color || 'bg-white'}`}
-                       >
-                         {STEPS.map(s => <option key={s} value={s}>{s}</option>)}
-                       </select>
-                    </td>
-                    <td className="py-8 px-8 text-right">
-                       <div className="inline-flex w-10 h-10 rounded-full bg-white shadow-sm items-center justify-center text-slate-500 group-hover:text-soft-teal group-hover:scale-110 transition-all">
-                          <ChevronRight size={20} />
-                       </div>
-                    </td>
+          <div className="bg-white/50 backdrop-blur-sm rounded-[2rem] md:rounded-[3rem] border border-slate-100 overflow-hidden shadow-soft">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[900px] lg:min-w-0">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">ID / Case</th>
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Subject</th>
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Classification</th>
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Rank/Score</th>
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Protocol Status</th>
+                    <th className="py-6 px-6 md:px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Intel</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {complaints.map((c) => (
+                    <tr 
+                      key={c._id} 
+                      onClick={() => setSelected(c)}
+                      className="hover:bg-white cursor-pointer transition-all group"
+                    >
+                      <td className="py-6 px-6 md:px-8">
+                        <div className="text-xs font-black text-slate-900 tracking-tighter uppercase whitespace-nowrap">{c.caseId.slice(0, 14)}...</div>
+                        <div className="text-[9px] font-bold text-slate-400 mt-1 uppercase">{new Date(c.createdAt).toLocaleDateString()}</div>
+                      </td>
+                      <td className="py-6 px-6 md:px-8">
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-400 uppercase shrink-0">
+                               {c.user?.name?.[0]}
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-700 uppercase truncate max-w-[120px]">{c.user?.name || "REDACTED"}</span>
+                         </div>
+                      </td>
+                      <td className="py-6 px-6 md:px-8">
+                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{c.crimeType}</span>
+                      </td>
+                      <td className="py-6 px-6 md:px-8">
+                         <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase border ${priorityConfig[c.priority]?.color || 'bg-slate-50'}`}>
+                              {c.priority}
+                            </span>
+                            <span className={`text-[13px] font-black ${c.riskScore >= 80 ? 'text-rose-500' : 'text-slate-900'}`}>
+                              {c.riskScore}
+                            </span>
+                         </div>
+                      </td>
+                      <td className="py-6 px-6 md:px-8 text-center" onClick={e => e.stopPropagation()}>
+                         <select 
+                           value={c.status} 
+                           disabled={updating === c._id}
+                           onChange={e => handleStatusChange(c._id, e.target.value)}
+                           className={`text-[9px] font-black uppercase px-4 py-2 rounded-full border outline-none cursor-pointer transition-all ${statusConfig[c.status]?.color || 'bg-white'}`}
+                         >
+                           {STEPS.map(s => <option key={s} value={s}>{s}</option>)}
+                         </select>
+                      </td>
+                      <td className="py-6 px-6 md:px-8 text-right">
+                         <div className="inline-flex w-10 h-10 rounded-full bg-slate-50 border border-slate-100 items-center justify-center text-slate-400 group-hover:text-soft-teal group-hover:bg-white group-hover:shadow-sm transition-all">
+                            <ChevronRight size={18} />
+                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}

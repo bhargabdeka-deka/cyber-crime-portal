@@ -57,11 +57,11 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#E0F4FF]">
+    <div className="min-h-screen flex flex-col font-sans bg-[#E0F4FF] overflow-x-hidden w-full">
       {/* Identity Bar */}
-      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className={`bg-slate-900 text-white py-2.5 px-2 text-[10px] sm:text-xs font-semibold tracking-wide flex flex-wrap items-center justify-center gap-2 sm:gap-3 sticky top-0 z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'} w-full text-center`}>
         <span>CyberShield Global Network</span>
-        <span className="opacity-30">·</span>
+        <span className="opacity-30 hidden sm:inline">·</span>
         <span className="text-emerald-400 font-medium">Secure Session Active</span>
       </div>
 
@@ -83,9 +83,9 @@ export default function Landing() {
              <button onClick={() => navigate("/api-docs")} className="text-sm font-semibold text-slate-600 hover:text-soft-teal transition-colors uppercase tracking-wider">Docs</button>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
-             <button onClick={() => navigate("/login")} className="text-[11px] md:text-sm font-bold text-slate-700 hover:text-soft-teal px-2 md:px-4 transition-colors">LOGIN</button>
-             <button onClick={() => navigate("/register")} className="bg-soft-teal text-white px-4 md:px-6 py-2 md:py-3 rounded-full text-[11px] md:text-sm font-bold tracking-wide hover:shadow-lg hover:scale-105 transition-all">SIGN UP</button>
+          <div className="flex items-center gap-1 md:gap-4 shrink-0">
+             <button onClick={() => navigate("/login")} className="text-[10px] md:text-sm font-bold text-slate-700 hover:text-soft-teal px-2 md:px-4 transition-colors">LOGIN</button>
+             <button onClick={() => navigate("/register")} className="bg-soft-teal text-white px-3 md:px-6 py-2 md:py-3 rounded-full text-[10px] md:text-sm font-bold tracking-wide hover:shadow-lg hover:scale-105 transition-all">SIGN UP</button>
           </div>
         </nav>
       </header>
@@ -98,45 +98,45 @@ export default function Landing() {
                  <div className="inline-flex items-center gap-2 bg-white/50 border border-white px-4 py-2 rounded-full text-[11px] font-black text-soft-teal tracking-widest uppercase shadow-sm">
                     <Zap size={14} className="fill-soft-teal" /> Instant Security Verification
                  </div>
-                 <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight">"Protecting Your Digital Assets, Our Priority"</p>
+                 <p className="font-serif italic text-slate-600 text-base md:text-xl font-medium tracking-tight px-2 text-center w-full">"Protecting Your Digital Assets, Our Priority"</p>
                </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black font-brand text-slate-900 leading-[0.95] tracking-tighter">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black font-brand text-slate-900 leading-[0.95] tracking-tighter text-center mx-auto">
                 Stay Safe In <br/>
                 <span className="text-soft-teal">Digital World.</span>
               </h1>
               
-              <p className="text-sm md:text-lg font-medium text-slate-500 leading-relaxed max-w-[280px] md:max-w-md">
+              <p className="text-sm md:text-lg font-medium text-slate-500 leading-relaxed max-w-[280px] md:max-w-md mx-auto text-center">
                 Fastest way to verify UPI IDs, Phone Numbers, and URLs. Trusted by thousands of users across the globe.
               </p>
 
               <form onSubmit={handleCheck} className="relative group max-w-2xl mx-auto w-full">
-                <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal transition-all">
+                <div className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal transition-all">
                   <Search size={22} className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <input 
                   type="text" 
-                  placeholder={w < 640 ? "Analyze Phone, URL, UPI..." : "Analyze Phone, URL, or UPI Database..."}
+                  placeholder={w < 640 ? "Analyze Query..." : "Analyze Phone, URL, or UPI Database..."}
                   value={query}
                   onChange={e => { setQuery(e.target.value); setCheckResult(null); }}
-                  className="w-full bg-white/70 backdrop-blur-md border border-white pl-14 md:pl-20 pr-32 md:pr-40 py-5 md:py-7 rounded-full text-sm md:text-lg font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-soft-teal/10 shadow-soft transition-all"
+                  className="w-full bg-white/70 backdrop-blur-md border border-white pl-12 md:pl-20 pr-24 md:pr-40 py-4 md:py-7 rounded-full text-sm md:text-lg font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-soft-teal/10 shadow-soft transition-all"
                 />
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-900 text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-[10px] md:text-xs font-bold tracking-[0.1em] md:tracking-[0.2em] shadow-lg hover:bg-soft-teal transition-all flex items-center gap-2 md:gap-3"
+                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-slate-900 text-white px-4 md:px-10 py-2.5 md:py-4 rounded-full text-[10px] md:text-xs font-bold tracking-[0.1em] md:tracking-[0.2em] shadow-lg hover:bg-soft-teal transition-all flex items-center gap-1 md:gap-3"
                 >
                   {loading ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>SCAN <ShieldCheck size={14} className="md:w-4 md:h-4" /></>}
                 </button>
               </form>
               
-              <div className="flex flex-wrap justify-center gap-3 mt-6">
-                <span className="text-[10px] font-bold text-slate-400 py-2 uppercase tracking-widest">Quick Verify:</span>
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3 mt-6 px-4">
+                <span className="w-full md:w-auto text-[9px] font-bold text-slate-400 py-2 uppercase tracking-widest block md:inline">Quick Verify:</span>
                 {["9876543210", "sbi-kyc-check.in", "lottery@scam.in"].map(ex => (
                   <button 
                     key={ex} 
                     onClick={() => { setQuery(ex); triggerCheck(ex); }}
-                    className="bg-white/50 backdrop-blur-sm border border-white text-[10px] font-bold text-slate-500 px-4 py-2 rounded-full hover:border-soft-teal hover:text-soft-teal transition-all shadow-sm uppercase tracking-wider"
+                    className="bg-white/50 backdrop-blur-sm border border-white text-[9px] font-bold text-slate-500 px-3 md:px-4 py-2 rounded-full hover:border-soft-teal hover:text-soft-teal transition-all shadow-sm uppercase tracking-wider"
                   >
                     {ex}
                   </button>
@@ -247,12 +247,12 @@ export default function Landing() {
         <section className="px-4 md:px-6 mt-10">
            <div className="max-w-6xl mx-auto bg-slate-900 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 relative overflow-hidden">
               <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                 <div>
+                 <div className="text-center lg:text-left">
                     <h2 className="text-4xl md:text-5xl font-bold font-serif text-white tracking-tight mb-4">
                        Trusted Security. <br/>
                        <span className="text-soft-teal italic font-medium">Verified Intelligence.</span>
                     </h2>
-                     <p className="text-base md:text-lg text-slate-300 font-medium mb-10 max-w-sm">
+                     <p className="text-base md:text-lg text-slate-300 font-medium mb-10 max-w-sm mx-auto lg:mx-0">
                         Join our platform to access advanced threat intelligence and protect your digital assets.
                      </p>
                     <button onClick={() => navigate("/register")} className="bg-white text-slate-900 px-8 py-4 rounded-full font-semibold tracking-wide hover:bg-soft-teal hover:text-white transition-all shadow-lg hover:shadow-soft-teal/50 w-full md:w-auto">
