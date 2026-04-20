@@ -5,18 +5,11 @@ import UserLayout from "../../layouts/UserLayout";
 import { 
   User, 
   MapPin, 
-  Phone, 
-  Mail, 
-  Shield, 
-  FileText, 
-  Calendar, 
   Camera, 
   LogOut, 
   Save,
   CheckCircle,
-  AlertTriangle,
-  Activity,
-  Zap
+  AlertTriangle
 } from "lucide-react";
 
 export default function Profile() {
@@ -130,17 +123,17 @@ export default function Profile() {
                           </div>
                        </div>
                     </div>
-                    <h3 className="text-2xl font-bold capitalize tracking-tight mb-2">{form.name || "Unidentified"}</h3>
-                    <p className="text-sm font-medium text-slate-300 opacity-90 mb-8">{storedUser.email}</p>
+                    <h3 className="text-2xl font-bold capitalize tracking-tight mb-2 leading-tight px-2 break-words">{form.name || "Unidentified"}</h3>
+                    <p className="text-sm font-medium text-slate-300 opacity-90 mb-8 px-4 truncate">{storedUser.email}</p>
                     
                     <div className="flex flex-col gap-3">
-                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
-                          <span className="text-xs font-medium tracking-wide text-slate-300">Reports</span>
-                          <span className="text-sm font-semibold">{complaints.length}</span>
+                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between gap-4">
+                          <span className="text-xs font-medium tracking-wide text-slate-300 shrink-0">Reports</span>
+                          <span className="text-sm font-semibold truncate">{complaints.length}</span>
                        </div>
-                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
-                          <span className="text-xs font-medium tracking-wide text-slate-300">Security</span>
-                          <span className="text-sm font-semibold text-emerald-400">Verified</span>
+                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between gap-4">
+                          <span className="text-xs font-medium tracking-wide text-slate-300 shrink-0">Security</span>
+                          <span className="text-sm font-semibold text-emerald-400 truncate">Verified</span>
                        </div>
                     </div>
                  </div>

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   ShieldCheck, 
-  ChevronRight, 
   AlertTriangle, 
   Phone, 
   Globe, 
@@ -10,20 +9,20 @@ import {
   Target,
   CheckCircle,
   ArrowRight,
-  Info,
   Search,
-  Lock,
   Zap,
-  Activity,
-  ExternalLink
+  Share2
 } from "lucide-react";
 import API from "../services/api";
+import { useScrollDirection } from "../hooks/useScrollDirection";
+import useWindowWidth from "../hooks/useWindowWidth";
 import Footer from "../components/Footer";
 
 const verdictConfig = {
-  SAFE:    { icon: CheckCircle,   color: "text-emerald-600", bg: "bg-emerald-50",  border: "border-emerald-100", label: "VERIFIED SAFE" },
-  CAUTION: { icon: Info,          color: "text-amber-600",   bg: "bg-amber-50",    border: "border-amber-100",  label: "SUSPICIOUS" },
-  DANGER:  { icon: AlertTriangle, color: "text-rose-600",    bg: "bg-rose-50",     border: "border-rose-100",   label: "VERIFIED SCAM" },
+  safe:      { color:"text-emerald-600", bg:"bg-emerald-50",  border:"border-emerald-100", icon: CheckCircle, title:"No Reports Found",  sub:"This node appears safe across our global intelligence network." },
+  caution:   { color:"text-amber-600",   bg:"bg-amber-50",   border:"border-amber-100",   icon: AlertTriangle, title:"Reported Once",      sub:"Single incident log detected. Proceed with extreme caution." },
+  warning:   { color:"text-orange-600",  bg:"bg-orange-50",  border:"border-orange-100",  icon: AlertTriangle, title:"Suspicious Pattern",  sub:"Multiple intelligence nodes have flagged this activity." },
+  dangerous: { color:"text-rose-600",    bg:"bg-rose-50",    border:"border-rose-100",    icon: AlertTriangle, title:"Highly Dangerous",   sub:"Confirmed threat vector. Do NOT engage with this entity." },
 };
 
 export default function Landing() {
@@ -32,29 +31,42 @@ export default function Landing() {
   const [checkResult, setCheckResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [ticker, setTicker] = useState([]);
+  const isVisible = useScrollDirection();
+  const w = useWindowWidth();
 
   useEffect(() => {
-    API.get("/public/scams/recent").then(res => setTicker(res.data)).catch(() => {});
+    API.get("/scam/activity").then(res => setTicker(res.data)).catch(() => {});
   }, []);
 
-  const handleCheck = async (e) => {
-    e.preventDefault();
-    if (!query) return;
+  const triggerCheck = async (val) => {
+    if (!val) return;
     setLoading(true);
     try {
-      const res = await API.get(`/public/check?query=${query}`);
+      const res = await API.get(`/scam/check?query=${val}`);
       setCheckResult(res.data);
     } catch {
-      setCheckResult({ verdict: "CAUTION", note: "Security database unreachable. Proceed with awareness." });
+      setCheckResult({ verdict: "caution", note: "Security database unreachable. Proceed with awareness." });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCheck = (e) => {
+    e.preventDefault();
+    triggerCheck(query);
+  };
+
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#E0F4FF]">
+      {/* Identity Bar */}
+      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+        <span>CyberShield Global Network</span>
+        <span className="opacity-30">·</span>
+        <span className="text-emerald-400 font-medium">Secure Session Active</span>
+      </div>
+
       {/* 1. Header Navigation */}
-      <header className="px-4 md:px-6 py-4 md:py-6 sticky top-0 z-50">
+      <header className={`px-4 md:px-6 py-4 md:py-6 sticky top-[37px] z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
         <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
           <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => navigate("/")}>
              <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-white">
@@ -89,7 +101,7 @@ export default function Landing() {
                  <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight">"Protecting Your Digital Assets, Our Priority"</p>
                </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 leading-[0.95] tracking-tighter">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black font-brand text-slate-900 leading-[0.95] tracking-tighter">
                 Stay Safe In <br/>
                 <span className="text-soft-teal">Digital World.</span>
               </h1>
@@ -98,54 +110,109 @@ export default function Landing() {
                 Fastest way to verify UPI IDs, Phone Numbers, and URLs. Trusted by thousands of users across the globe.
               </p>
 
-              <form onSubmit={handleCheck} className="relative w-full max-w-lg group">
-                <div className="absolute inset-y-0 left-4 md:left-6 flex items-center text-slate-400 group-focus-within:text-soft-teal transition-colors">
-                   <Search size={18} className="md:w-[22px] md:h-[22px]" />
+              <form onSubmit={handleCheck} className="relative group max-w-2xl mx-auto w-full">
+                <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal transition-all">
+                  <Search size={22} className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <input 
-                   type="text" 
-                   value={query} 
-                   onChange={e => { setQuery(e.target.value); setCheckResult(null); }}
-                   placeholder="phone, url or upi..."
-                   className="w-full bg-white pl-12 md:pl-16 pr-32 md:pr-44 py-5 md:py-7 rounded-full text-sm md:text-lg font-semibold shadow-soft focus:shadow-hover focus:outline-none placeholder:text-slate-300 transition-all border border-transparent focus:border-soft-teal/20"
+                  type="text" 
+                  placeholder={w < 640 ? "Analyze Phone, URL, UPI..." : "Analyze Phone, URL, or UPI Database..."}
+                  value={query}
+                  onChange={e => { setQuery(e.target.value); setCheckResult(null); }}
+                  className="w-full bg-white/70 backdrop-blur-md border border-white pl-14 md:pl-20 pr-32 md:pr-40 py-5 md:py-7 rounded-full text-sm md:text-lg font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-soft-teal/10 shadow-soft transition-all"
                 />
                 <button 
-                  type="submit"
+                  type="submit" 
                   disabled={loading}
-                  className="absolute right-2 md:right-3 top-2 md:top-3 bottom-2 md:top-3 md:bottom-3 bg-soft-teal text-white px-6 md:px-10 rounded-full font-bold text-[10px] md:text-sm tracking-widest hover:brightness-110 active:scale-95 transition-all flex items-center justify-center"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-900 text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-[10px] md:text-xs font-bold tracking-[0.1em] md:tracking-[0.2em] shadow-lg hover:bg-soft-teal transition-all flex items-center gap-2 md:gap-3"
                 >
-                  {loading ? "..." : "ANALYZE"}
+                  {loading ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>SCAN <ShieldCheck size={14} className="md:w-4 md:h-4" /></>}
                 </button>
               </form>
+              
+              <div className="flex flex-wrap justify-center gap-3 mt-6">
+                <span className="text-[10px] font-bold text-slate-400 py-2 uppercase tracking-widest">Quick Verify:</span>
+                {["9876543210", "sbi-kyc-check.in", "lottery@scam.in"].map(ex => (
+                  <button 
+                    key={ex} 
+                    onClick={() => { setQuery(ex); triggerCheck(ex); }}
+                    className="bg-white/50 backdrop-blur-sm border border-white text-[10px] font-bold text-slate-500 px-4 py-2 rounded-full hover:border-soft-teal hover:text-soft-teal transition-all shadow-sm uppercase tracking-wider"
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
 
-              {checkResult && (
-                <div className={`p-8 rounded-[2.5rem] border-2 animate-in zoom-in-95 duration-500 shadow-soft ${verdictConfig[checkResult.verdict].bg} ${verdictConfig[checkResult.verdict].border}`}>
-                   <div className="flex gap-6">
-                      <div className={`mt-1 p-3 rounded-2xl bg-white shadow-sm ${verdictConfig[checkResult.verdict].color}`}>
-                         {(() => {
-                            const Icon = verdictConfig[checkResult.verdict].icon;
-                            return <Icon size={32} />;
-                         })()}
+              {checkResult && verdictConfig[checkResult.verdict] && (
+                <div className="mt-12 animate-in fade-in zoom-in-95 duration-500 w-full max-w-4xl mx-auto text-left">
+                  <div className={`${verdictConfig[checkResult.verdict].bg} border-2 ${verdictConfig[checkResult.verdict].border} rounded-[3rem] p-8 md:p-10 shadow-soft relative overflow-hidden`}>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10 relative z-10">
+                      <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                  <div className={`w-20 h-20 rounded-[2rem] bg-white flex items-center justify-center ${verdictConfig[checkResult.verdict].color} shadow-lg shadow-white/50 border border-white shrink-0`}>
+                    {(() => {
+                      const IconComponent = verdictConfig[checkResult.verdict].icon;
+                      return <IconComponent size={40} strokeWidth={2.5} />;
+                    })()}
+                  </div>
+                  <div className="text-center md:text-left">
+                    <h3 className={`text-3xl md:text-4xl font-brand font-black tracking-tighter leading-none mb-3 ${verdictConfig[checkResult.verdict].color}`}>{verdictConfig[checkResult.verdict].title}</h3>
+                    <p className="text-sm font-medium text-slate-500 tracking-wide max-w-lg">{verdictConfig[checkResult.verdict].sub}</p>
+                  </div>
                       </div>
-                      <div>
-                         <div className={`text-[10px] font-black tracking-[0.25em] mb-2 ${verdictConfig[checkResult.verdict].color}`}>
-                            {verdictConfig[checkResult.verdict].label}
-                         </div>
-                         <h3 className="text-xl font-bold text-slate-900 leading-tight">
-                            {checkResult.verdict === 'SAFE' 
-                               ? "Security analysis completed. No threats found in active nodes."
-                               : checkResult.note}
-                         </h3>
-                         <div className="mt-6 flex gap-6">
-                           <button className="text-xs font-bold text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1 uppercase tracking-widest">
-                               Full Report <ChevronRight size={14} />
-                           </button>
-                           <button className="text-xs font-bold text-soft-teal hover:underline transition-colors flex items-center gap-1 uppercase tracking-widest">
-                               Share Result <ExternalLink size={14} />
-                           </button>
-                         </div>
+                      <button 
+                        onClick={() => navigate(`/check-scam/${query}`)}
+                        className="bg-white px-8 py-4 rounded-full text-xs font-bold shadow-hover text-slate-700 hover:text-soft-teal transition-all flex items-center gap-3 shrink-0"
+                      >
+                         <Share2 size={18} /> Share Intel
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
+                          {checkResult.reports || 0}
+                        </div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Reports Found</div>
                       </div>
-                   </div>
+                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
+                          {checkResult.riskLevel === 'LOW' ? '—' : checkResult.avgRiskScore || '—'}
+                        </div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Risk Score</div>
+                      </div>
+                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
+                          {checkResult.riskLevel || 'LOW'}
+                        </div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Severity</div>
+                      </div>
+                    </div>
+
+                    {checkResult.actionAdvice && (
+                      <div className="grid md:grid-cols-2 gap-8 mt-12 relative z-10">
+                        <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50">
+                          <h4 className="text-xs font-brand font-bold text-rose-500 uppercase tracking-widest mb-6">Security Warnings</h4>
+                          <ul className="space-y-4">
+                            {checkResult.actionAdvice.avoid.map((a, i) => (
+                              <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-rose-800">
+                                <span className="w-2 h-2 rounded-full bg-rose-400" /> {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-emerald-50/50 p-8 rounded-[2.5rem] border border-emerald-100/50">
+                          <h4 className="text-xs font-brand font-bold text-emerald-600 uppercase tracking-widest mb-6">Recommended Actions</h4>
+                          <ul className="space-y-4">
+                            {checkResult.actionAdvice.doThis.map((a, i) => (
+                              <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-emerald-800">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400" /> {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
            </div>

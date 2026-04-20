@@ -7,9 +7,15 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell
 } from "recharts";
-import { Shield, AlertTriangle, CheckCircle, Clock, BarChart2, List, ChevronRight, Zap } from "lucide-react";
-
-const COLORS = ["#06B2B2", "#f59e0b", "#10b981", "#ef4444", "#6366f1", "#06b6d4"];
+import {
+  AlertTriangle,
+  CheckCircle,
+  Zap,
+  List,
+  Clock,
+  BarChart2,
+  Shield
+} from "lucide-react";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
@@ -101,7 +107,7 @@ export default function Dashboard() {
              </div>
              <div>
                 <h4 className="text-xl font-black uppercase tracking-tighter leading-none">High-Risk Detection Alert</h4>
-                <p className="text-sm font-semibold opacity-80 mt-2">{stats.criticalCases} cases require immediate triage (Risk Factor > 80%).</p>
+                <p className="text-sm font-semibold opacity-80 mt-2">{stats.criticalCases} cases require immediate triage (Risk Factor &gt; 80%).</p>
              </div>
           </div>
           <button onClick={() => navigate("/complaints")} className="relative z-10 bg-white text-rose-600 px-10 py-5 rounded-full font-black text-sm tracking-widest hover:scale-105 transition-all">
@@ -117,7 +123,7 @@ export default function Dashboard() {
         {summaryStats.map(stat => (
           <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] transition-soft hover:scale-105 cursor-default border border-white/50`}>
             <div className="bg-white/60 w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-               <stat.icon className={stat.text} size={20} className="md:w-[22px] md:h-[22px]" />
+               <stat.icon className={`${stat.text} md:w-[22px] md:h-[22px]`} size={20} />
             </div>
             <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter`}>{stat.value}</div>
             <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2">{stat.label}</div>

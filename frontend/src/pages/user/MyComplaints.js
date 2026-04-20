@@ -7,15 +7,11 @@ import {
   ChevronRight, 
   Search, 
   X, 
-  Activity, 
   LayoutList, 
   ShieldCheck, 
   FileText, 
   Clock, 
   CheckCircle, 
-  AlertTriangle,
-  Info,
-  Zap,
   Filter,
   Download
 } from "lucide-react";
@@ -149,20 +145,22 @@ export default function MyComplaints() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex-grow">
                     <div className="flex items-center gap-4 mb-4">
-                       <span className="text-sm font-black text-slate-900 tracking-tighter uppercase">{c.caseId}</span>
-                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
-                    </div>
-                    <div className="text-lg font-bold text-slate-700 tracking-tight leading-tight mb-2 group-hover:text-soft-teal transition-colors">{c.title}</div>
-                    <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                       {c.crimeType} • {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                    </div>
+                        <span className="text-sm font-bold text-slate-900 tracking-tight">{c.caseId}</span>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-semibold border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
+                     </div>
+                     <div className="text-lg font-semibold text-slate-900 leading-snug mb-2 group-hover:text-soft-teal transition-colors">{c.title}</div>
+                     <div className="text-xs font-medium text-slate-500 flex items-center gap-2">
+                        <span>{c.crimeType}</span>
+                        <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                        <span>{new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className={`px-5 py-3 rounded-full text-[10px] font-black uppercase ${rm.color} ${rm.bg} border ${rm.border}`}>
-                       Risk Factor: {c.riskScore}
+                    <div className={`px-4 py-2 rounded-full text-xs font-semibold ${rm.color} ${rm.bg} border ${rm.border}`}>
+                       Risk: {c.riskScore}
                     </div>
-                    <div className={`px-5 py-3 rounded-full text-[10px] font-black uppercase ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
+                    <div className={`px-4 py-2 rounded-full text-xs font-semibold ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
                        <sm.icon size={14} /> {c.status}
                     </div>
                     <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-soft-teal/20 group-hover:text-soft-teal transition-all hidden md:flex">
@@ -205,8 +203,8 @@ export default function MyComplaints() {
                         <FileText size={28} />
                      </div>
                      <div>
-                        <h3 className="text-3xl font-black tracking-tighter uppercase leading-none text-slate-900">{selected.caseId}</h3>
-                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-3">Personal Case File</p>
+                        <h3 className="text-2xl font-bold tracking-tight text-slate-900">{selected.caseId}</h3>
+                        <p className="text-xs font-medium text-slate-500 mt-2">Case Entry Document</p>
                      </div>
                   </div>
                   <div className="h-1 w-20 bg-soft-teal/20 rounded-full" />
@@ -214,15 +212,15 @@ export default function MyComplaints() {
 
                <div className="grid md:grid-cols-2 gap-10 md:gap-16">
                   <div className="space-y-8 md:space-y-12">
-                     <section>
-                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 md:mb-6">Threat Summary</h4>
+                      <section>
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Case Overview</h4>
                         <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-white">
-                           <div className="text-lg font-black text-slate-800 uppercase tracking-tighter mb-4">{selected.title}</div>
+                           <div className="text-xl font-bold text-slate-900 mb-4 leading-tight">{selected.title}</div>
                            <div className="flex gap-2 flex-wrap">
-                              <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase ${statusMeta[selected.status].bg} ${statusMeta[selected.status].color} border ${statusMeta[selected.status].border}`}>
+                              <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold ${statusMeta[selected.status].bg} ${statusMeta[selected.status].color} border ${statusMeta[selected.status].border}`}>
                                  {selected.status}
                               </span>
-                              <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase ${priorityMeta[selected.priority].bg} ${priorityMeta[selected.priority].color} border ${priorityMeta[selected.priority].border}`}>
+                              <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold ${priorityMeta[selected.priority].bg} ${priorityMeta[selected.priority].color} border ${priorityMeta[selected.priority].border}`}>
                                  {selected.priority}
                               </span>
                            </div>
@@ -230,8 +228,8 @@ export default function MyComplaints() {
                      </section>
 
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Description Payload</h4>
-                        <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-50 text-sm font-semibold leading-relaxed text-slate-600 shadow-sm">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Detailed Description</h4>
+                        <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-50 text-base font-medium leading-relaxed text-slate-700 shadow-sm">
                            "{selected.description}"
                         </div>
                      </section>
@@ -239,14 +237,14 @@ export default function MyComplaints() {
 
                   <div className="space-y-12">
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Status Timeline</h4>
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Status Progress</h4>
                         <div className="flex gap-2 p-2 bg-slate-50 rounded-full border border-white">
                           {STEPS.map((step, i) => {
                             const stepIdx = STEPS.indexOf(selected.status);
                             const done = i <= stepIdx;
                             return (
-                              <div key={step} className={`flex-grow h-12 rounded-full flex items-center justify-center transition-all ${done ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 font-bold'}`}>
-                                 <span className="text-[10px] font-black uppercase">{step}</span>
+                              <div key={step} className={`flex-grow h-12 rounded-full flex items-center justify-center transition-all ${done ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 font-semibold'}`}>
+                                 <span className="text-[10px] font-bold uppercase tracking-wide">{step}</span>
                               </div>
                             );
                           })}
@@ -255,32 +253,32 @@ export default function MyComplaints() {
 
                      {selected.evidence && (
                        <section>
-                          <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Logged Evidence</h4>
+                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Evidence Document</h4>
                           <div className="relative group rounded-[3rem] overflow-hidden shadow-soft border-4 border-white">
-                             <img src={buildImageUrl(selected.evidence)} alt="Evidence" className="w-full grayscale transition-all duration-700 group-hover:grayscale-0" />
+                             <img src={buildImageUrl(selected.evidence)} alt="Evidence" className="w-full transition-all duration-700" />
                              <a 
                                href={buildImageUrl(selected.evidence)} 
                                target="_blank" 
                                rel="noreferrer"
-                               className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-500"
+                               className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-500"
                              >
-                                <div className="bg-white text-slate-900 px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest">Open Evidence</div>
+                                <div className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold text-xs uppercase tracking-wide">View Full Size</div>
                              </a>
                           </div>
-                          <a href={buildImageUrl(selected.evidence)} download className="mt-6 flex items-center gap-3 text-[10px] font-black text-soft-teal tracking-widest uppercase hover:underline">
-                             <Download size={14} /> Download File Metadata
+                          <a href={buildImageUrl(selected.evidence)} download className="mt-6 flex items-center gap-3 text-xs font-bold text-soft-teal tracking-wide hover:underline">
+                             <Download size={14} /> Download Attachment
                           </a>
                        </section>
                      )}
                      
                      <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2rem] border border-white">
                         <div>
-                           <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Filed Date</div>
-                           <div className="text-[11px] font-black uppercase text-slate-900">{new Date(selected.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Filed Date</div>
+                           <div className="text-sm font-bold text-slate-900">{new Date(selected.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                         </div>
                         <div className="text-right">
-                           <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Risk Rating</div>
-                           <div className={`text-xl font-black tracking-tighter ${riskMeta(selected.riskScore).color}`}>{selected.riskScore}</div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Risk Rating</div>
+                           <div className={`text-2xl font-bold tracking-tight ${riskMeta(selected.riskScore).color}`}>{selected.riskScore}</div>
                         </div>
                      </div>
                   </div>

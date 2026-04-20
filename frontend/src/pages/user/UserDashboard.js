@@ -98,13 +98,13 @@ export default function UserDashboard() {
       {/* 1. Header Greeting */}
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 shadow-sm border border-white">
+           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[11px] font-bold text-soft-teal tracking-wide mb-4 shadow-sm border border-white">
               <Zap size={14} className="fill-soft-teal" /> Network Access Verified
            </div>
-           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+           <h1 className="text-3xl md:text-5xl font-black font-brand text-slate-900 tracking-tighter leading-none">
              {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
            </h1>
-           <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
+           <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
            <p className="text-sm font-medium text-slate-600 tracking-wide mt-5">
              {total === 0 ? "No active incidents reported in your sector." : `Managing ${total} intelligence reports.`}
            </p>
@@ -147,8 +147,8 @@ export default function UserDashboard() {
       <div className="grid lg:grid-cols-2 gap-10">
         {/* Status Analysis */}
         <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 h-full">
-           <h3 className="text-sm font-bold text-slate-600 tracking-wide mb-10 flex items-center gap-2">
-              <Activity className="text-soft-teal" size={18} strokeWidth={3} /> Status Breakdown
+           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-10 flex items-center gap-2">
+              <Activity className="text-soft-teal" size={16} /> Status Breakdown
            </h3>
            
            {total === 0 ? (
@@ -180,9 +180,9 @@ export default function UserDashboard() {
         {/* Recent Cases */}
         <div className="bg-white p-10 rounded-[4rem] shadow-soft border border-slate-50 h-full flex flex-col">
            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-sm font-bold text-slate-600 tracking-wide">Recent Reports</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recent Activity</h3>
               {total > 0 && (
-                <button onClick={() => navigate("/my-complaints")} className="text-xs font-bold text-soft-teal hover:underline tracking-wide">View All</button>
+                <button onClick={() => navigate("/my-complaints")} className="text-xs font-bold text-soft-teal hover:underline tracking-wide">View History</button>
               )}
            </div>
 

@@ -80,13 +80,30 @@ router.post("/forgot-password", resetLimiter, async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL || "https://cyber-crime-fronten.onrender.com"}/reset-password/${token}`;
 
-    await sendEmailTo(email, "CyberShield — Reset Your Password",
-      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;background:#0f172a;color:white;border-radius:12px">
-        <h2 style="color:#60a5fa">⚔️ CyberShield</h2>
-        <p>Hi ${user.name},</p>
-        <p>You requested a password reset. Click the button below:</p>
-        <a href="${resetUrl}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Reset Password</a>
-        <p style="color:#94a3b8;font-size:13px">This link expires in 1 hour. If you didn't request this, ignore this email.</p>
+    await sendEmailTo(email, "CyberShield — [SECURE PROTOCOL] Reset Your Password",
+      `<div style="font-family:'Outfit','Montserrat','Poppins',sans-serif;max-width:600px;margin:0 auto;padding:40px;background-color:#E0F4FF;border-radius:48px;">
+        <div style="background-color:#ffffff;padding:50px;border-radius:40px;box-shadow:0 15px 50px rgba(0,0,0,0.05);border:1px solid #ffffff;text-align:center;">
+          <div style="margin-bottom:40px;">
+            <span style="font-size:28px;font-weight:900;letter-spacing:-0.05em;color:#0f172a;text-decoration:none;">CYBER<span style="color:#06B2B2;">SHIELD</span></span>
+            <div style="font-size:10px;font-weight:700;color:#06B2B2;letter-spacing:0.2em;margin-top:4px;text-transform:uppercase;">Network Intelligence</div>
+          </div>
+          
+          <h2 style="font-size:26px;font-weight:900;color:#0f172a;margin-bottom:20px;letter-spacing:-0.03em;">Reset Access Protocol</h2>
+          <p style="font-size:15px;color:#64748b;line-height:1.7;margin-bottom:40px;font-weight:500;">Hi ${user.name}, initialize the secure recovery protocol to restore your administrator node credentials. This transmission is encrypted and unique to your session.</p>
+          
+          <div style="margin-bottom:40px;">
+            <a href="${resetUrl}" style="display:inline-block;background-color:#0f172a;color:#ffffff;padding:22px 50px;border-radius:999px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;box-shadow:0 10px 30px rgba(15,23,42,0.2);">FINALIZE RESET</a>
+          </div>
+          
+          <p style="font-size:11px;color:#94a3b8;margin-top:40px;border-top:1px solid #f1f5f9;padding-top:30px;font-weight:500;line-height:1.6;">
+            Expiration: 60 Minutes<br/>
+            Node: CyberShield Primary Cluster<br/>
+            <span style="font-weight:700;color:#cbd5e1;margin-top:10px;display:block;">IF YOU DID NOT REQUEST THIS ACCESS, IGNORE THIS TRANSMISSION.</span>
+          </p>
+        </div>
+        <div style="text-align:center;margin-top:30px;">
+          <p style="font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:0.15em;text-transform:uppercase;">&copy; 2026 CYBERSHIELD GLOBAL NETWORK</p>
+        </div>
       </div>`
     );
 

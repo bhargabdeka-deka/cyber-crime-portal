@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../../services/api";
-import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle, ChevronRight } from "lucide-react";
+import { Lock, Eye, EyeOff, CheckCircle, ChevronRight, ArrowLeft } from "lucide-react";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -12,15 +13,16 @@ export default function ResetPassword() {
   const [error, setError]         = useState("");
   const [showPass, setShowPass]   = useState(false);
   const navigate = useNavigate();
+  const isVisible = useScrollDirection();
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
   const strengthColors = ["bg-slate-100", "bg-rose-400", "bg-amber-400", "bg-emerald-400"];
-  const strengthLabels = ["MISSING", "WEAK_HASH", "SECURE_NODE", "ENCRYPTED"];
+  const strengthLabels = ["NONE", "WEAK", "SECURE", "ENCRYPTED"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirm) { setError("Sequence mismatch"); return; }
-    if (password.length < 6)  { setError("Entropy insufficient (min. 6)"); return; }
+    if (password !== confirm) { setError("Passwords do not match"); return; }
+    if (password.length < 6)  { setError("Password too short (min. 6)"); return; }
     setLoading(true); setError("");
     try {
       await API.post(`/users/reset-password/${token}`, { password });
@@ -31,51 +33,67 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E0F4FF] font-sans flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex items-center justify-center p-6 relative overflow-hidden flex-col">
+      {/* Identity Bar */}
+      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 fixed top-0 w-full z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+        <span>CyberShield Global Network</span>
+        <span className="opacity-30">·</span>
+        <span className="text-emerald-400 font-medium">Secure Session Active</span>
+      </div>
+
+      {/* Floating Return Button */}
+      <button 
+        onClick={() => navigate("/login")} 
+        className={`fixed top-20 left-8 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all bg-white/50 backdrop-blur-md px-6 py-3 rounded-full shadow-sm border border-white tracking-wide z-50 ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0 pointer-events-none'}`}
+      >
+        <ArrowLeft size={16} /> Go Back
+      </button>
+
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-soft-teal/10 rounded-full blur-[100px]" />
 
-      <div className="w-full max-w-md bg-white p-12 rounded-[4rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
+      <div className="w-full max-w-md bg-white p-10 md:p-14 rounded-[3.5rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
         {done ? (
           <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="w-24 h-24 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-lg scale-110">
-              <CheckCircle size={48} />
+            <div className="w-20 h-20 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mx-auto mb-8 shadow-lg">
+              <CheckCircle size={40} />
             </div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Reset Success</h2>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest italic mb-10">Node credentials updated and synchronized.</p>
+            <h2 className="text-3xl font-black font-brand text-slate-900 tracking-tighter leading-none mb-4">Reset Successful</h2>
+            <p className="text-sm font-medium text-slate-500 tracking-wide mb-10">Your node credentials have been updated and synchronized across the network.</p>
             <button 
               onClick={() => navigate("/login")} 
-              className="w-full bg-slate-900 text-white px-10 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl hover:brightness-110 active:scale-95 transition-all"
+              className="w-full bg-slate-900 text-white px-10 py-5 rounded-full text-xs font-bold tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all uppercase"
             >
-              AUTHENTICATE NOW
+              Authenticate Now
             </button>
           </div>
         ) : (
           <>
             <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal mx-auto mb-8 shadow-soft">
-                <Lock size={32} />
+              <div className="w-16 h-16 bg-soft-blue/20 rounded-[1.5rem] flex items-center justify-center text-soft-teal mx-auto mb-6 shadow-sm">
+                <Lock size={28} />
               </div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Set Protocol</h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic">Provide new administrative credentials for node access.</p>
+              <h2 className="text-3xl font-black font-brand text-slate-900 tracking-tighter leading-none mb-3">Set Protocol</h2>
+              <p className="text-sm font-medium text-slate-500 tracking-wide max-w-[280px] mx-auto uppercase">Provide new administrative credentials for network node access.</p>
             </div>
 
             {error && (
-              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest mb-8 flex items-center gap-3">
-                <span className="shrink-0">⚠️</span> {error}
+              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-[2rem] text-xs font-bold tracking-wide mb-8 flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0">⚠️</div>
+                {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">New Encryption key</label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] px-5 block">New Encryption Key</label>
                 <div className="relative group">
                   <input 
                     type={showPass ? "text" : "password"} 
                     value={password} 
                     onChange={e => setPassword(e.target.value)} 
-                    placeholder="MIN. 6 CHARS" 
+                    placeholder="Min. 6 characters" 
                     required 
-                    className="w-full bg-slate-50 px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
+                    className="w-full bg-slate-50 px-8 py-5 rounded-full text-sm font-semibold tracking-wide outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
                   />
                   <button 
                     type="button" 
@@ -86,40 +104,43 @@ export default function ResetPassword() {
                   </button>
                 </div>
                 {password.length > 0 && (
-                  <div className="px-4">
+                  <div className="px-5">
                      <div className="flex gap-2 mb-2">
                         {[1, 2, 3].map(i => (
                           <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${i <= strength ? strengthColors[strength] : "bg-slate-100"}`} />
                         ))}
                      </div>
-                     <span className={`text-[8px] font-black uppercase tracking-widest ${strengthColors[strength].replace('bg-', 'text-')}`}>
-                        LOG_STRENGTH: {strengthLabels[strength]}
-                     </span>
+                     <div className="flex justify-between items-center">
+                        <span className={`text-[9px] font-bold uppercase tracking-widest ${strengthColors[strength].replace('bg-', 'text-')}`}>
+                          Strength: {strengthLabels[strength]}
+                        </span>
+                        <span className="text-[9px] font-medium text-slate-400">Encrypted Protocol</span>
+                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">Confirm Protocol</label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] px-5 block">Confirm Protocol</label>
                 <input 
                   type="password" 
                   value={confirm} 
                   onChange={e => setConfirm(e.target.value)} 
-                  placeholder="REPEAT KEY" 
+                  placeholder="Repeat encryption key" 
                   required 
-                  className={`w-full bg-slate-50 px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border transition-all shadow-inner ${confirm && confirm !== password ? "border-rose-200 bg-rose-50/30" : "border-transparent focus:border-soft-teal/20 focus:bg-white"}`}
+                  className={`w-full bg-slate-50 px-8 py-5 rounded-full text-sm font-semibold tracking-wide outline-none border transition-all shadow-inner ${confirm && confirm !== password ? "border-rose-200 bg-rose-50/30" : "border-transparent focus:border-soft-teal/20 focus:bg-white"}`}
                 />
               </div>
 
               <button 
                 type="submit" 
                 disabled={loading || (confirm && confirm !== password)}
-                className="w-full bg-slate-900 text-white h-20 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-30"
+                className="w-full bg-slate-900 text-white h-20 rounded-full text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-xl hover:bg-soft-teal hover:shadow-soft-teal/30 active:scale-95 transition-all disabled:opacity-30 mt-4"
               >
                 {loading ? (
                   <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <>FINALIZE RESET <ChevronRight size={18} /></>
+                  <>Finalize Reset <ChevronRight size={18} /></>
                 )}
               </button>
             </form>

@@ -1,24 +1,35 @@
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, ChevronRight, CheckCircle, Lock } from "lucide-react";
+import { useScrollDirection } from "../hooks/useScrollDirection";
 
 export default function Privacy() {
   const navigate = useNavigate();
+  const isVisible = useScrollDirection();
 
   return (
     <div className="min-h-screen bg-[#E0F4FF] font-sans text-slate-800 pb-20">
-      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-6 md:px-10 py-4 md:py-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
-            <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
+      {/* Identity Bar */}
+      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+        <span>CyberShield Global Network</span>
+        <span className="opacity-30">·</span>
+        <span className="text-emerald-400 font-medium">Secure Session Active</span>
+      </div>
+      {/* Header Navigation */}
+      <header className={`px-4 md:px-6 py-4 md:py-6 sticky top-[37px] z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
+        <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
+              <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
+            </div>
+            <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
+              CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
+            </span>
           </div>
-          <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
-            CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
-          </span>
-        </div>
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all tracking-wide">
            <ArrowLeft size={16} /> Go Back
         </button>
-      </nav>
+        </nav>
+      </header>
 
       <div className="max-w-4xl mx-auto mt-10 md:mt-20 px-4 md:px-6">
          <div className="bg-white p-8 md:p-20 rounded-[2.5rem] md:rounded-[4rem] border border-white shadow-soft animate-in fade-in slide-in-from-bottom-10 duration-700">

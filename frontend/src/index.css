@@ -52,7 +52,10 @@ h1, h2, h3, h4, .font-heading {
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-soft-teal to-blue-600;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, #0f172a, #06B2B2, #2563eb);
   }
 }
 

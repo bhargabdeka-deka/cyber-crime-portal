@@ -33,10 +33,10 @@ export default function UserRegister() {
   return (
     <div className="min-h-screen flex flex-col bg-soft-blue">
       {/* Identity Bar */}
-      <div className="bg-slate-900 text-white py-1.5 px-4 text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 fixed top-0 w-full z-50">
-        <span>Cyber Intelligence Network</span>
-        <span className="opacity-30">|</span>
-        <span>Secure Access Node</span>
+      <div className="bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 fixed top-0 w-full z-50">
+        <span>CyberShield Global Network</span>
+        <span className="opacity-30">·</span>
+        <span className="text-emerald-400 font-medium">Secure Session Active</span>
       </div>
 
       <div className="flex-grow flex items-center justify-center p-4 md:p-6 pt-16 md:pt-12">

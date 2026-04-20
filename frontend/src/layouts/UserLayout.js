@@ -17,6 +17,8 @@ import {
   ChevronRight
 } from "lucide-react";
 
+import { useScrollDirection } from "../hooks/useScrollDirection";
+
 const NAV = [
   { path: "/user-dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/check-scam", icon: Search, label: "Global Check" },
@@ -32,15 +34,16 @@ export default function UserLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const w = useWindowWidth();
   const isMobile = w < 1024;
+  const isVisible = useScrollDirection();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const initials = user?.name ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "U";
   const handleLogout = () => { localStorage.clear(); navigate("/"); };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#E0F4FF] font-sans text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#E0F4FF] font-sans text-slate-900">
       {/* Network Connectivity Bar */}
-      <div className="bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] shrink-0">
+      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] shrink-0 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <span>CyberShield Global Network</span>
         <span className="opacity-30">·</span>
         <span className="text-emerald-400 font-medium">Secure Session Active</span>
@@ -50,18 +53,20 @@ export default function UserLayout({ children }) {
         {isMobile ? (
           <div className="flex flex-col w-full">
             {/* Mobile Top Header */}
-            <header className="bg-white px-6 h-20 flex items-center justify-between sticky top-[37px] z-[60] shadow-soft rounded-b-[2rem]">
-              <div className="flex items-center gap-3" onClick={() => navigate("/")}>
-                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
-                  <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
+            <header className={`px-4 py-4 sticky top-[37px] z-[60] transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
+              <nav className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
+                <div className="flex items-center gap-3" onClick={() => navigate("/")}>
+                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
+                    <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
+                  </div>
+                  <span className="text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
+                    CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
+                  </span>
                 </div>
-                <span className="text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
-                  CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
-                </span>
-              </div>
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-2xl text-slate-500 shadow-sm border border-slate-100">
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-10 h-10 bg-slate-50 flex items-center justify-center rounded-xl text-slate-500 shadow-sm border border-slate-100">
+                  {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+              </nav>
             </header>
 
             {/* Mobile Overlay Menu */}
@@ -92,7 +97,7 @@ export default function UserLayout({ children }) {
                 </nav>
               </div>
             )}
-            <div className="flex-grow overflow-y-auto p-6 pt-4">{children}</div>
+            <div className="flex-grow overflow-y-auto p-6 pt-16">{children}</div>
           </div>
         ) : (
           <>
