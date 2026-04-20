@@ -1,103 +1,133 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../../services/api";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { ShieldCheck, Lock, Mail, ArrowRight, AlertTriangle, CheckCircle, Zap } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); setLoading(true);
+    setLoading(true);
+    setError("");
     try {
       const res = await API.post("/users/login", { email, password });
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate(user.role === "admin" ? "/dashboard" : "/user-dashboard");
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      navigate(res.data.user.role === "admin" ? "/dashboard" : "/user-dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
-    } finally { setLoading(false); }
+      setError(err.response?.data?.message || "ACCESS_DENIED: VERIFY CREDENTIALS");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", padding:16, position:"relative" }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.12) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <button onClick={() => navigate("/")} style={{ position:"fixed", top:16, left:16, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"7px 14px", borderRadius:8, cursor:"pointer", fontSize:13, zIndex:10 }}>← Home</button>
+    <div className="min-h-screen flex flex-col bg-soft-blue">
+      {/* Identity Bar */}
+      <div className="bg-slate-900 text-white py-1.5 px-4 text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 fixed top-0 w-full z-50">
+        <span>Cyber Intelligence Network</span>
+        <span className="opacity-30">|</span>
+        <span>Secure Access Node</span>
+      </div>
 
-      <div style={{ display:"flex", width:"100%", maxWidth: isMobile ? 400 : 860, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, overflow:"hidden", position:"relative", zIndex:1, flexDirection: isMobile ? "column" : "row" }}>
-
-        {/* Left panel — hidden on mobile */}
-        {!isMobile && (
-          <div style={{ flex:1, background:"linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2))", padding:"48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32 }}>
-              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:32, height:32, borderRadius:8, objectFit:"cover" }} />
-              <span style={{ color:"white", fontWeight:700, fontSize:20 }}>CyberShield</span>
+      <div className="flex-grow flex items-center justify-center p-4 md:p-6 pt-16 md:pt-12">
+        <div className="w-full max-w-4xl bg-white border border-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-soft flex flex-col md:flex-row gap-10 md:gap-16">
+          
+          {/* Left Summary */}
+          <div className="md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-50 pb-16 md:pb-0 md:pr-16">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-soft-teal rounded-3xl shadow-soft mb-8 text-white -rotate-6">
+              <ShieldCheck size={28} />
             </div>
-            <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 12px", lineHeight:1.3 }}>Fight cyber crime with confidence.</h2>
-            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:14, lineHeight:1.6, margin:"0 0 28px" }}>A platform to report and track cyber crime complaints — built for Indian citizens.</p>
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              {["AI Risk Analysis","Evidence Upload","Real-Time Tracking","Instant Alerts"].map(f => (
-                <div key={f} style={{ color:"rgba(255,255,255,0.8)", fontSize:14, display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ background:"rgba(16,185,129,0.2)", color:"#10b981", width:22, height:22, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, flexShrink:0 }}>✓</span> {f}
-                </div>
-              ))}
+            <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase italic leading-none mb-6">
+              Access Your <span className="text-soft-teal">Security Console</span>
+            </h1>
+            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest leading-relaxed mb-10 italic">
+              Authenticate your identity to manage your cyber intelligence logs and access real-time threat maps.
+            </p>
+            
+            <div className="space-y-4">
+               <div className="p-6 bg-slate-50 rounded-[2.5rem] border border-white flex items-center gap-4 shadow-sm">
+                  <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-soft-teal shadow-sm">
+                     <Zap size={20} className="fill-soft-teal" />
+                  </div>
+                  <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Network Status: <span className="text-emerald-500">OPERATIONAL</span></div>
+               </div>
             </div>
           </div>
-        )}
 
-        {/* Right panel */}
-        <div style={{ flex:1, padding: isMobile ? "32px 20px" : "48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-          {isMobile && (
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:24 }}>
-              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
-              <span style={{ color:"white", fontWeight:700, fontSize:18 }}>CyberShield</span>
-            </div>
-          )}
-          <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 6px" }}>Welcome back</h2>
-          <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 24px" }}>Sign in to your account</p>
-
-          {error && <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:18, display:"flex", alignItems:"center", gap:8 }}>⚠️ {error}</div>}
-
-          <form onSubmit={handleLogin} style={{ display:"flex", flexDirection:"column", gap:16 }}>
-            <div>
-              <label style={lbl}>Email address</label>
-              <div style={{ position:"relative" }}>
-                <span style={icoStyle}>✉️</span>
-                <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required style={inp} onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+          {/* Right Form */}
+          <div className="md:w-1/2 flex flex-col justify-center">
+            <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tighter italic">Identity Verification</h2>
+            
+            {error && (
+              <div className="mb-8 p-6 rounded-3xl bg-rose-50 border border-rose-100 flex items-center gap-4 animate-in slide-in-from-top-2 text-rose-700">
+                <AlertTriangle size={18} />
+                <p className="text-[10px] font-black uppercase tracking-widest">{error}</p>
               </div>
-            </div>
-            <div>
-              <label style={lbl}>Password</label>
-              <div style={{ position:"relative" }}>
-                <span style={icoStyle}>🔒</span>
-                <input type={showPass?"text":"password"} placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required style={{ ...inp, paddingRight:44 }} onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-                <button type="button" onClick={() => setShowPass(!showPass)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16 }}>{showPass?"🙈":"👁️"}</button>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Access Identifier (Email)</label>
+                <div className="relative group">
+                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
+                  <input 
+                    type="email" 
+                    required 
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="NAME@NETWORK.COM"
+                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
+                  />
+                </div>
               </div>
-            </div>
-            <button type="submit" disabled={loading} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", minHeight:48, opacity: loading ? 0.7 : 1 }}>
-              {loading ? <span style={{ width:18, height:18, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "Sign In →"}
-            </button>
-          </form>
-          <p style={{ color:"#94a3b8", fontSize:14, textAlign:"center", marginTop:20 }}>
-            Don't have an account? <span onClick={() => navigate("/register")} style={{ color:"#60a5fa", cursor:"pointer", fontWeight:500 }}>Create one free</span>
-          </p>
-          <p style={{ color:"#64748b", fontSize:13, textAlign:"center", marginTop:8 }}>
-            <span onClick={() => navigate("/forgot-password")} style={{ color:"#94a3b8", cursor:"pointer" }}>Forgot password?</span>
-          </p>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secret Protocol (Password)</label>
+                  <Link to="/forgot-password" title="Recover Access" className="text-[10px] font-black text-soft-teal uppercase hover:underline">RECOVER</Link>
+                </div>
+                <div className="relative group">
+                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
+                  <input 
+                    type="password" 
+                    required 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-slate-900 text-white h-16 rounded-full font-black text-[10px] tracking-[0.3em] uppercase hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-4 shadow-xl"
+                >
+                  {loading ? "VERIFYING..." : <>INITIATE ACCESS <ArrowRight size={16} /></>}
+                </button>
+              </div>
+
+              <div className="pt-8 text-center border-t border-slate-50">
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    New to the mission? <Link to="/register" className="text-soft-teal hover:underline ml-2">Request Identity</Link>
+                 </p>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+      
+      <div className="text-center py-10">
+         <Link to="/" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">← RETURN TO SYSTEM GATEWAY</Link>
       </div>
     </div>
   );
 }
-
-const lbl = { color:"#94a3b8", fontSize:13, fontWeight:500, display:"block", marginBottom:6 };
-const icoStyle = { position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:15, pointerEvents:"none" };
-const inp = { width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"12px 14px 12px 42px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box", fontFamily:"inherit", transition:"border-color 0.2s" };

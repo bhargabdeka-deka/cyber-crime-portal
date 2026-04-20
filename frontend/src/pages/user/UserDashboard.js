@@ -2,26 +2,37 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
-import useWindowWidth from "../../hooks/useWindowWidth";
 import {
   BarChart, Bar, Cell, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
+import { 
+  ShieldCheck, 
+  Clock, 
+  Search, 
+  CheckCircle, 
+  AlertTriangle, 
+  ChevronRight, 
+  Plus,
+  Zap,
+  Activity,
+  FileText,
+  User,
+  ArrowRight
+} from "lucide-react";
 
 const statusConfig = {
-  Pending:      { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)",  icon: "⏳" },
-  Investigating:{ color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)",  icon: "🔍" },
-  Resolved:     { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)",  icon: "✅" },
+  Pending:      { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "Pending Review", icon: Clock },
+  Investigating:{ color: "text-blue-600",  bg: "bg-blue-50",  border: "border-blue-100",  label: "In Progress",    icon: Search },
+  Resolved:     { color: "text-emerald-600",bg: "bg-emerald-50", border: "border-emerald-100", label: "Resolved",       icon: CheckCircle },
 };
-
-const priorityColor = { Critical: "#ef4444", High: "#f59e0b", Medium: "#3b82f6", Low: "#10b981" };
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
-      <div style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 14px" }}>
-        <p style={{ color: "#94a3b8", fontSize: 12, margin: "0 0 4px" }}>{label}</p>
-        <p style={{ color: "white", fontSize: 16, fontWeight: 700, margin: 0 }}>{payload[0].value}</p>
+      <div className="bg-white/90 backdrop-blur-md border border-white shadow-hover p-4 rounded-[1.5rem]">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+        <p className="text-xl font-black text-slate-900">{payload[0].value} Cases</p>
       </div>
     );
   }
@@ -34,8 +45,6 @@ export default function UserDashboard() {
   const [impact, setImpact] = useState(null);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   useEffect(() => {
     API.get("/complaints/my")
@@ -47,11 +56,10 @@ export default function UserDashboard() {
       .catch(() => {});
   }, []);
 
-  const total        = complaints.length;
-  const pending      = complaints.filter(c => c.status === "Pending").length;
-  const investigating= complaints.filter(c => c.status === "Investigating").length;
-  const resolved     = complaints.filter(c => c.status === "Resolved").length;
-  const highRisk     = complaints.filter(c => c.riskScore >= 80).length;
+  const total         = complaints.length;
+  const pending       = complaints.filter(c => c.status === "Pending").length;
+  const investigating = complaints.filter(c => c.status === "Investigating").length;
+  const resolved      = complaints.filter(c => c.status === "Resolved").length;
 
   const chartData = [
     { status: "Pending",       count: pending,       fill: "#f59e0b" },
@@ -67,20 +75,18 @@ export default function UserDashboard() {
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
 
   const statCards = [
-    { label: "Total Filed",    value: total,        icon: "📋", color: "#60a5fa", bg: "rgba(96,165,250,0.1)",  border: "rgba(96,165,250,0.2)" },
-    { label: "Pending",        value: pending,      icon: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.2)" },
-    { label: "Investigating",  value: investigating,icon: "🔍", color: "#3b82f6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.2)" },
-    { label: "Resolved",       value: resolved,     icon: "✅", color: "#10b981", bg: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.2)" },
-    { label: "High Risk",      value: highRisk,     icon: "🚨", color: "#ef4444", bg: "rgba(239,68,68,0.1)",  border: "rgba(239,68,68,0.2)" },
+    { label: "Reports Filed", value: total,   color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Resolved",      value: resolved, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Active",        value: pending + investigating, color: "text-soft-teal", bg: "bg-soft-blue/50" }
   ];
 
   if (loading) {
     return (
       <UserLayout>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ width: 36, height: 36, border: "3px solid rgba(59,130,246,0.3)", borderTop: "3px solid #3b82f6", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
-            <p style={{ color: "#64748b", fontSize: 14 }}>Loading your dashboard...</p>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
+            <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Syncing User Profile...</p>
           </div>
         </div>
       </UserLayout>
@@ -89,147 +95,161 @@ export default function UserDashboard() {
 
   return (
     <UserLayout>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>
-          {greeting}, {user?.name?.split(" ")[0]} 👋
-        </h1>
-        <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>
-          {total === 0 ? "You haven't filed any complaints yet." : `You have ${total} complaint${total > 1 ? "s" : ""} on record.`}
-        </p>
+      {/* 1. Header Greeting */}
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4 shadow-sm border border-white">
+              <Zap size={14} className="fill-soft-teal" /> Network Access Verified
+           </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
+             {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
+           </h1>
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-4">
+             {total === 0 ? "No active incidents reported in your sector." : `Managing ${total} intelligence reports.`}
+           </p>
+        </div>
+        <button onClick={() => navigate("/submit-complaint")} className="bg-soft-teal text-white px-8 py-4 rounded-full font-black text-xs tracking-widest hover:scale-105 transition-all shadow-lg flex items-center gap-3">
+           <Plus size={18} /> FILE NEW REPORT
+        </button>
       </div>
 
-      {/* Impact Banner — shown when user has reports with targets */}
+      {/* 2. Impact Banner */}
       {impact && impact.estimatedProtected > 0 && (
-        <div style={{ background:"rgba(16,185,129,0.08)", border:"1px solid rgba(16,185,129,0.2)", borderRadius:12, padding:"14px 18px", marginBottom:20, display:"flex", alignItems:"center", gap:14 }}>
-          <span style={{ fontSize:28 }}>🛡️</span>
-          <div>
-            <div style={{ color:"#6ee7b7", fontSize:15, fontWeight:700 }}>
-              Your reports helped ~{impact.estimatedProtected} {impact.estimatedProtected === 1 ? "person" : "people"} avoid this scam
-            </div>
-            <div style={{ color:"#64748b", fontSize:13, marginTop:2 }}>
-              Keep reporting — every complaint makes the database smarter.
-            </div>
-          </div>
+        <div className="bg-emerald-50 border-2 border-emerald-100 p-8 rounded-[3rem] mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-soft">
+           <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm border border-emerald-50">
+                 <ShieldCheck size={32} />
+              </div>
+              <div>
+                 <h4 className="text-lg font-black text-slate-800 uppercase italic tracking-tighter leading-none">Security Contribution</h4>
+                 <p className="text-sm font-semibold text-emerald-600 mt-2 uppercase tracking-wide">
+                    Estimated {impact.estimatedProtected} persons protected via your reports.
+                 </p>
+              </div>
+           </div>
+           <div className="hidden lg:block h-10 w-px bg-emerald-200" />
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest hidden lg:block">System integrity boosted</p>
         </div>
       )}
 
-      {/* Quick Action — show only if no complaints */}
-      {total === 0 && (
-        <div style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15))", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 14, padding: "24px 28px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <h3 style={{ color: "white", fontSize: 16, fontWeight: 600, margin: "0 0 6px" }}>Ready to report a cyber crime?</h3>
-            <p style={{ color: "#94a3b8", fontSize: 13, margin: 0 }}>File your first complaint and our AI will analyze it instantly.</p>
-          </div>
-          <button onClick={() => navigate("/submit-complaint")} style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 22px", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap" }}>
-            File Complaint →
-          </button>
-        </div>
-      )}
-
-      {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 24 }}>
-        {statCards.map(card => (
-          <div key={card.label} style={{ background: card.bg, border: `1px solid ${card.border}`, borderRadius: 12, padding: "18px 16px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{ fontSize: 20 }}>{card.icon}</span>
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: card.color, lineHeight: 1 }}>{card.value}</div>
-            <div style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>{card.label}</div>
+      {/* 3. Stat Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-12">
+        {statCards.map(stat => (
+          <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft`}>
+            <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter mb-2`}>{stat.value}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Chart + Recent side by side */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
+      {/* 4. Multi-Section Grid */}
+      <div className="grid lg:grid-cols-2 gap-10">
+        {/* Status Analysis */}
+        <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 h-full">
+           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-10 flex items-center gap-2">
+              <Activity className="text-soft-teal" size={16} strokeWidth={3} /> Status Breakdown
+           </h3>
+           
+           {total === 0 ? (
+             <div className="h-48 flex flex-col items-center justify-center text-center">
+                <FileText className="text-slate-200 mb-4" size={40} />
+                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Intelligence Data</p>
+             </div>
+           ) : (
+             <div className="space-y-8">
+               {Object.entries(statusConfig).map(([key, cfg]) => {
+                 const count = complaints.filter(c => c.status === key).length;
+                 const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                 return (
+                   <div key={key}>
+                     <div className="flex justify-between items-end mb-3">
+                        <span className="text-[11px] font-black text-slate-700 uppercase italic tracking-tight">{key}</span>
+                        <span className="text-xs font-black text-slate-400">{count} Units</span>
+                     </div>
+                     <div className="w-full bg-white h-4 rounded-full overflow-hidden p-1 shadow-inner border border-slate-100">
+                        <div className={`h-full rounded-full transition-all duration-1000 ${cfg.color.replace('text-', 'bg-')} shadow-sm`} style={{ width: `${pct}%` }} />
+                     </div>
+                   </div>
+                 );
+               })}
+             </div>
+           )}
+        </div>
 
-        {/* Chart */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 16px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Status Breakdown</h3>
-          {total === 0 ? (
-            <div style={{ height: 180, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#475569", fontSize: 13 }}>No data yet</p>
+        {/* Recent Cases */}
+        <div className="bg-white p-10 rounded-[4rem] shadow-soft border border-slate-50 h-full flex flex-col">
+           <div className="flex items-center justify-between mb-10">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Recent Reports</h3>
+              {total > 0 && (
+                <button onClick={() => navigate("/my-complaints")} className="text-[10px] font-black text-soft-teal hover:underline tracking-widest uppercase">View All</button>
+              )}
+           </div>
+
+           {recent.length === 0 ? (
+             <div className="flex-grow flex flex-col items-center justify-center text-center gap-6">
+                <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal">
+                   <ShieldCheck size={40} />
+                </div>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Clean Status: Zero Reports</p>
+                <button onClick={() => navigate("/submit-complaint")} className="text-xs font-black text-soft-teal border-b-2 border-soft-teal/20 pb-1 hover:border-soft-teal transition-all">FILE YOUR FIRST CASE</button>
+             </div>
+           ) : (
+             <div className="space-y-6">
+                {recent.map((c, i) => (
+                  <div key={c._id} className="flex items-center justify-between group cursor-pointer" onClick={() => navigate("/my-complaints")}>
+                     <div className="flex items-center gap-5">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${statusConfig[c.status]?.bg} ${statusConfig[c.status]?.border} ${statusConfig[c.status]?.color}`}>
+                           {(() => {
+                              const StatusIcon = statusConfig[c.status]?.icon || FileText;
+                              return <StatusIcon size={20} />;
+                           })()}
+                        </div>
+                        <div>
+                           <div className="text-sm font-black text-slate-900 tracking-tighter uppercase italic">{c.caseId}</div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{c.crimeType}</div>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-4">
+                        <div className="text-[9px] font-black text-slate-300 uppercase hidden md:block">
+                           {new Date(c.createdAt).toLocaleDateString()}
+                        </div>
+                        <ChevronRight className="text-slate-200 group-hover:text-soft-teal transition-all" size={20} />
+                     </div>
+                  </div>
+                ))}
+             </div>
+           )}
+        </div>
+      </div>
+      
+      {/* 5. Quick Actions Section */}
+      <section className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+         <div className="bg-slate-900 rounded-[3rem] p-10 flex flex-col md:flex-row items-center gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/check-scam")}>
+            <div className="w-16 h-16 bg-soft-teal rounded-3xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+               <Search size={32} />
             </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={chartData} barSize={32}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="status" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {chartData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        {/* Status Summary */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Case Status</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {Object.entries(statusConfig).map(([status, cfg]) => {
-              const count = complaints.filter(c => c.status === status).length;
-              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-              return (
-                <div key={status}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ color: "#94a3b8", fontSize: 13 }}>{cfg.icon} {status}</span>
-                    <span style={{ color: cfg.color, fontSize: 13, fontWeight: 600 }}>{count}</span>
-                  </div>
-                  <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
-                    <div style={{ height: "100%", width: `${pct}%`, background: cfg.color, borderRadius: 2, transition: "width 0.6s ease" }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Complaints */}
-      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: 0 }}>Recent Complaints</h3>
-          {total > 0 && (
-            <button onClick={() => navigate("/my-complaints")} style={{ background: "none", border: "none", color: "#60a5fa", fontSize: 13, cursor: "pointer" }}>View all →</button>
-          )}
-        </div>
-
-        {recent.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <div style={{ fontSize: 36, marginBottom: 10 }}>📭</div>
-            <p style={{ color: "#475569", fontSize: 14, margin: "0 0 16px" }}>No complaints filed yet.</p>
-            <button onClick={() => navigate("/submit-complaint")} style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-              File Your First Complaint
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {recent.map((c, i) => (
-              <div key={c._id} onClick={() => navigate("/my-complaints")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", cursor: "pointer" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 8, background: `${priorityColor[c.priority] || "#64748b"}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
-                    {c.priority === "Critical" ? "🚨" : c.priority === "High" ? "⚠️" : c.priority === "Medium" ? "📋" : "📄"}
-                  </div>
-                  <div>
-                    <div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{c.caseId}</div>
-                    <div style={{ color: "#64748b", fontSize: 12 }}>{c.crimeType}</div>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ background: statusConfig[c.status]?.bg || "rgba(255,255,255,0.05)", color: statusConfig[c.status]?.color || "#94a3b8", border: `1px solid ${statusConfig[c.status]?.border || "transparent"}`, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
-                    {c.status}
-                  </span>
-                  <span style={{ color: "#475569", fontSize: 11 }}>{new Date(c.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+            <div>
+               <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">Global Integrity Scan</h4>
+               <p className="text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
+            </div>
+            <div className="ml-auto">
+               <ArrowRight className="text-slate-700 group-hover:text-soft-teal" size={24} />
+            </div>
+         </div>
+         
+         <div className="bg-soft-blue p-10 rounded-[3rem] border border-white flex flex-col md:flex-row items-center gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/trending")}>
+            <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-soft-teal shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+               <Zap size={32} />
+            </div>
+            <div>
+               <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Threat Advisories</h4>
+               <p className="text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
+            </div>
+            <div className="ml-auto">
+               <ArrowRight className="text-slate-300 group-hover:text-soft-teal" size={24} />
+            </div>
+         </div>
+      </section>
     </UserLayout>
   );
 }

@@ -1,11 +1,24 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import useWindowWidth from "../hooks/useWindowWidth";
+import { 
+  LayoutDashboard, 
+  FileWarning, 
+  Users, 
+  LogOut, 
+  Menu, 
+  X, 
+  Shield, 
+  ChevronRight,
+  User,
+  Zap,
+  Activity
+} from "lucide-react";
 
 const NAV = [
-  { path:"/dashboard",  icon:"⊞", label:"Dashboard" },
-  { path:"/complaints", icon:"☰", label:"Complaints" },
-  { path:"/admin/users", icon:"👥", label:"Users" },
+  { path:"/dashboard",  icon: LayoutDashboard, label:"Dashboard" },
+  { path:"/complaints", icon: FileWarning, label:"Complaints" },
+  { path:"/admin/users", icon: Users, label:"Users" },
 ];
 
 export default function Layout({ children }) {
@@ -14,78 +27,161 @@ export default function Layout({ children }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [collapsed, setCollapsed] = useState(false);
   const w = useWindowWidth();
-  const isMobile = w < 768;
+  const isMobile = w < 1024;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const initials = user?.name ? user.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "A";
+  const initials = user?.name ? user.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "U";
   const handleLogout = () => { localStorage.clear(); navigate("/"); };
 
-  if (isMobile) {
-    return (
-      <div style={{ display:"flex", flexDirection:"column", minHeight:"100vh", background:"#0f172a", fontFamily:"'Segoe UI',system-ui,sans-serif" }}>
-        <div style={{ background:"rgba(255,255,255,0.02)", borderBottom:"1px solid rgba(255,255,255,0.06)", padding:"0 16px", height:56, display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, position:"sticky", top:0, zIndex:50 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <img src="/logo1.jpeg" alt="CyberShield" style={{ width:24, height:24, borderRadius:5, objectFit:"cover" }} />
-            <span style={{ color:"white", fontWeight:700, fontSize:14 }}>CyberShield</span>
-            <span style={{ background:"rgba(239,68,68,0.15)", color:"#f87171", fontSize:10, fontWeight:700, padding:"2px 6px", borderRadius:4 }}>ADMIN</span>
-          </div>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <div style={{ width:30, height:30, borderRadius:"50%", background:"linear-gradient(135deg,#ef4444,#f59e0b)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, fontWeight:700 }}>{initials}</div>
-            <button onClick={handleLogout} style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.2)", color:"#f87171", padding:"5px 10px", borderRadius:6, cursor:"pointer", fontSize:12 }}>Logout</button>
-          </div>
-        </div>
-        <div style={{ flex:1, overflowY:"auto", padding:"16px 16px 80px" }}>{children}</div>
-        <div style={{ position:"fixed", bottom:0, left:0, right:0, background:"rgba(10,15,30,0.97)", backdropFilter:"blur(12px)", borderTop:"1px solid rgba(255,255,255,0.08)", display:"flex", zIndex:100, height:60 }}>
-          {NAV.map(item => {
-            const active = location.pathname === item.path;
-            return (
-              <button key={item.path} onClick={() => navigate(item.path)}
-                style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2, background:"none", border:"none", color: active ? "#60a5fa" : "#475569", cursor:"pointer", fontSize:11, fontWeight: active ? 600 : 400, borderTop: active ? "2px solid #3b82f6" : "2px solid transparent" }}>
-                <span style={{ fontSize:20 }}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ display:"flex", height:"100vh", fontFamily:"'Segoe UI',system-ui,sans-serif", background:"#0f172a" }}>
-      <div style={{ width: collapsed ? 64 : 220, background:"#0f172a", borderRight:"1px solid rgba(255,255,255,0.06)", display:"flex", flexDirection:"column", transition:"width 0.25s", flexShrink:0, overflow:"hidden" }}>
-        <div style={{ padding: collapsed ? "20px 16px" : "20px", display:"flex", alignItems:"center", justifyContent: collapsed ? "center" : "space-between", borderBottom:"1px solid rgba(255,255,255,0.06)", minHeight:64 }}>
-          {!collapsed && <div style={{ display:"flex", alignItems:"center", gap:8 }}><img src="/logo1.jpeg" alt="CyberShield" style={{ width:22, height:22, borderRadius:5, objectFit:"cover" }} /><span style={{ color:"white", fontWeight:700, fontSize:15 }}>CyberShield</span></div>}
-          <button onClick={() => setCollapsed(!collapsed)} style={{ background:"rgba(255,255,255,0.06)", border:"none", color:"#94a3b8", width:28, height:28, borderRadius:6, cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{collapsed?"→":"←"}</button>
-        </div>
-        {!collapsed && <div style={{ margin:"10px 8px 4px", background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:6, padding:"4px 10px", display:"flex", alignItems:"center", gap:6 }}><span style={{ fontSize:10 }}>🔴</span><span style={{ color:"#f87171", fontSize:11, fontWeight:600 }}>ADMIN PANEL</span></div>}
-        <nav style={{ flex:1, padding:"8px 8px", display:"flex", flexDirection:"column", gap:4 }}>
-          {NAV.map(item => {
-            const active = location.pathname === item.path;
-            return (
-              <button key={item.path} onClick={() => navigate(item.path)}
-                style={{ display:"flex", alignItems:"center", gap:10, padding: collapsed ? "10px 0" : "10px 12px", justifyContent: collapsed ? "center" : "flex-start", background: active ? "rgba(59,130,246,0.15)" : "transparent", border: active ? "1px solid rgba(59,130,246,0.3)" : "1px solid transparent", borderRadius:8, color: active ? "#60a5fa" : "#94a3b8", cursor:"pointer", fontSize:13, fontWeight: active ? 600 : 400, width:"100%" }}>
-                <span style={{ fontSize:16, flexShrink:0 }}>{item.icon}</span>
-                {!collapsed && <span>{item.label}</span>}
-              </button>
-            );
-          })}
-        </nav>
-        <div style={{ padding:"12px 8px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-          {!collapsed && <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", marginBottom:8 }}><div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#ef4444,#f59e0b)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, fontWeight:700, flexShrink:0 }}>{initials}</div><div style={{ overflow:"hidden" }}><div style={{ color:"white", fontSize:13, fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{user?.name}</div><div style={{ color:"#64748b", fontSize:11 }}>Administrator</div></div></div>}
-          <button onClick={handleLogout} style={{ display:"flex", alignItems:"center", gap:10, padding: collapsed ? "10px 0" : "10px 12px", justifyContent: collapsed ? "center" : "flex-start", background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:8, color:"#f87171", cursor:"pointer", fontSize:13, width:"100%" }}>
-            <span style={{ fontSize:16 }}>⏻</span>{!collapsed && <span>Logout</span>}
-          </button>
-        </div>
+    <div className="min-h-screen flex flex-col bg-[#E0F4FF] font-sans text-slate-900">
+      {/* Platform Identity Bar */}
+      <div className="bg-slate-900 text-white py-2 px-4 text-[9px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 sticky top-0 z-[100] shrink-0 font-bold">
+        <span>Cyber Intelligence Network</span>
+        <span className="opacity-20">||</span>
+        <span>Secure Session Node</span>
       </div>
-      <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
-        <div style={{ background:"rgba(255,255,255,0.02)", borderBottom:"1px solid rgba(255,255,255,0.06)", padding:"0 28px", height:64, display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0 }}>
-          <span style={{ color:"#94a3b8", fontSize:13 }}>{NAV.find(n=>n.path===location.pathname)?.label||"Admin"}</span>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ width:34, height:34, borderRadius:"50%", background:"linear-gradient(135deg,#ef4444,#f59e0b)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:13, fontWeight:700 }}>{initials}</div>
-            <div><div style={{ color:"white", fontSize:13, fontWeight:600 }}>{user?.name}</div><div style={{ color:"#64748b", fontSize:11 }}>Administrator</div></div>
+
+      <div className="flex-grow flex overflow-hidden lg:p-6 lg:gap-6">
+        {isMobile ? (
+          <div className="flex flex-col w-full">
+            {/* Mobile Top Header */}
+            <header className="bg-white px-6 h-20 flex items-center justify-between sticky top-[33px] z-[60] shadow-soft border-b border-white/50">
+               <div className="flex items-center gap-3" onClick={() => navigate("/")}>
+                  <div className="w-10 h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white">
+                     <Shield size={22} />
+                  </div>
+                  <span className="text-xl font-black tracking-tighter uppercase italic">CyberShield</span>
+               </div>
+               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-2xl text-slate-500">
+                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+               </button>
+            </header>
+
+            {/* Mobile Overlay Menu */}
+            {mobileMenuOpen && (
+              <div className="fixed inset-0 bg-white z-[100] pt-24 px-8 flex flex-col animate-in fade-in zoom-in-95">
+                <nav className="flex flex-col gap-6">
+                  {NAV.map(item => {
+                    const active = location.pathname === item.path;
+                    return (
+                      <button 
+                        key={item.path} 
+                        onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
+                        className={`flex items-center gap-6 text-xl font-black uppercase italic tracking-tighter p-6 rounded-[2rem] transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-400 bg-slate-50'}`}
+                      >
+                        <item.icon size={28} />
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                  <div className="h-px bg-slate-100 my-4" />
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-6 text-xl font-black uppercase italic tracking-tighter p-6 rounded-[2rem] text-rose-500 bg-rose-50"
+                  >
+                    <LogOut size={28} />
+                    SIGNOUT
+                  </button>
+                </nav>
+              </div>
+            )}
+            <div className="flex-grow overflow-y-auto p-6">{children}</div>
           </div>
-        </div>
-        <div style={{ flex:1, overflowY:"auto", padding:"24px" }}>{children}</div>
+        ) : (
+          <>
+            {/* Desktop Sidebar - Now a floating pill-like sidebar */}
+            <aside className={`bg-white shadow-soft card-rounded flex flex-col transition-all duration-500 rounded-[3rem] border border-white shrink-0 overflow-hidden ${collapsed ? 'w-24' : 'w-72'}`}>
+              <div className="h-24 flex items-center px-8 shrink-0 overflow-hidden whitespace-nowrap">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 bg-soft-teal rounded-[1rem] flex items-center justify-center text-white shrink-0 shadow-lg shadow-soft-teal/20">
+                      <Shield size={24} />
+                   </div>
+                   {!collapsed && (
+                     <div className="flex flex-col">
+                       <span className="text-xl font-black tracking-tighter uppercase italic leading-none">CyberShield</span>
+                       <span className="text-[10px] font-black text-soft-teal tracking-[0.2em] mt-1">ADMIN PORTAL</span>
+                     </div>
+                   )}
+                </div>
+              </div>
+
+              <nav className="flex-grow py-8 px-6 space-y-4">
+                {NAV.map(item => {
+                  const active = location.pathname === item.path;
+                  return (
+                    <button 
+                      key={item.path} 
+                      onClick={() => navigate(item.path)}
+                      className={`w-full flex items-center gap-5 px-6 py-5 rounded-[1.5rem] text-sm font-black uppercase italic tracking-tight transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-50'}`}
+                    >
+                      <item.icon className="shrink-0" size={22} strokeWidth={2.5} />
+                      {!collapsed && <span>{item.label}</span>}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <div className="p-6">
+                 {!collapsed && (
+                   <div className="mb-6 p-6 bg-soft-blue/50 rounded-[2rem] flex items-center gap-4 border border-white">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-soft text-soft-teal font-black text-sm">
+                         {initials}
+                      </div>
+                      <div className="overflow-hidden">
+                         <div className="text-xs font-black text-slate-800 uppercase truncate">{user?.name}</div>
+                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Administrator</div>
+                      </div>
+                   </div>
+                 )}
+                 <button 
+                   onClick={handleLogout}
+                   className="w-full h-16 flex items-center justify-center gap-4 bg-slate-900 rounded-full text-white text-[10px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all shadow-lg"
+                 >
+                   <LogOut className="shrink-0" size={18} strokeWidth={2.5} />
+                   {!collapsed && <span>SIGNOUT</span>}
+                 </button>
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-grow flex flex-col min-w-0 gap-6">
+              <header className="h-24 bg-white/60 backdrop-blur-lg rounded-[3rem] border border-white shadow-soft flex items-center justify-between px-10 shrink-0">
+                 <div className="flex items-center gap-6">
+                    <button onClick={() => setCollapsed(!collapsed)} className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-soft-teal transition-all shadow-sm">
+                      {collapsed ? <ChevronRight size={20} /> : <Zap size={20} />}
+                    </button>
+                    <div className="hidden lg:flex flex-col">
+                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Session Health</span>
+                       <span className="text-sm font-black text-emerald-600 uppercase italic tracking-tighter">Verified & Encrypted</span>
+                    </div>
+                 </div>
+
+                 <div className="flex items-center gap-8">
+                    <div className="hidden xl:flex items-center gap-4 bg-white/80 px-6 py-3 rounded-full border border-white shadow-sm">
+                       <Shield className="text-soft-teal" size={18} />
+                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mt-0.5">Secure Node</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                       <div className="text-xs font-black text-slate-800 uppercase">{new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                       <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1 font-mono">STATUS: ACTIVE</div>
+                    </div>
+                    <div className="w-14 h-14 bg-white border border-white rounded-2xl p-1 shadow-soft">
+                       <div className="w-full h-full bg-soft-blue flex items-center justify-center text-soft-teal rounded-xl">
+                          <User size={24} />
+                       </div>
+                    </div>
+                 </div>
+              </header>
+
+              <main className="flex-grow overflow-y-auto bg-white rounded-[4rem] border border-white shadow-soft p-12">
+                <div className="max-w-6xl mx-auto">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

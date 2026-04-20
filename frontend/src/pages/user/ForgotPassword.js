@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import { ShieldCheck, ArrowLeft, Mail, Key, ChevronRight, CheckCircle } from "lucide-react";
 
 export default function ForgotPassword() {
   const [email, setEmail]   = useState("");
@@ -16,45 +17,93 @@ export default function ForgotPassword() {
       await API.post("/users/forgot-password", { email });
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.message || "Node communication failure");
     } finally { setLoading(false); }
   };
 
   return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", padding:16 }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 30% 50%,rgba(59,130,246,0.1) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <button onClick={() => navigate("/login")} style={{ position:"fixed", top:16, left:16, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"7px 14px", borderRadius:8, cursor:"pointer", fontSize:13, zIndex:10 }}>← Back to Login</button>
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Visual background elements */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-soft-teal/10 rounded-full blur-[100px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-white/40 rounded-full blur-[100px]" />
 
-      <div style={{ width:"100%", maxWidth:420, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"36px 28px", position:"relative", zIndex:1 }}>
-        <div style={{ textAlign:"center", marginBottom:28 }}>
-          <span style={{ fontSize:36 }}>🔑</span>
-          <h2 style={{ color:"white", fontSize:22, fontWeight:700, margin:"12px 0 6px" }}>Forgot Password?</h2>
-          <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Enter your email and we'll send you a reset link.</p>
+      <button 
+        onClick={() => navigate("/login")} 
+        className="fixed top-8 left-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-soft-teal transition-all bg-white/50 backdrop-blur-md px-6 py-3 rounded-full shadow-sm border border-white"
+      >
+        <ArrowLeft size={16} /> GO_BACK
+      </button>
+
+      <div className="w-full max-w-md bg-white p-12 rounded-[4rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal mx-auto mb-8 shadow-soft">
+            <Key size={32} />
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Reset Access</h2>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic px-4">Initialize protocol to recover forgotten node credentials.</p>
         </div>
 
         {sent ? (
-          <div style={{ background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.3)", borderRadius:10, padding:"16px", textAlign:"center" }}>
-            <div style={{ fontSize:28, marginBottom:8 }}>📧</div>
-            <div style={{ color:"#6ee7b7", fontSize:15, fontWeight:600, marginBottom:6 }}>Check your inbox</div>
-            <div style={{ color:"#94a3b8", fontSize:13 }}>If that email exists in our system, a reset link has been sent. Check your spam folder too.</div>
-            <button onClick={() => navigate("/login")} style={{ marginTop:16, background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"10px 20px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:600 }}>Back to Login</button>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-emerald-50 border-2 border-emerald-100 p-10 rounded-[3rem] text-center">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-6 shadow-sm">
+                <CheckCircle size={32} />
+              </div>
+              <h3 className="text-sm font-black text-emerald-600 uppercase tracking-widest mb-2 italic">Transmission Sent</h3>
+              <p className="text-[11px] font-bold text-emerald-800 uppercase italic leading-relaxed">Check your localized inbox for the recovery packet.</p>
+              <button 
+                onClick={() => navigate("/login")} 
+                className="mt-8 bg-emerald-500 text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg hover:brightness-110 transition-all font-sans"
+              >
+                RETURN TO LOGIN
+              </button>
+            </div>
           </div>
         ) : (
-          <>
-            {error && <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16 }}>⚠️ {error}</div>}
-            <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div>
-                <label style={{ color:"#94a3b8", fontSize:13, display:"block", marginBottom:6 }}>Email address</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required
-                  style={{ width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"12px 14px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box" }}
-                  onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {error && (
+              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+                <span className="shrink-0">⚠️</span> {error}
               </div>
-              <button type="submit" disabled={loading}
-                style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", gap:8, opacity: loading ? 0.7 : 1 }}>
-                {loading ? <span style={{ width:16, height:16, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "Send Reset Link"}
-              </button>
-            </form>
-          </>
+            )}
+            
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">Authorized Email</label>
+              <div className="relative group">
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-200 group-focus-within:text-soft-teal transition-colors" size={20} />
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  placeholder="USER@DOMAIN.COM" 
+                  required
+                  className="w-full bg-slate-50 pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
+                />
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-slate-900 text-white h-20 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-xl hover:brightness-110 active:scale-95 transition-all"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>SEND RECOVERY LINK <ChevronRight size={18} /></>
+              )}
+            </button>
+
+            <div className="text-center">
+               <button 
+                 type="button" 
+                 onClick={() => navigate("/login")}
+                 className="text-[9px] font-black uppercase tracking-widest text-slate-300 hover:text-slate-600 transition-colors"
+               >
+                 I remember my credentials
+               </button>
+            </div>
+          </form>
         )}
       </div>
     </div>

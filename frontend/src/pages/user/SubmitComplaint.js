@@ -3,7 +3,21 @@ import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import UserLayout from "../../layouts/UserLayout";
 import analyzeComplaint from "../../utils/riskAnalyzer";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  Info, 
+  Paperclip, 
+  Plus, 
+  ChevronRight, 
+  Zap,
+  Activity,
+  CheckCircle,
+  Clock,
+  Search,
+  MapPin,
+  FileText
+} from "lucide-react";
 
 const SCAM_TYPES = [
   "UPI Fraud","Phishing","Job Scam","Lottery Scam",
@@ -12,10 +26,10 @@ const SCAM_TYPES = [
 ];
 
 const priorityMeta = {
-  Critical: { color: "#ef4444", bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.3)", icon: "🚨" },
-  High:     { color: "#f59e0b", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.3)", icon: "⚠️" },
-  Medium:   { color: "#3b82f6", bg: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.3)", icon: "📋" },
-  Low:      { color: "#10b981", bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.3)", icon: "✅" },
+  Critical: { color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100", icon: AlertTriangle },
+  High:     { color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100", icon: AlertTriangle },
+  Medium:   { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", icon: Info },
+  Low:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: CheckCircle },
 };
 
 export default function SubmitComplaint() {
@@ -58,7 +72,6 @@ export default function SubmitComplaint() {
 
       await API.post("/complaints", data, { headers: { "Content-Type": "multipart/form-data" } });
 
-      // Fetch scam intel for the target to show feedback
       if (formData.scamTarget) {
         try {
           const intel = await API.get("/scam/check", { params: { query: formData.scamTarget } });
@@ -66,134 +79,177 @@ export default function SubmitComplaint() {
         } catch {}
       }
 
-      setStatus({ type: "success", msg: "Complaint submitted successfully!" });
+      setStatus({ type: "success", msg: "INCIDENT RECORDED SUCCESSFULLY" });
       setTimeout(() => navigate("/my-complaints"), 3000);
     } catch (err) {
-      setStatus({ type: "error", msg: err.response?.data?.message || "Failed to submit. Try again." });
+      setStatus({ type: "error", msg: err.response?.data?.message || "SYSTEM OVERLOAD: PLEASE RETRY" });
     } finally { setLoading(false); }
   };
 
   const meta = analysis ? (priorityMeta[analysis.priority] || priorityMeta.Low) : null;
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   return (
     <UserLayout>
-      <div style={{ maxWidth: 700 }}>
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>File a Complaint</h1>
-          <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>Report a scam or cyber crime. AI will analyze it instantly.</p>
-        </div>
-
-        {status.msg && (
-          <div style={{ background: status.type === "success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${status.type === "success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`, color: status.type === "success" ? "#6ee7b7" : "#fca5a5", padding: "12px 16px", borderRadius: 10, fontSize: 14, marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
-            {status.type === "success" ? "✅" : "⚠️"} {status.msg}
+       <div className="max-w-3xl">
+          <div className="mb-12">
+            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
+              <Plus size={14} /> NEW INCIDENT REPORT
+            </div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">File Complaint</h1>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-4">Secure log entry powered by AI diagnostics.</p>
           </div>
-        )}
 
-        {/* Scam Intel Feedback after submit */}
-        {scamIntel && status.type === "success" && (
-          <div style={{ background: scamIntel.reports > 0 ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)", border: `1px solid ${scamIntel.reports > 0 ? "rgba(239,68,68,0.25)" : "rgba(16,185,129,0.25)"}`, borderRadius: 12, padding: "16px 18px", marginBottom: 20 }}>
-            <div style={{ color: "white", fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
-              {scamIntel.reports > 1
-                ? `⚠️ This target has been reported ${scamIntel.reports} times in our database.`
-                : scamIntel.reports === 1
-                ? "📋 This is the first report for this target. Thank you for reporting!"
-                : "✅ No previous reports found for this target. Your report has been recorded."}
+          {status.msg && (
+            <div className={`p-6 rounded-[2.5rem] mb-10 flex items-center gap-4 border-2 animate-in fade-in slide-in-from-top-5 ${status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${status.type === 'success' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                  {status.type === 'success' ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
+               </div>
+               <span className="text-[10px] font-black uppercase tracking-widest">{status.msg}</span>
             </div>
-            {scamIntel.reports > 0 && (
-              <div style={{ color: "#94a3b8", fontSize: 13 }}>
-                Category: {scamIntel.category} · Risk Level: {scamIntel.riskLevel} · Avg Risk Score: {scamIntel.avgRiskScore}
-              </div>
-            )}
-          </div>
-        )}
+          )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Scam Intel Feedback */}
+          {scamIntel && status.type === "success" && (
+            <div className="bg-slate-900 text-white p-8 rounded-[3rem] mb-10 shadow-lg relative overflow-hidden">
+               <div className="relative z-10">
+                  <h4 className="text-sm font-black uppercase tracking-widest text-soft-teal mb-3">Threat Match Detected</h4>
+                  <p className="text-sm font-medium leading-relaxed opacity-80 italic">
+                    {scamIntel.reports > 0 ? `This target has ${scamIntel.reports} previous report(s) in our intelligence database.` : "This is a new pattern entry. Your report helps establish a new node."}
+                  </p>
+               </div>
+               <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-soft-teal/20 rounded-full blur-3xl" />
+            </div>
+          )}
 
-            {/* Title */}
-            <div>
-              <label style={lbl}>Complaint Title <span style={{ color: "#ef4444" }}>*</span></label>
-              <input name="title" type="text" placeholder="e.g. Received fake job offer, UPI fraud..." value={formData.title} onChange={handleChange} required style={inp}
-                onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.5)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
+          <form onSubmit={handleSubmit} className="space-y-10">
+            <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 space-y-8">
+               {/* Title */}
+               <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Identify Case</label>
+                  <input 
+                    name="title" 
+                    type="text" 
+                    placeholder="E.G. UPI FRAUD DURING ONLINE PURCHASE" 
+                    value={formData.title} 
+                    onChange={handleChange} 
+                    required 
+                    className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none transition-all shadow-sm"
+                  />
+               </div>
+
+               <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Classification</label>
+                    <select 
+                      name="scamType" 
+                      value={formData.scamType} 
+                      onChange={handleChange}
+                      className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none cursor-pointer shadow-sm appearance-none"
+                    >
+                      <option value="">AUTO-DETECT</option>
+                      {SCAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Subject Target (ID/URL)</label>
+                    <input 
+                      name="scamTarget" 
+                      type="text" 
+                      placeholder="9876543210 OR FAKE-SITE.COM" 
+                      value={formData.scamTarget} 
+                      onChange={handleChange} 
+                      className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                    />
+                  </div>
+               </div>
+
+               <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Operational Location</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input 
+                      name="location" 
+                      type="text" 
+                      placeholder="GUWAHATI, ASSAM" 
+                      value={formData.location} 
+                      onChange={handleChange} 
+                      className="w-full bg-white border border-transparent pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                    />
+                  </div>
+               </div>
+
+               <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Incident Log Payload</label>
+                  <textarea 
+                    name="description" 
+                    placeholder="DESCRIBE THE SEQUENCE OF EVENTS IN DETAIL..." 
+                    value={formData.description} 
+                    onChange={handleChange} 
+                    required 
+                    rows={6}
+                    className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm transition-all italic"
+                  />
+               </div>
+
+               {/* AI Intelligence Preview */}
+               {analysis && meta && (
+                 <div className={`${meta.bg} ${meta.border} border-2 rounded-[3rem] p-8 shadow-soft animate-in zoom-in-95`}>
+                    <div className="flex items-center gap-3 mb-6">
+                       <Zap className={meta.color} size={18} />
+                       <span className={`text-[10px] font-black uppercase tracking-widest ${meta.color}`}>AI Diagnostics Preview</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                       <div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Threat Type</div>
+                          <div className="text-[11px] font-black text-slate-800 uppercase italic leading-tight">{analysis.scamType}</div>
+                       </div>
+                       <div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Priority</div>
+                          <div className={`text-[11px] font-black uppercase flex items-center gap-1 ${meta.color}`}>
+                             <meta.icon size={12} /> {analysis.priority}
+                          </div>
+                       </div>
+                       <div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Impact</div>
+                          <div className="text-[11px] font-black text-slate-800 uppercase italic">HIGH_MATCH</div>
+                       </div>
+                       <div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Risk Factor</div>
+                          <div className={`text-2xl font-black italic tracking-tighter ${meta.color}`}>{analysis.riskScore}</div>
+                       </div>
+                    </div>
+                 </div>
+               )}
+
+               {/* Evidence Upload */}
+               <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Supporting Evidence</label>
+                  <label className="flex items-center gap-5 bg-white border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] cursor-pointer hover:border-soft-teal transition-all group">
+                     <div className="w-14 h-14 bg-soft-blue rounded-2xl flex items-center justify-center text-soft-teal group-hover:bg-soft-teal group-hover:text-white transition-all">
+                        <Paperclip size={24} />
+                     </div>
+                     <div className="flex-grow">
+                        <div className="text-xs font-black uppercase text-slate-800">{fileName || "Attach Incident Evidence"}</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">PNG, JPG, PDF (MAX 10MB)</div>
+                     </div>
+                     <input type="file" name="evidence" onChange={handleChange} className="hidden" accept="image/*,.pdf,.doc,.docx" />
+                  </label>
+               </div>
             </div>
 
-            {/* Scam Type + Target row */}
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
-              <div>
-                <label style={lbl}>Scam Type</label>
-                <select name="scamType" value={formData.scamType} onChange={handleChange}
-                  style={{ ...inp, cursor: "pointer" }}>
-                  <option value="" style={{ background: "#1e293b" }}>Auto-detect</option>
-                  {SCAM_TYPES.map(t => <option key={t} value={t} style={{ background: "#1e293b" }}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>Phone / URL / UPI ID <span style={{ color: "#64748b", fontWeight: 400 }}>(scam target)</span></label>
-                <input name="scamTarget" type="text" placeholder="e.g. 9876543210 or fake-site.com" value={formData.scamTarget} onChange={handleChange} style={inp}
-                  onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.5)"}
-                  onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
-              </div>
-            </div>
-
-            {/* Location */}
-            <div>
-              <label style={lbl}>Location <span style={{ color: "#64748b", fontWeight: 400 }}>(optional — city/state)</span></label>
-              <input name="location" type="text" placeholder="e.g. Guwahati, Assam" value={formData.location} onChange={handleChange} style={inp}
-                onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.5)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
-            </div>
-
-            {/* Description */}
-            <div>
-              <label style={lbl}>Description <span style={{ color: "#ef4444" }}>*</span></label>
-              <textarea name="description" placeholder="Describe what happened in detail..." value={formData.description} onChange={handleChange} required rows={5}
-                style={{ ...inp, resize: "vertical", minHeight: 120 }}
-                onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.5)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
-              <div style={{ textAlign: "right", color: "#475569", fontSize: 11, marginTop: 4 }}>{formData.description.length} characters</div>
-            </div>
-
-            {/* AI Preview */}
-            {analysis && meta && (
-              <div style={{ background: meta.bg, border: `1px solid ${meta.border}`, borderRadius: 10, padding: "14px 16px" }}>
-                <div style={{ color: meta.color, fontWeight: 600, fontSize: 13, marginBottom: 10 }}>⚡ AI Analysis Preview</div>
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 12 }}>
-                  <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Crime Type</div><div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{analysis.crimeType}</div></div>
-                  <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Scam Type</div><div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>{analysis.scamType}</div></div>
-                  <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Priority</div><span style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color, padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{meta.icon} {analysis.priority}</span></div>
-                  <div><div style={{ color: "#64748b", fontSize: 11, marginBottom: 3 }}>Risk Score</div><div style={{ color: meta.color, fontSize: 18, fontWeight: 800 }}>{analysis.riskScore}<span style={{ fontSize: 11, color: "#64748b" }}>/100</span></div></div>
-                </div>
-              </div>
-            )}
-
-            {/* Evidence */}
-            <div>
-              <label style={lbl}>Evidence <span style={{ color: "#64748b", fontWeight: 400 }}>(optional)</span></label>
-              <label style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.15)", borderRadius: 10, padding: "14px 16px", cursor: "pointer" }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"}
-                onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"}>
-                <span style={{ fontSize: 22 }}>📎</span>
-                <div>
-                  <div style={{ color: fileName ? "white" : "#64748b", fontSize: 13 }}>{fileName || "Attach screenshot, document, or file"}</div>
-                  <div style={{ color: "#475569", fontSize: 11, marginTop: 2 }}>PNG, JPG, PDF up to 10MB</div>
-                </div>
-                <input type="file" name="evidence" onChange={handleChange} style={{ display: "none" }} accept="image/*,.pdf,.doc,.docx" />
-              </label>
-            </div>
-
-            <button type="submit" disabled={loading}
-              style={{ background: loading ? "rgba(59,130,246,0.4)" : "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "14px", borderRadius: 10, cursor: loading ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              {loading ? <><span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTop: "2px solid white", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} /> Submitting...</> : "Submit Complaint →"}
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-slate-900 h-20 rounded-full text-white text-xs font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:brightness-110 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>EXECUTE LOG ENTRY <ChevronRight size={20} /></>
+              )}
             </button>
-          </div>
-        </form>
-      </div>
+          </form>
+       </div>
     </UserLayout>
   );
 }
-
-const lbl = { color: "#94a3b8", fontSize: 13, fontWeight: 500, display: "block", marginBottom: 8 };
-const inp = { width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "12px 14px", color: "white", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit", transition: "border-color 0.2s" };

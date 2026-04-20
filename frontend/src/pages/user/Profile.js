@@ -2,13 +2,25 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { 
+  User, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Shield, 
+  FileText, 
+  Calendar, 
+  Camera, 
+  LogOut, 
+  Save,
+  CheckCircle,
+  AlertTriangle,
+  Activity,
+  Zap
+} from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
-
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const [form, setForm] = useState({
     name:     storedUser.name     || "",
@@ -27,14 +39,12 @@ export default function Profile() {
   const initials = form.name ? form.name.split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2) : "U";
 
   useEffect(() => {
-    // Fetch latest profile from server
     API.get("/users/profile").then(res => {
       const u = res.data.user;
       setForm({ name: u.name||"", phone: u.phone||"", location: u.location||"", bio: u.bio||"" });
       setAvatar(u.avatar || "");
     }).catch(() => {}).finally(() => setFetching(false));
 
-    // Fetch complaint count
     API.get("/complaints/my").then(res => setComplaints(res.data)).catch(() => {});
   }, []);
 
@@ -43,14 +53,12 @@ export default function Profile() {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setStatus({ type:"error", msg:"Image must be under 5MB" }); return; }
+    if (file.size > 5 * 1024 * 1024) { setStatus({ type:"error", msg:"Image exceeds 5MB limit" }); return; }
 
-    // Show preview immediately
     const reader = new FileReader();
     reader.onload = (ev) => setAvatar(ev.target.result);
     reader.readAsDataURL(file);
 
-    // Upload to server
     setUploading(true);
     try {
       const data = new FormData();
@@ -59,32 +67,31 @@ export default function Profile() {
       setAvatar(res.data.avatar);
       const current = JSON.parse(localStorage.getItem("user") || "{}");
       localStorage.setItem("user", JSON.stringify({ ...current, avatar: res.data.avatar }));
-      setStatus({ type:"success", msg:"Profile photo updated!" });
+      setStatus({ type:"success", msg:"IDENTITY PHOTO UPDATED" });
     } catch {
-      setStatus({ type:"error", msg:"Photo upload failed. Try again." });
+      setStatus({ type:"error", msg:"UPLOAD FAILED: RETRY" });
     } finally { setUploading(false); }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) { setStatus({ type:"error", msg:"Name cannot be empty" }); return; }
+    if (!form.name.trim()) { setStatus({ type:"error", msg:"NAME_REQUIRED" }); return; }
     setLoading(true); setStatus({ type:"", msg:"" });
     try {
       const res = await API.put("/users/profile", form);
-      // Update localStorage
       const current = JSON.parse(localStorage.getItem("user") || "{}");
       localStorage.setItem("user", JSON.stringify({ ...current, ...res.data.user }));
-      setStatus({ type:"success", msg:"Profile updated successfully!" });
+      setStatus({ type:"success", msg:"PROFILE SYNCED SUCCESSFULLY" });
     } catch (err) {
-      setStatus({ type:"error", msg: err.response?.data?.message || "Failed to update profile" });
+      setStatus({ type:"error", msg: err.response?.data?.message || "SYNC_ERROR" });
     } finally { setLoading(false); }
   };
 
   if (fetching) {
     return (
       <UserLayout>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:300 }}>
-          <div style={{ width:32, height:32, border:"3px solid rgba(59,130,246,0.3)", borderTop:"3px solid #3b82f6", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
         </div>
       </UserLayout>
     );
@@ -92,142 +99,133 @@ export default function Profile() {
 
   return (
     <UserLayout>
-      <div style={{ maxWidth: 640 }}>
-
-        {/* Header */}
-        <div style={{ marginBottom:28 }}>
-          <h1 style={{ color:"white", fontSize:22, fontWeight:700, margin:"0 0 4px" }}>My Profile</h1>
-          <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Manage your personal information.</p>
+      <div className="max-w-4xl">
+        <div className="mb-12">
+           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
+              <User size={14} /> SECURITY PROFILE
+           </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Settings</h1>
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-3">Manage your network identity.</p>
         </div>
 
-        {/* Profile card */}
-        <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:16, padding: isMobile ? "20px 16px" : "28px", marginBottom:20 }}>
-
-          {/* Avatar + name */}
-          <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:24, paddingBottom:20, borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ position:"relative", cursor:"pointer" }} onClick={handleAvatarClick} title="Click to change photo">
-              {/* Hidden file input */}
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display:"none" }} />
-
-              {/* Avatar circle */}
-              <div style={{ width:72, height:72, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:26, fontWeight:800, flexShrink:0, overflow:"hidden", position:"relative" }}>
-                {avatar ? (
-                  <img src={avatar} alt="avatar" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                ) : initials}
-                {/* Hover overlay */}
-                <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", opacity:0, transition:"opacity 0.2s", borderRadius:"50%", fontSize:20 }}
-                  onMouseEnter={e => e.currentTarget.style.opacity=1}
-                  onMouseLeave={e => e.currentTarget.style.opacity=0}>
-                  📷
-                </div>
-              </div>
-
-              {/* Edit badge */}
-              <div style={{ position:"absolute", bottom:0, right:0, width:24, height:24, borderRadius:"50%", background: uploading ? "#f59e0b" : "#3b82f6", border:"2px solid #0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11 }}>
-                {uploading ? <span style={{ width:10, height:10, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "📷"}
-              </div>
-            </div>
-            <div>
-              <div style={{ color:"white", fontSize:18, fontWeight:700 }}>{form.name || "Your Name"}</div>
-              <div style={{ color:"#64748b", fontSize:13, marginTop:2 }}>{storedUser.email}</div>
-              <div style={{ display:"flex", gap:8, marginTop:6, flexWrap:"wrap" }}>
-                <span style={{ background:"rgba(59,130,246,0.12)", border:"1px solid rgba(59,130,246,0.25)", color:"#93c5fd", padding:"2px 10px", borderRadius:20, fontSize:11 }}>
-                  {storedUser.role === "admin" ? "👑 Admin" : "👤 Citizen"}
-                </span>
-                <span style={{ background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.2)", color:"#6ee7b7", padding:"2px 10px", borderRadius:20, fontSize:11 }}>
-                  📋 {complaints.length} complaint{complaints.length !== 1 ? "s" : ""}
-                </span>
-                {form.location && (
-                  <span style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", color:"#94a3b8", padding:"2px 10px", borderRadius:20, fontSize:11 }}>
-                    📍 {form.location}
-                  </span>
-                )}
-              </div>
-            </div>
+        {status.msg && (
+          <div className={`p-6 rounded-[2.5rem] mb-10 flex items-center gap-4 border-2 animate-in fade-in slide-in-from-top-5 ${status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${status.type === 'success' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                {status.type === 'success' ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-widest">{status.msg}</span>
           </div>
+        )}
 
-          {/* Status */}
-          {status.msg && (
-            <div style={{ background: status.type==="success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border:`1px solid ${status.type==="success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`, color: status.type==="success" ? "#6ee7b7" : "#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:20, display:"flex", alignItems:"center", gap:8 }}>
-              {status.type==="success" ? "✅" : "⚠️"} {status.msg}
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSave} style={{ display:"flex", flexDirection:"column", gap:18 }}>
-
-            <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:16 }}>
-              <div>
-                <label style={lbl}>Full Name <span style={{ color:"#ef4444" }}>*</span></label>
-                <input value={form.name} onChange={e => setForm({...form, name:e.target.value})} placeholder="Your full name" style={inp}
-                  onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+        <div className="grid lg:grid-cols-3 gap-10">
+           <div className="lg:col-span-1">
+              <div className="bg-slate-900 text-white p-10 rounded-[4rem] text-center relative overflow-hidden shadow-xl sticky top-10">
+                 <div className="relative z-10">
+                    <div className="relative mx-auto w-32 h-32 mb-8 group" onClick={handleAvatarClick}>
+                       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                       <div className="w-full h-full rounded-[3rem] bg-soft-teal flex items-center justify-center text-white text-4xl font-black italic shadow-lg shadow-soft-teal/40 overflow-hidden cursor-pointer group-hover:scale-105 transition-all">
+                          {avatar ? <img src={avatar} className="w-full h-full object-cover" alt="Avatar" /> : initials}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                             <Camera size={24} />
+                          </div>
+                       </div>
+                    </div>
+                    <h3 className="text-xl font-black uppercase italic tracking-tighter mb-2">{form.name || "UNIDENTIFIED"}</h3>
+                    <p className="text-[11px] font-bold text-soft-teal uppercase tracking-widest mb-8">{storedUser.email}</p>
+                    
+                    <div className="flex flex-col gap-3">
+                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Reports</span>
+                          <span className="text-sm font-black italic">{complaints.length}</span>
+                       </div>
+                       <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Security</span>
+                          <span className="text-sm font-black italic text-emerald-400">Verified</span>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-soft-teal/10 rounded-full blur-3xl text-slate-900" />
               </div>
-              <div>
-                <label style={lbl}>Phone Number</label>
-                <input value={form.phone} onChange={e => setForm({...form, phone:e.target.value})} placeholder="+91 98765 43210" style={inp}
-                  onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+           </div>
+
+           <div className="lg:col-span-2 space-y-10">
+              <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 h-full shadow-soft">
+                 <form onSubmit={handleSave} className="space-y-8">
+                    <div className="grid md:grid-cols-2 gap-8">
+                       <div>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Identification Name</label>
+                          <input 
+                            value={form.name} 
+                            onChange={e => setForm({...form, name:e.target.value})} 
+                            className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Contact Protocol (Phone)</label>
+                          <input 
+                            value={form.phone} 
+                            onChange={e => setForm({...form, phone:e.target.value})} 
+                            placeholder="+91 00000 00000"
+                            className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                          />
+                       </div>
+                    </div>
+
+                    <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Geographic Node (Location)</label>
+                       <div className="relative">
+                          <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <input 
+                            value={form.location} 
+                            onChange={e => setForm({...form, location:e.target.value})} 
+                            placeholder="CITY, COUNTRY"
+                            className="w-full bg-white border border-transparent pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                          />
+                       </div>
+                    </div>
+
+                    <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Security Bio</label>
+                       <textarea 
+                         value={form.bio} 
+                         onChange={e => setForm({...form, bio:e.target.value})} 
+                         rows={4}
+                         className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm transition-all italic"
+                       />
+                    </div>
+
+                    <div className="pt-6">
+                       <button 
+                         type="submit" 
+                         disabled={loading}
+                         className="w-full bg-slate-900 h-20 rounded-full text-white text-xs font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:brightness-110 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                       >
+                         {loading ? <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : <><Save size={18} /> UPDATE IDENTITY</>}
+                       </button>
+                    </div>
+                 </form>
               </div>
-            </div>
 
-            <div>
-              <label style={lbl}>Location</label>
-              <input value={form.location} onChange={e => setForm({...form, location:e.target.value})} placeholder="e.g. Guwahati, Assam" style={inp}
-                onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-            </div>
-
-            <div>
-              <label style={lbl}>Bio <span style={{ color:"#64748b", fontWeight:400 }}>(optional)</span></label>
-              <textarea value={form.bio} onChange={e => setForm({...form, bio:e.target.value})} placeholder="Tell us a bit about yourself..." rows={3}
-                style={{ ...inp, resize:"vertical", minHeight:80 }}
-                onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-              <div style={{ textAlign:"right", color:"#475569", fontSize:11, marginTop:4 }}>{form.bio.length}/200</div>
-            </div>
-
-            {/* Read-only fields */}
-            <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:10, padding:"14px 16px" }}>
-              <div style={{ color:"#64748b", fontSize:12, marginBottom:10, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.05em" }}>Account Info</div>
-              <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:12 }}>
-                <div>
-                  <div style={{ color:"#475569", fontSize:11, marginBottom:3 }}>Email</div>
-                  <div style={{ color:"#94a3b8", fontSize:13 }}>{storedUser.email}</div>
-                </div>
-                <div>
-                  <div style={{ color:"#475569", fontSize:11, marginBottom:3 }}>Member Since</div>
-                  <div style={{ color:"#94a3b8", fontSize:13 }}>{storedUser.createdAt ? new Date(storedUser.createdAt).toLocaleDateString("en-IN",{month:"long",year:"numeric"}) : "—"}</div>
-                </div>
-                <div>
-                  <div style={{ color:"#475569", fontSize:11, marginBottom:3 }}>Role</div>
-                  <div style={{ color:"#94a3b8", fontSize:13, textTransform:"capitalize" }}>{storedUser.role || "user"}</div>
-                </div>
-                <div>
-                  <div style={{ color:"#475569", fontSize:11, marginBottom:3 }}>Complaints Filed</div>
-                  <div style={{ color:"#94a3b8", fontSize:13 }}>{complaints.length}</div>
-                </div>
+              <div className="bg-rose-50 p-10 rounded-[4rem] border border-rose-100 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+                 <div className="flex items-center gap-6">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm">
+                       <LogOut size={24} />
+                    </div>
+                    <div>
+                       <h4 className="text-sm font-black text-slate-800 uppercase italic tracking-tighter">Terminate Session</h4>
+                       <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">Disconnect from security network</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/"); }}
+                   className="bg-white text-rose-600 px-10 py-4 rounded-full font-black text-[10px] tracking-widest border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                 >
+                   EXIT_NOW
+                 </button>
               </div>
-            </div>
-
-            <button type="submit" disabled={loading}
-              style={{ background: loading ? "rgba(59,130,246,0.4)" : "linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor: loading ? "not-allowed" : "pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-              {loading ? <><span style={{ width:16, height:16, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> Saving...</> : "Save Changes"}
-            </button>
-          </form>
-        </div>
-
-        {/* Danger zone */}
-        <div style={{ background:"rgba(239,68,68,0.05)", border:"1px solid rgba(239,68,68,0.15)", borderRadius:12, padding:"16px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
-          <div>
-            <div style={{ color:"#f87171", fontSize:14, fontWeight:600 }}>Sign out of your account</div>
-            <div style={{ color:"#64748b", fontSize:13 }}>You'll need to log in again to access your dashboard.</div>
-          </div>
-          <button onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/"); }}
-            style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#f87171", padding:"9px 18px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>
-            Logout
-          </button>
+           </div>
         </div>
       </div>
     </UserLayout>
   );
 }
-
-const lbl = { color:"#94a3b8", fontSize:13, fontWeight:500, display:"block", marginBottom:6 };
-const inp = { width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"11px 14px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box", fontFamily:"inherit", transition:"border-color 0.2s" };

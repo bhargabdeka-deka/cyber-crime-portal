@@ -1,14 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../services/api";
-import useWindowWidth from "../hooks/useWindowWidth";
 import UserLayout from "../layouts/UserLayout";
+import Footer from "../components/Footer";
+import { 
+  Search, 
+  ShieldCheck, 
+  AlertTriangle, 
+  CheckCircle, 
+  Info, 
+  Activity, 
+  Zap, 
+  Share2, 
+  ChevronRight, 
+  Phone, 
+  Globe, 
+  CreditCard,
+  MessageCircle,
+  Copy,
+  ArrowRight
+} from "lucide-react";
 
 const verdictConfig = {
-  safe:      { color:"#10b981", bg:"rgba(16,185,129,0.1)",  border:"rgba(16,185,129,0.3)",  icon:"✅", title:"No Reports Found",  sub:"This hasn't been reported in our database. Looks safe." },
-  caution:   { color:"#f59e0b", bg:"rgba(245,158,11,0.1)",  border:"rgba(245,158,11,0.3)",  icon:"⚠️", title:"Reported Once",      sub:"Someone reported this once. Be careful." },
-  warning:   { color:"#f59e0b", bg:"rgba(245,158,11,0.1)",  border:"rgba(245,158,11,0.3)",  icon:"🚨", title:"Suspicious",         sub:"Multiple people reported this. Avoid engaging." },
-  dangerous: { color:"#ef4444", bg:"rgba(239,68,68,0.1)",   border:"rgba(239,68,68,0.3)",   icon:"🔴", title:"Highly Dangerous",   sub:"Confirmed scam. Do NOT engage. Report to authorities." },
+  safe:      { color:"text-emerald-600", bg:"bg-emerald-50",  border:"border-emerald-100", icon: CheckCircle, title:"No Reports Found",  sub:"This node appears safe across our global intelligence network." },
+  caution:   { color:"text-amber-600",   bg:"bg-amber-50",   border:"border-amber-100",   icon: AlertTriangle, title:"Reported Once",      sub:"Single incident log detected. Proceed with extreme caution." },
+  warning:   { color:"text-orange-600",  bg:"bg-orange-50",  border:"border-orange-100",  icon: AlertTriangle, title:"Suspicious Pattern",  sub:"Multiple intelligence nodes have flagged this activity." },
+  dangerous: { color:"text-rose-600",    bg:"bg-rose-50",    border:"border-rose-100",    icon: AlertTriangle, title:"Highly Dangerous",   sub:"Confirmed threat vector. Do NOT engage with this entity." },
 };
 
 export default function ScamChecker() {
@@ -20,15 +37,13 @@ export default function ScamChecker() {
   const [copied, setCopied]     = useState(false);
   const [activity, setActivity] = useState([]);
   const navigate  = useNavigate();
-  const w         = useWindowWidth();
-  const isMobile  = w < 640;
   const user      = JSON.parse(localStorage.getItem("user") || "null");
   const isLoggedIn = !!localStorage.getItem("token") && !!user;
 
   useEffect(() => {
     if (paramValue) doCheck(paramValue);
     API.get("/scam/activity").then(r => setActivity(r.data)).catch(() => {});
-  }, [paramValue]); // eslint-disable-line
+  }, [paramValue]); 
 
   const doCheck = async (val) => {
     if (!val?.trim()) return;
@@ -47,203 +62,168 @@ export default function ScamChecker() {
     if (!result) return;
     const url  = `${window.location.origin}/check/${encodeURIComponent(result.value || query)}`;
     const waText = result.reports > 0
-      ? `⚠️ *SCAM ALERT* ⚠️\n\n*${result.value}* has been reported *${result.reports} times* as *${result.category}*\nRisk Level: *${result.riskLevel}*\n\nDo NOT engage with this number/link.\n\n🔍 Verify yourself: ${url}\n\n_Powered by CyberShield — India's Scam Detection Platform_`
+      ? `⚠️ SCAM ALERT ⚠️\n\n${result.value} has been reported ${result.reports} times as ${result.category}\n\n🔍 Verify yourself: ${url}`
       : `✅ "${result.value}" has no scam reports on CyberShield.\n\n🔍 Check any number/link: ${url}`;
-
-    // Try WhatsApp share first on mobile
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
-    if (navigator.share && isMobile) {
-      navigator.share({ title:"CyberShield Scam Check", text:waText, url }).catch(() => {
-        window.open(waUrl, "_blank");
-      });
-    } else if (isMobile) {
-      window.open(waUrl, "_blank");
-    } else {
-      navigator.clipboard.writeText(waText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
-    }
+    
+    navigator.clipboard.writeText(waText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   };
 
   const vc = result ? (verdictConfig[result.verdict] || verdictConfig.safe) : null;
-  const timeAgo = (date) => {
-    const mins = Math.floor((Date.now() - new Date(date)) / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    return `${Math.floor(hrs / 24)}d ago`;
-  };
 
-  // ── Inner page content (same for both logged-in and public) ──────────────
   const pageContent = (
-    <div style={{ maxWidth: 680, margin: "0 auto" }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ color:"white", fontSize: isMobile ? 22 : 28, fontWeight: 800, margin:"0 0 6px", letterSpacing:"-0.5px" }}>Is this number safe?</h1>
-        <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Search any phone, URL, UPI ID, or email to see if it's been reported.</p>
+    <div className="max-w-4xl mx-auto py-10 min-h-screen">
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-6">
+           <Zap size={14} className="fill-soft-teal" /> Global Intelligence Scan
+        </div>
+        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Verify Safety</h1>
+        <p className="text-sm md:text-lg font-medium text-slate-400 max-w-xl mx-auto leading-relaxed italic px-4">
+          Search any phone number, URL, or UPI ID to verify against our global threat database.
+        </p>
       </div>
 
-      <form onSubmit={handleCheck} style={{ marginBottom:20 }}>
-        <div style={{ display:"flex", flexDirection: isMobile ? "column" : "row", gap:8, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:12, padding:8 }}>
-          <input type="text" value={query} onChange={e => { setQuery(e.target.value); setResult(null); }}
-            placeholder="9876543210 or fake-jobs.com or cashback@ybl..."
-            style={{ flex:1, background:"none", border:"none", color:"white", fontSize:15, padding:"10px 12px", outline:"none", fontFamily:"inherit", width:"100%" }} />
-          <button type="submit" disabled={loading || !query.trim()}
-            style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"11px 20px", borderRadius:8, cursor: !query.trim() ? "not-allowed" : "pointer", fontSize:14, fontWeight:600, opacity: !query.trim() ? 0.5 : 1, display:"flex", alignItems:"center", justifyContent:"center", gap:8, whiteSpace:"nowrap" }}>
-            {loading ? <span style={{ width:15, height:15, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "🔍"} Check
+      <form onSubmit={handleCheck} className="mb-12 px-2 md:px-0">
+        <div className="flex flex-col md:flex-row gap-4 bg-white p-3 md:p-4 rounded-[2.5rem] md:rounded-[4rem] border-2 border-slate-50 shadow-soft focus-within:border-soft-teal/20 transition-all">
+          <div className="flex-grow flex items-center px-4 md:px-6">
+             <Search className="text-slate-200 shrink-0" size={20} />
+             <input 
+               type="text" 
+               value={query} 
+               onChange={e => { setQuery(e.target.value); setResult(null); }}
+               placeholder="IDENTIFIER..."
+               className="w-full bg-none border-none text-slate-800 placeholder:text-slate-200 text-sm md:text-lg font-black uppercase tracking-widest p-4 outline-none "
+             />
+          </div>
+          <button 
+            type="submit" 
+            disabled={loading || !query.trim()}
+            className="bg-slate-900 text-white rounded-full px-8 md:px-12 py-4 md:py-5 font-black text-[10px] md:text-xs tracking-widest uppercase hover:brightness-110 shadow-lg disabled:opacity-30 transition-all flex items-center justify-center gap-3"
+          >
+            {loading ? <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : "EXECUTE SCAN"}
           </button>
         </div>
-        <div style={{ display:"flex", gap:6, marginTop:8, flexWrap:"wrap" }}>
-          <span style={{ color:"#475569", fontSize:12 }}>Try:</span>
-          {["9876543210","sbi-kyc-update.com","lottery@scam.in"].map(ex => (
-            <button key={ex} type="button" onClick={() => { setQuery(ex); doCheck(ex); }}
-              style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", color:"#64748b", padding:"3px 10px", borderRadius:20, cursor:"pointer", fontSize:12 }}>{ex}</button>
-          ))}
+        <div className="flex flex-wrap justify-center gap-3 mt-8">
+           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest py-2">Quick Verify:</span>
+           {["9876543210","sbi-kyc-update.com","lottery@scam.in"].map(ex => (
+             <button key={ex} type="button" onClick={() => { setQuery(ex); doCheck(ex); }}
+               className="bg-white border-2 border-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 rounded-full hover:border-soft-teal/20 transition-all shadow-sm">
+               {ex}
+             </button>
+           ))}
         </div>
       </form>
 
-      {error && <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16 }}>⚠️ {error}</div>}
+      {error && <div className="bg-rose-50 border-2 border-rose-100 text-rose-600 p-6 rounded-[2rem] text-center font-black uppercase tracking-widest text-xs mb-10">{error}</div>}
 
       {result && vc && (
-        <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
-          <div style={{ background:vc.bg, border:`1px solid ${vc.border}`, borderRadius:14, padding:"20px" }}>
-            <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:16 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                <span style={{ fontSize:34 }}>{vc.icon}</span>
-                <div>
-                  <div style={{ color:vc.color, fontSize:19, fontWeight:800 }}>{vc.title}</div>
-                  <div style={{ color:"#94a3b8", fontSize:13, marginTop:2 }}>{vc.sub}</div>
-                </div>
+        <div className="animate-in fade-in zoom-in-95 duration-500">
+           <div className={`${vc.bg} border-2 ${vc.border} rounded-[4rem] p-12 shadow-soft relative overflow-hidden`}>
+              <div className="flex flex-col md:flex-row items-center justify-between gap-10 mb-12 relative z-10">
+                 <div className="flex items-center gap-10">
+                    <div className={`w-24 h-24 rounded-[3rem] bg-white flex items-center justify-center ${vc.color} shadow-lg shadow-white/50 border border-white`}>
+                       <vc.icon size={48} strokeWidth={3} />
+                    </div>
+                    <div className="text-center md:text-left">
+                       <h3 className={`text-4xl font-black uppercase italic tracking-tighter leading-none mb-3 ${vc.color}`}>{vc.title}</h3>
+                       <p className="text-sm font-bold text-slate-400 uppercase tracking-widest italic">{vc.sub}</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={handleShare} 
+                   className="bg-white px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-hover text-slate-700 hover:text-soft-teal transition-all flex items-center gap-3"
+                 >
+                    {copied ? <CheckCircle size={18} /> : <Share2 size={18} />} {copied ? "SYNCED" : "SHARE INTEL"}
+                 </button>
               </div>
-              <button onClick={handleShare} style={{ background:"rgba(37,211,102,0.12)", border:"1px solid rgba(37,211,102,0.3)", color:"#25d366", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:12, flexShrink:0, display:"flex", alignItems:"center", gap:5 }}>
-                {copied ? "✅ Copied!" : isMobile ? "📲 WhatsApp" : "📤 Share"}
-              </button>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom: result.reports > 0 ? 14 : 0 }}>
-              {[{label:"Reports",value:result.reports},{label:"Avg Risk",value:result.avgRiskScore||"—"},{label:"Level",value:result.riskLevel||"—"}].map(s => (
-                <div key={s.label} style={{ background:"rgba(0,0,0,0.2)", borderRadius:8, padding:"10px 12px", textAlign:"center" }}>
-                  <div style={{ color:vc.color, fontSize:20, fontWeight:800 }}>{s.value}</div>
-                  <div style={{ color:"#64748b", fontSize:11, marginTop:3 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-            {result.reports > 0 && (
-              <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:10 }}>
-                {result.category && <span style={{ background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.1)", color:"#e2e8f0", padding:"3px 10px", borderRadius:20, fontSize:12 }}>🎯 {result.category}</span>}
-                {result.locations?.slice(0,3).map(loc => <span key={loc} style={{ background:"rgba(59,130,246,0.1)", border:"1px solid rgba(59,130,246,0.2)", color:"#93c5fd", padding:"3px 10px", borderRadius:20, fontSize:12 }}>📍 {loc}</span>)}
-              </div>
-            )}
-            {result.description && result.status !== "SAFE" && (
-              <div style={{ background:"rgba(0,0,0,0.2)", borderRadius:8, padding:"10px 12px", marginBottom:10 }}>
-                <div style={{ color:"#64748b", fontSize:11, marginBottom:4 }}>What people reported</div>
-                <div style={{ color:"#e2e8f0", fontSize:13, lineHeight:1.6 }}>{result.description}</div>
-              </div>
-            )}
-            {result.lastReportedAt && result.status !== "SAFE" && (
-              <div style={{ color:"#475569", fontSize:12 }}>Last reported: {new Date(result.lastReportedAt).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div>
-            )}
-          </div>
 
-          {result.actionAdvice && (
-            <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:12 }}>
-              <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:12, padding:"16px" }}>
-                <div style={{ color:"#f87171", fontSize:13, fontWeight:700, marginBottom:10 }}>❌ Do NOT</div>
-                {result.actionAdvice.avoid.map((a,i) => (
-                  <div key={i} style={{ display:"flex", gap:8, marginBottom:6 }}>
-                    <span style={{ color:"#ef4444", fontSize:12, flexShrink:0 }}>✕</span>
-                    <span style={{ color:"#fca5a5", fontSize:13, lineHeight:1.4 }}>{a}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 relative z-10">
+                 {[{label:"Threats",value:result.reports},{label:"Risk Matrix",value:result.avgRiskScore||"—"},{label:"Severity",value:result.riskLevel||"SAFE"}].map(s => (
+                    <div key={s.label} className="bg-white/40 p-8 rounded-[3rem] text-center border border-white shadow-sm">
+                       <div className={`text-4xl font-black italic tracking-tighter mb-2 ${vc.color}`}>{s.value}</div>
+                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</div>
+                    </div>
+                 ))}
               </div>
-              <div style={{ background:"rgba(16,185,129,0.08)", border:"1px solid rgba(16,185,129,0.2)", borderRadius:12, padding:"16px" }}>
-                <div style={{ color:"#6ee7b7", fontSize:13, fontWeight:700, marginBottom:10 }}>✅ Do This Instead</div>
-                {result.actionAdvice.doThis.map((a,i) => (
-                  <div key={i} style={{ display:"flex", gap:8, marginBottom:6 }}>
-                    <span style={{ color:"#10b981", fontSize:12, flexShrink:0 }}>✓</span>
-                    <span style={{ color:"#6ee7b7", fontSize:13, lineHeight:1.4 }}>{a}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          <div style={{ background:"rgba(59,130,246,0.07)", border:"1px solid rgba(59,130,246,0.18)", borderRadius:12, padding:"14px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:10 }}>
-            <div>
-              <div style={{ color:"white", fontSize:14, fontWeight:600 }}>Encountered this scam?</div>
-              <div style={{ color:"#64748b", fontSize:13 }}>File a report — it helps others avoid it.</div>
-            </div>
-            <button onClick={() => navigate(isLoggedIn ? "/submit-complaint" : "/register")}
-              style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"9px 18px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>
-              {isLoggedIn ? "Report It →" : "Register & Report →"}
-            </button>
-          </div>
+              {result.actionAdvice && (
+                <div className="grid md:grid-cols-2 gap-8 mt-12 relative z-10">
+                   <div className="bg-rose-50/50 p-8 rounded-[3rem] border border-rose-100">
+                      <h4 className="text-[10px] font-black text-rose-600 uppercase tracking-[0.2em] mb-6">DO NOT ENGAGE</h4>
+                      <ul className="space-y-4">
+                         {result.actionAdvice.avoid.map((a,i) => (
+                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-rose-800 uppercase italic">
+                              <span className="w-2 h-2 rounded-full bg-rose-400" /> {a}
+                           </li>
+                         ))}
+                      </ul>
+                   </div>
+                   <div className="bg-emerald-50/50 p-8 rounded-[3rem] border border-emerald-100">
+                      <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-6">RECOMMENDED ACTION</h4>
+                      <ul className="space-y-4">
+                         {result.actionAdvice.doThis.map((a,i) => (
+                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-emerald-800 uppercase italic">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400" /> {a}
+                           </li>
+                         ))}
+                      </ul>
+                   </div>
+                </div>
+              )}
+           </div>
         </div>
       )}
 
       {!result && !loading && activity.length > 0 && (
-        <div style={{ marginTop:8 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-            <span style={{ width:7, height:7, borderRadius:"50%", background:"#ef4444", display:"inline-block", animation:"pulse 1.5s ease-in-out infinite" }} />
-            <span style={{ color:"#64748b", fontSize:13 }}>Recent reports</span>
-          </div>
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {activity.slice(0,6).map((a,i) => (
-              <div key={i} onClick={() => { setQuery(a.value); doCheck(a.value); }}
-                style={{ display:"flex", justifyContent:"space-between", alignItems:"center", background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:10, padding:"10px 14px", cursor:"pointer" }}
-                onMouseEnter={e => e.currentTarget.style.borderColor="rgba(59,130,246,0.3)"}
-                onMouseLeave={e => e.currentTarget.style.borderColor="rgba(255,255,255,0.06)"}>
-                <div>
-                  <span style={{ color:"white", fontSize:13, fontFamily:"monospace" }}>{a.value}</span>
-                  <span style={{ color:"#64748b", fontSize:12, marginLeft:8 }}>{a.category}</span>
-                </div>
-                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ color: a.riskLevel==="CRITICAL"?"#ef4444":a.riskLevel==="HIGH"?"#f59e0b":"#94a3b8", fontSize:11, fontWeight:600 }}>{a.riskLevel}</span>
-                  <span style={{ color:"#475569", fontSize:11 }}>{timeAgo(a.lastReportedAt)}</span>
-                </div>
+        <div className="mt-20">
+           <div className="flex items-center gap-4 mb-10">
+              <div className="h-1 flex-grow bg-slate-100 rounded-full" />
+              <div className="flex items-center gap-3">
+                 <Activity className="text-soft-teal" size={20} />
+                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Recent Activity</h3>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {!result && !loading && activity.length === 0 && (
-        <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap:12, marginTop:8 }}>
-          {[
-            {icon:"📱",title:"Phone numbers",desc:"Someone called asking for OTP? Check if others reported the same number."},
-            {icon:"🔗",title:"Websites & links",desc:"Got a suspicious link on WhatsApp? Paste it here before clicking."},
-            {icon:"💳",title:"UPI & email IDs",desc:"Verify a UPI ID before sending money to someone you don't know."},
-          ].map(c => (
-            <div key={c.title} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:12, padding:"16px" }}>
-              <div style={{ fontSize:26, marginBottom:8 }}>{c.icon}</div>
-              <div style={{ color:"white", fontSize:14, fontWeight:600, marginBottom:5 }}>{c.title}</div>
-              <div style={{ color:"#64748b", fontSize:13, lineHeight:1.5 }}>{c.desc}</div>
-            </div>
-          ))}
+              <div className="h-1 flex-grow bg-slate-100 rounded-full" />
+           </div>
+           <div className="grid md:grid-cols-2 gap-6">
+              {activity.slice(0,6).map((a,i) => (
+                <div 
+                  key={i} 
+                  onClick={() => { setQuery(a.value); doCheck(a.value); }}
+                  className="bg-white p-8 rounded-[3rem] border-2 border-slate-50 flex items-center justify-between group cursor-pointer hover:border-soft-teal/20 transition-all shadow-sm"
+                >
+                  <div>
+                    <div className="text-sm font-black text-slate-800 uppercase italic tracking-tighter mb-1">{a.value}</div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{a.category}</div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <span className={`text-[10px] font-black uppercase ${a.riskLevel==="CRITICAL"?"text-rose-500":"text-amber-500"}`}>{a.riskLevel}</span>
+                    <ChevronRight size={20} className="text-slate-200 group-hover:text-soft-teal" />
+                  </div>
+                </div>
+              ))}
+           </div>
         </div>
       )}
     </div>
   );
 
-  // ── If logged in → use UserLayout (shows sidebar) ────────────────────────
-  if (isLoggedIn) {
-    return <UserLayout>{pageContent}</UserLayout>;
-  }
+  if (isLoggedIn) return <UserLayout>{pageContent}</UserLayout>;
 
-  // ── Public view (not logged in) → standalone page ────────────────────────
   return (
-    <div style={{ minHeight:"100vh", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", color:"white" }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 30% 40%,rgba(59,130,246,0.1) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <nav style={{ position:"sticky", top:0, zIndex:50, background:"rgba(10,15,30,0.92)", backdropFilter:"blur(12px)", borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"12px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => navigate("/")}>
-          <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
-          <span style={{ fontWeight:700, fontSize:15 }}>CyberShield</span>
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex flex-col">
+      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-4 md:px-10 py-4 md:py-6 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
+            <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
+          </div>
+          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
         </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <button onClick={() => navigate("/trending")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:13 }}>🔥 Trending</button>
-          <button onClick={() => navigate("/login")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"6px 14px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Login</button>
+        <div className="flex gap-2 md:gap-4 items-center">
+          <button onClick={() => navigate("/login")} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-2 md:px-4">Sign In</button>
+          <button onClick={() => navigate("/register")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-[10px] font-black uppercase tracking-widest shadow-lg">New Access</button>
         </div>
       </nav>
-      <div style={{ maxWidth:680, margin:"0 auto", padding: isMobile ? "24px 16px 60px" : "48px 24px", position:"relative", zIndex:1 }}>
-        {pageContent}
-      </div>
+      <div className="px-6 flex-grow">{pageContent}</div>
+      <Footer />
     </div>
   );
 }

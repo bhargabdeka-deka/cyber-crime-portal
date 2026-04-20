@@ -1,22 +1,50 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
-import useWindowWidth from "../hooks/useWindowWidth";
 import UserLayout from "../layouts/UserLayout";
+import Footer from "../components/Footer";
+import { 
+  Zap, 
+  ShieldCheck, 
+  Activity, 
+  AlertTriangle, 
+  TrendingUp, 
+  Target, 
+  ChevronRight, 
+  ArrowRight,
+  PieChart,
+  Flame,
+  LayoutList,
+  CreditCard, 
+  Globe, 
+  Briefcase, 
+  Gift, 
+  Heart, 
+  User, 
+  Unlock, 
+  MessageCircle, 
+  Info 
+} from "lucide-react";
 
 const scamTypeIcon = {
-  "UPI Fraud":"💳","Phishing":"🎣","Job Scam":"💼","Lottery Scam":"🎰",
-  "Romance Scam":"💔","Investment Scam":"📈","Identity Theft":"🪪",
-  "Account Hacking":"🔓","Cyber Harassment":"😡","Other":"⚠️"
+  "UPI Fraud": <CreditCard size={18} />,
+  "Phishing": <Globe size={18} />,
+  "Job Scam": <Briefcase size={18} />,
+  "Lottery Scam": <Gift size={18} />,
+  "Romance Scam": <Heart size={18} />,
+  "Investment Scam": <TrendingUp size={18} />,
+  "Identity Theft": <User size={18} />,
+  "Account Hacking": <Unlock size={18} />,
+  "Cyber Harassment": <MessageCircle size={18} />,
+  "Other": <Info size={18} />
 };
-const riskColor = (score) => score >= 80 ? "#ef4444" : score >= 50 ? "#f59e0b" : "#10b981";
+
+const riskColorClass = (score) => score >= 80 ? "text-rose-600" : score >= 50 ? "text-orange-600" : "text-emerald-600";
 
 export default function Trending() {
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate   = useNavigate();
-  const w          = useWindowWidth();
-  const isMobile   = w < 640;
   const user       = JSON.parse(localStorage.getItem("user") || "null");
   const isLoggedIn = !!localStorage.getItem("token") && !!user;
 
@@ -24,135 +52,119 @@ export default function Trending() {
     API.get("/scam/trending").then(r => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  // ── Page content (shared between logged-in and public) ───────────────────
   const pageContent = (
-    <div>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ display:"inline-block", background:"rgba(239,68,68,0.12)", border:"1px solid rgba(239,68,68,0.25)", color:"#fca5a5", padding:"4px 12px", borderRadius:20, fontSize:12, marginBottom:10 }}>🔥 Live Intelligence</div>
-        <h1 style={{ color:"white", fontSize: isMobile ? 22 : 30, fontWeight:800, margin:"0 0 6px", letterSpacing:"-0.5px" }}>Trending Scams</h1>
-        <p style={{ color:"#94a3b8", fontSize:14, margin:0 }}>Real-time scam intelligence from community reports.</p>
+    <div className="max-w-6xl mx-auto py-10">
+      <div className="mb-10 md:mb-16">
+        <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full text-[10px] font-black text-rose-500 tracking-widest uppercase mb-6 border border-rose-100">
+           <Flame size={14} className="fill-rose-500" /> Live Threat Intel
+        </div>
+        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Threat Advisories</h1>
+        <p className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-[0.2em] italic leading-relaxed">Real-time pattern analysis from the Cyber Intelligence Network.</p>
       </div>
 
       {loading ? (
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:300 }}>
-          <div style={{ textAlign:"center" }}>
-            <div style={{ width:36, height:36, border:"3px solid rgba(59,130,246,0.3)", borderTop:"3px solid #3b82f6", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 12px" }} />
-            <p style={{ color:"#64748b", fontSize:14 }}>Loading intelligence data...</p>
-          </div>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
         </div>
       ) : !data ? (
-        <div style={{ textAlign:"center", padding:60 }}><p style={{ color:"#64748b" }}>No data available yet.</p></div>
+        <div className="bg-slate-50 p-20 rounded-[4rem] text-center border border-slate-100 italic font-bold uppercase text-slate-300">
+           Awaiting synchronization...
+        </div>
       ) : (
         <>
-          {/* Stats */}
-          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(4,1fr)", gap:12, marginBottom:24 }}>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-16">
             {[
-              {icon:"📋",label:"Unique Targets",  value:data.stats?.totalScams||0,    color:"#60a5fa"},
-              {icon:"🔥",label:"Active This Week", value:data.stats?.recentCount||0,   color:"#f59e0b"},
-              {icon:"🚨",label:"Critical",         value:data.stats?.criticalCount||0, color:"#ef4444"},
-              {icon:"⚠️",label:"High Risk",        value:data.stats?.highCount||0,     color:"#a78bfa"},
+              { label: "Targets", value: data.stats?.totalScams||0, color: "text-blue-600", bg: "bg-blue-50" },
+              { label: "Active",     value: data.stats?.recentCount||0, color: "text-orange-600", bg: "bg-orange-50" },
+              { label: "Critical",   value: data.stats?.criticalCount||0, color: "text-rose-600", bg: "bg-rose-50" },
+              { label: "Risk Mit.", value: `${data.stats?.highCount||0}%`, color: "text-emerald-600", bg: "bg-emerald-50" }
             ].map(s => (
-              <div key={s.label} style={{ background:`${s.color}12`, border:`1px solid ${s.color}30`, borderRadius:12, padding:"16px" }}>
-                <div style={{ fontSize:20, marginBottom:6 }}>{s.icon}</div>
-                <div style={{ fontSize:26, fontWeight:800, color:s.color }}>{s.value}</div>
-                <div style={{ color:"#64748b", fontSize:12, marginTop:4 }}>{s.label}</div>
+              <div key={s.label} className={`${s.bg} p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-white flex flex-col items-center justify-center text-center shadow-soft`}>
+                <div className="text-2xl md:text-4xl font-black italic tracking-tighter leading-none mb-2 md:mb-3">{s.value}</div>
+                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Two columns */}
-          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:16, marginBottom:16 }}>
-            {/* Categories */}
-            <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:"20px" }}>
-              <h3 style={{ color:"white", fontSize:15, fontWeight:600, margin:"0 0 16px" }}>🎯 Top Scam Categories</h3>
-              {!data.topCategories?.length ? <p style={{ color:"#475569", fontSize:13 }}>No data yet.</p> : (
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                  {data.topCategories.map(t => {
-                    const pct = Math.round((t.count / (data.topCategories[0]?.count||1)) * 100);
-                    return (
-                      <div key={t.category}>
-                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-                          <span style={{ color:"#e2e8f0", fontSize:13 }}>{scamTypeIcon[t.category]||"⚠️"} {t.category}</span>
-                          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-                            <span style={{ color:riskColor(t.avgRisk), fontSize:11 }}>Avg {t.avgRisk}</span>
-                            <span style={{ color:"white", fontSize:13, fontWeight:700 }}>{t.count}</span>
-                          </div>
-                        </div>
-                        <div style={{ height:4, background:"rgba(255,255,255,0.06)", borderRadius:2 }}>
-                          <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", borderRadius:2 }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 mb-12">
+            <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-soft border border-slate-50">
+               <div className="flex items-center gap-3 mb-10">
+                  <PieChart className="text-soft-teal" size={20} />
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800 italic">Sector Analysis</h3>
+               </div>
+               <div className="space-y-10">
+                 {data.topCategories?.map(t => {
+                   const pct = Math.round((t.count / (data.topCategories[0]?.count||1)) * 100);
+                   return (
+                     <div key={t.category}>
+                       <div className="flex justify-between items-end mb-4">
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg md:rounded-2xl flex items-center justify-center text-slate-400">
+                               {scamTypeIcon[t.category] || <Info size={16} />}
+                            </div>
+                            <span className="text-xs md:text-sm font-black text-slate-800 uppercase italic tracking-tight">{t.category}</span>
+                         </div>
+                         <div className="text-right">
+                            <span className="text-sm md:text-lg font-black text-slate-900 italic">{t.count}</span>
+                         </div>
+                       </div>
+                       <div className="w-full bg-slate-50 h-2 rounded-full border border-white">
+                          <div className="h-full bg-soft-teal rounded-full" style={{ width: `${pct}%` }} />
+                       </div>
+                     </div>
+                   );
+                 })}
+               </div>
             </div>
 
-            {/* Top targets */}
-            <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:"20px" }}>
-              <h3 style={{ color:"white", fontSize:15, fontWeight:600, margin:"0 0 16px" }}>🔴 Most Reported</h3>
-              {!data.topTargets?.length ? <p style={{ color:"#475569", fontSize:13 }}>No data yet.</p> : (
-                <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
-                  {data.topTargets.slice(0,5).map((t,i) => (
-                    <div key={t.value} onClick={() => navigate("/check-scam")}
-                      style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom: i<4 ? "1px solid rgba(255,255,255,0.05)" : "none", cursor:"pointer" }}>
-                      <div>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <span style={{ background:"rgba(239,68,68,0.15)", color:"#f87171", width:18, height:18, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700 }}>{i+1}</span>
-                          <span style={{ color:"white", fontSize:13, fontWeight:600, fontFamily:"monospace" }}>{t.value}</span>
-                        </div>
-                        <div style={{ color:"#64748b", fontSize:11, marginTop:2 }}>{scamTypeIcon[t.category]||"⚠️"} {t.category}</div>
+            <div className="bg-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-xl">
+               <div className="flex items-center gap-3 mb-10">
+                  <Target className="text-rose-400" size={20} />
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 italic">Critical Targets</h3>
+               </div>
+               <div className="space-y-4">
+                 {data.topTargets?.slice(0,5).map((t,i) => (
+                   <div key={t.value} onClick={() => navigate("/check-scam")} className="flex items-center justify-between p-4 md:p-6 bg-white/5 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 group cursor-pointer hover:bg-white/10">
+                      <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white text-[10px] font-black">
+                            #{i+1}
+                         </div>
+                         <div className="max-w-[120px] md:max-w-none overflow-hidden text-ellipsis whitespace-nowrap">
+                            <div className="text-[11px] md:text-sm font-black uppercase italic tracking-tight">{t.value}</div>
+                            <div className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-60">{t.category}</div>
+                         </div>
                       </div>
-                      <div style={{ textAlign:"right" }}>
-                        <div style={{ color:"#ef4444", fontSize:14, fontWeight:800 }}>{t.reports}×</div>
-                        <div style={{ color:riskColor(t.avgRiskScore), fontSize:11 }}>Risk {t.avgRiskScore}</div>
+                      <div className="text-right">
+                         <div className="text-sm md:text-lg font-black text-rose-500 italic leading-none">{t.reports}×</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                   </div>
+                 ))}
+               </div>
             </div>
-          </div>
-
-          {/* CTA */}
-          <div style={{ background:"linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.1))", border:"1px solid rgba(59,130,246,0.2)", borderRadius:14, padding:"24px", textAlign:"center" }}>
-            <h3 style={{ color:"white", fontSize:17, fontWeight:700, margin:"0 0 8px" }}>Spotted a scam not listed here?</h3>
-            <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 16px" }}>Report it to help protect others.</p>
-            <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
-              <button onClick={() => navigate("/check-scam")} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", color:"white", padding:"9px 20px", borderRadius:8, cursor:"pointer", fontSize:14 }}>Check a Number</button>
-              <button onClick={() => navigate(isLoggedIn ? "/submit-complaint" : "/register")}
-                style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"9px 20px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:600 }}>
-                {isLoggedIn ? "Report a Scam →" : "Register & Report →"}
-              </button>            </div>
           </div>
         </>
       )}
     </div>
   );
 
-  // ── Logged in → UserLayout with sidebar ──────────────────────────────────
-  if (isLoggedIn) {
-    return <UserLayout>{pageContent}</UserLayout>;
-  }
+  if (isLoggedIn) return <UserLayout>{pageContent}</UserLayout>;
 
-  // ── Public → standalone page ─────────────────────────────────────────────
   return (
-    <div style={{ minHeight:"100vh", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", color:"white" }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 70% 30%,rgba(239,68,68,0.08) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <nav style={{ position:"sticky", top:0, zIndex:50, background:"rgba(10,15,30,0.9)", backdropFilter:"blur(12px)", borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"12px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => navigate("/")}>
-          <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
-          <span style={{ fontWeight:700, fontSize:15 }}>CyberShield</span>
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex flex-col">
+      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-4 md:px-10 py-4 md:py-6 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
+            <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
+          </div>
+          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
         </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <button onClick={() => navigate("/check-scam")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:13 }}>Scam Checker</button>
-          <button onClick={() => navigate("/login")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"6px 14px", borderRadius:8, cursor:"pointer", fontSize:13, fontWeight:600 }}>Login</button>
+        <div className="flex gap-2 md:gap-4">
+          <button onClick={() => navigate("/check-scam")} className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-2 md:px-4">Checker</button>
+          <button onClick={() => navigate("/login")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg">Access</button>
         </div>
       </nav>
-      <div style={{ maxWidth:1100, margin:"0 auto", padding: isMobile ? "24px 16px 60px" : "48px 24px", position:"relative", zIndex:1 }}>
-        {pageContent}
-      </div>
+      <div className="px-4 md:px-6 flex-grow">{pageContent}</div>
+      <Footer />
     </div>
   );
 }

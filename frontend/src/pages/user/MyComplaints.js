@@ -2,27 +2,43 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { 
+  Plus, 
+  ChevronRight, 
+  Search, 
+  X, 
+  Activity, 
+  LayoutList, 
+  ShieldCheck, 
+  FileText, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle,
+  Info,
+  Zap,
+  Filter,
+  Download
+} from "lucide-react";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 const statusMeta = {
-  Pending:       { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)",  icon: "⏳" },
-  Investigating: { color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)",  icon: "🔍" },
-  Resolved:      { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)",  icon: "✅" },
+  Pending:       { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", icon: Clock },
+  Investigating: { color: "text-blue-600",bg: "bg-blue-50", border: "border-blue-100", icon: Search },
+  Resolved:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: CheckCircle },
 };
 
 const priorityMeta = {
-  Critical: { color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.25)" },
-  High:     { color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)" },
-  Medium:   { color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)" },
-  Low:      { color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)" },
+  Critical: { color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" },
+  High:     { color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
+  Medium:   { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+  Low:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
 };
 
 const riskMeta = (score) => {
-  if (score >= 80) return { label: "High",   color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.25)" };
-  if (score >= 50) return { label: "Medium", color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)" };
-  return               { label: "Low",    color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)" };
+  if (score >= 80) return { label: "High",   color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" };
+  if (score >= 50) return { label: "Medium", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" };
+  return               { label: "Low",    color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" };
 };
 
 const buildImageUrl = (path) => {
@@ -39,8 +55,6 @@ export default function MyComplaints() {
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   useEffect(() => {
     API.get("/complaints/my")
@@ -61,10 +75,10 @@ export default function MyComplaints() {
   if (loading) {
     return (
       <UserLayout>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ width: 36, height: 36, border: "3px solid rgba(59,130,246,0.3)", borderTop: "3px solid #3b82f6", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
-            <p style={{ color: "#64748b", fontSize: 14 }}>Loading complaints...</p>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
+            <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Accessing Incident Database...</p>
           </div>
         </div>
       </UserLayout>
@@ -74,92 +88,101 @@ export default function MyComplaints() {
   return (
     <UserLayout>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>My Complaints</h1>
-          <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>{complaints.length} complaint{complaints.length !== 1 ? "s" : ""} filed</p>
+           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
+              <LayoutList size={14} /> USER RECORD ARCHIVE
+           </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">My Reports</h1>
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-3">{complaints.length} Records Verified</p>
         </div>
-        <button onClick={() => navigate("/submit-complaint")}
-          style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-          + New Complaint
+        <button onClick={() => navigate("/submit-complaint")} className="bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest px-8 py-4 flex items-center gap-3 hover:brightness-110 shadow-lg">
+           <Plus size={16} /> NEW REPORT
         </button>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Filter Matrix */}
       {complaints.length > 0 && (
-        <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
-          {["All", "Pending", "Investigating", "Resolved"].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              style={{ padding: "6px 16px", borderRadius: 20, border: filter === f ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)", background: filter === f ? "rgba(59,130,246,0.15)" : "transparent", color: filter === f ? "#60a5fa" : "#64748b", cursor: "pointer", fontSize: 13, fontWeight: filter === f ? 600 : 400 }}>
-              {f} {f === "All" ? `(${complaints.length})` : `(${complaints.filter(c => c.status === f).length})`}
-            </button>
-          ))}
+        <div className="bg-slate-50 p-6 rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-3 mb-10 shadow-sm">
+           <Filter className="text-slate-300 ml-4 hidden md:block" size={18} />
+           {["All", "Pending", "Investigating", "Resolved"].map(f => {
+             const active = filter === f;
+             return (
+               <button 
+                 key={f} 
+                 onClick={() => setFilter(f)}
+                 className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-soft-teal text-white shadow-lg' : 'text-slate-400 hover:text-slate-700'}`}
+               >
+                 {f} <span className="opacity-40 ml-2">[{f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}]</span>
+               </button>
+             );
+           })}
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Content Area */}
       {complaints.length === 0 ? (
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "60px 24px", textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
-          <h3 style={{ color: "white", fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>No complaints yet</h3>
-          <p style={{ color: "#64748b", fontSize: 14, margin: "0 0 20px" }}>When you file a complaint, it will appear here.</p>
-          <button onClick={() => navigate("/submit-complaint")}
-            style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none", color: "white", padding: "10px 22px", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
-            File First Complaint
-          </button>
+        <div className="bg-slate-50 rounded-[4rem] py-32 text-center border border-slate-100">
+          <div className="inline-flex w-24 h-24 bg-white rounded-[2rem] items-center justify-center mb-8 shadow-soft">
+             <ShieldCheck className="text-slate-200" size={48} />
+          </div>
+          <h3 className="text-xl font-black text-slate-800 uppercase italic">Archived Index Empty</h3>
+          <p className="text-sm font-medium text-slate-400 mt-2 uppercase tracking-widest">You have zero recorded incidents.</p>
+          <button onClick={() => navigate("/submit-complaint")} className="mt-10 bg-soft-teal text-white px-10 py-4 rounded-full font-black text-xs tracking-widest hover:scale-105 transition-all">FILE COMPLAINT</button>
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "40px 24px", textAlign: "center" }}>
-          <p style={{ color: "#64748b", fontSize: 14 }}>No {filter} complaints.</p>
+        <div className="bg-slate-50 rounded-[3rem] py-20 text-center border border-slate-100 italic font-bold uppercase tracking-widest text-slate-300">
+           No matching logs found.
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="space-y-6">
           {filtered.map(c => {
             const sm = statusMeta[c.status] || statusMeta.Pending;
             const pm = priorityMeta[c.priority] || priorityMeta.Low;
             const rm = riskMeta(c.riskScore);
             return (
-              <div key={c._id} onClick={() => openDetails(c._id)}
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: "16px 20px", cursor: "pointer", transition: "border-color 0.2s, background 0.2s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"; e.currentTarget.style.background = "rgba(59,130,246,0.04)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
-
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  {/* Left */}
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <span style={{ color: "white", fontSize: 14, fontWeight: 700 }}>{c.caseId}</span>
-                      <span style={{ background: pm.bg, color: pm.color, border: `1px solid ${pm.border}`, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{c.priority}</span>
+              <div 
+                key={c._id} 
+                onClick={() => openDetails(c._id)}
+                className="bg-white p-8 rounded-[3rem] border border-slate-50 shadow-soft hover:shadow-hover transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-4 mb-4">
+                       <span className="text-sm font-black text-slate-900 tracking-tighter uppercase italic">{c.caseId}</span>
+                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
                     </div>
-                    <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 4 }}>{c.title}</div>
-                    <div style={{ color: "#64748b", fontSize: 12 }}>{c.crimeType} · {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+                    <div className="text-lg font-bold text-slate-700 tracking-tight leading-tight mb-2 group-hover:text-soft-teal transition-colors">{c.title}</div>
+                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                       {c.crimeType} • {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </div>
                   </div>
 
-                  {/* Right */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <span style={{ background: rm.bg, color: rm.color, border: `1px solid ${rm.border}`, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
-                      Risk {rm.label} · {c.riskScore}
-                    </span>
-                    <span style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}`, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
-                      {sm.icon} {c.status}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <div className={`px-5 py-3 rounded-full text-[10px] font-black uppercase italic ${rm.color} ${rm.bg} border ${rm.border}`}>
+                       Risk Factor: {c.riskScore}
+                    </div>
+                    <div className={`px-5 py-3 rounded-full text-[10px] font-black uppercase italic ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
+                       <sm.icon size={14} /> {c.status}
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-soft-teal/20 group-hover:text-soft-teal transition-all hidden md:flex">
+                       <ChevronRight size={22} />
+                    </div>
                   </div>
                 </div>
 
-                {/* Progress bar */}
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ display: "flex", gap: 0 }}>
-                    {STEPS.map((step, i) => {
-                      const stepIdx = STEPS.indexOf(c.status);
-                      const done = i <= stepIdx;
-                      return (
-                        <div key={step} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: i === 0 ? "flex-start" : i === STEPS.length - 1 ? "flex-end" : "center" }}>
-                          <div style={{ height: 3, width: "100%", background: done ? sm.color : "rgba(255,255,255,0.07)", borderRadius: i === 0 ? "2px 0 0 2px" : i === STEPS.length - 1 ? "0 2px 2px 0" : 0, transition: "background 0.3s" }} />
-                          <span style={{ color: done ? sm.color : "#475569", fontSize: 10, marginTop: 4 }}>{step}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                {/* Tracking Bar */}
+                <div className="mt-8 flex items-center gap-2">
+                   {STEPS.map((step, i) => {
+                     const stepIdx = STEPS.indexOf(c.status);
+                     const done = i <= stepIdx;
+                     const current = i === stepIdx;
+                     return (
+                       <div key={step} className="flex-grow h-2 rounded-full relative bg-slate-50 overflow-hidden">
+                          <div className={`absolute inset-0 transition-all duration-1000 ${done ? sm.bg.replace('bg-', 'bg-') : 'bg-transparent'} ${done ? (current ? 'brightness-100' : 'brightness-90 opacity-40') : ''} ${current ? sm.bg.replace('bg-', 'bg-').replace('50', '500') : ''}`} style={{ width: done ? '100%' : '0%' }} />
+                       </div>
+                     );
+                   })}
                 </div>
               </div>
             );
@@ -167,84 +190,102 @@ export default function MyComplaints() {
         </div>
       )}
 
-      {/* MODAL */}
+      {/* DETAIL MODAL */}
       {selected && (
-        <div onClick={() => setSelected(null)}
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(4px)", display:"flex", alignItems: isMobile ? "flex-end" : "center", justifyContent:"center", zIndex:1000, padding: isMobile ? 0 : 16 }}>
-          <div onClick={e => e.stopPropagation()}
-            style={{ background:"#1e293b", border:"1px solid rgba(255,255,255,0.1)", borderRadius: isMobile ? "16px 16px 0 0" : 16, width:"100%", maxWidth: isMobile ? "100%" : 520, maxHeight: isMobile ? "90vh" : "85vh", overflowY:"auto", padding: isMobile ? "20px 16px" : 28 }}>
-
-            {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-              <div>
-                <h3 style={{ color: "white", fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>{selected.caseId}</h3>
-                <span style={{ color: "#64748b", fontSize: 13 }}>{selected.crimeType}</span>
-              </div>
-              <button onClick={() => setSelected(null)}
-                style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-            </div>
-
-            {/* Badges */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-              {[
-                { label: `${(statusMeta[selected.status] || statusMeta.Pending).icon} ${selected.status}`, meta: statusMeta[selected.status] || statusMeta.Pending },
-                { label: selected.priority, meta: priorityMeta[selected.priority] || priorityMeta.Low },
-                { label: `Risk ${riskMeta(selected.riskScore).label} · ${selected.riskScore}`, meta: riskMeta(selected.riskScore) },
-              ].map((b, i) => (
-                <span key={i} style={{ background: b.meta.bg, color: b.meta.color, border: `1px solid ${b.meta.border}`, padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{b.label}</span>
-              ))}
-            </div>
-
-            {/* Description */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ color: "#64748b", fontSize: 12, marginBottom: 6 }}>DESCRIPTION</div>
-              <p style={{ color: "#e2e8f0", fontSize: 14, lineHeight: 1.7, margin: 0, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "12px 14px" }}>
-                {selected.description}
-              </p>
-            </div>
-
-            {/* Status Timeline */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ color: "#64748b", fontSize: 12, marginBottom: 10 }}>STATUS TIMELINE</div>
-              <div style={{ display: "flex", gap: 0 }}>
-                {STEPS.map((step, i) => {
-                  const stepIdx = STEPS.indexOf(selected.status);
-                  const done = i <= stepIdx;
-                  const sm = statusMeta[selected.status] || statusMeta.Pending;
-                  return (
-                    <div key={step} style={{ flex: 1, textAlign: "center" }}>
-                      <div style={{ height: 4, background: done ? sm.color : "rgba(255,255,255,0.07)", borderRadius: i === 0 ? "2px 0 0 2px" : i === STEPS.length - 1 ? "0 2px 2px 0" : 0 }} />
-                      <span style={{ color: done ? sm.color : "#475569", fontSize: 11, marginTop: 6, display: "block" }}>{step}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Date */}
-            <div style={{ color: "#64748b", fontSize: 12, marginBottom: 20 }}>
-              Filed on {new Date(selected.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-            </div>
-
-            {/* Evidence */}
-            {selected.evidence && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>EVIDENCE</div>
-                {selected.evidence.match(/\.(jpg|jpeg|png|gif|webp)$/i) || selected.evidence.startsWith("http") ? (
-                  <img src={buildImageUrl(selected.evidence)} alt="Evidence"
-                    style={{ width: "100%", borderRadius: 10, objectFit: "cover", maxHeight: 240, border: "1px solid rgba(255,255,255,0.08)" }} />
-                ) : null}
-                <a href={buildImageUrl(selected.evidence)} target="_blank" rel="noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, color: "#60a5fa", fontSize: 13, textDecoration: "none" }}>
-                  📎 View / Download Evidence
-                </a>
-              </div>
-            )}
-
-            <button onClick={() => setSelected(null)}
-              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "11px", borderRadius: 8, cursor: "pointer", fontSize: 14 }}>
-              Close
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-slate-900/10 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setSelected(null)}>
+          <div className="w-full max-w-4xl bg-white shadow-hover p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border border-white flex flex-col max-h-[90vh] relative animate-in zoom-in-95 duration-500" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelected(null)} className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+               <X size={20} />
             </button>
+
+            <div className="flex-grow overflow-y-auto pr-6 custom-scrollbar">
+               <div className="mb-12">
+                  <div className="flex items-center gap-4 mb-6">
+                     <div className="w-14 h-14 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-lg">
+                        <FileText size={28} />
+                     </div>
+                     <div>
+                        <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">{selected.caseId}</h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Personal Case File</p>
+                     </div>
+                  </div>
+                  <div className="h-1 w-20 bg-soft-teal/20 rounded-full" />
+               </div>
+
+               <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+                  <div className="space-y-8 md:space-y-12">
+                     <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 md:mb-6">Threat Summary</h4>
+                        <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-white">
+                           <div className="text-lg font-black text-slate-800 uppercase italic tracking-tighter mb-4">{selected.title}</div>
+                           <div className="flex gap-2 flex-wrap">
+                              <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase italic ${statusMeta[selected.status].bg} ${statusMeta[selected.status].color} border ${statusMeta[selected.status].border}`}>
+                                 {selected.status}
+                              </span>
+                              <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase italic ${priorityMeta[selected.priority].bg} ${priorityMeta[selected.priority].color} border ${priorityMeta[selected.priority].border}`}>
+                                 {selected.priority}
+                              </span>
+                           </div>
+                        </div>
+                     </section>
+
+                     <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Description Payload</h4>
+                        <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-50 text-sm font-semibold leading-relaxed text-slate-600 italic shadow-sm">
+                           "{selected.description}"
+                        </div>
+                     </section>
+                  </div>
+
+                  <div className="space-y-12">
+                     <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Status Timeline</h4>
+                        <div className="flex gap-2 p-2 bg-slate-50 rounded-full border border-white">
+                          {STEPS.map((step, i) => {
+                            const stepIdx = STEPS.indexOf(selected.status);
+                            const done = i <= stepIdx;
+                            return (
+                              <div key={step} className={`flex-grow h-12 rounded-full flex items-center justify-center transition-all ${done ? 'bg-slate-900 text-white shadow-md' : 'text-slate-300'}`}>
+                                 <span className="text-[10px] font-black uppercase italic">{step}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                     </section>
+
+                     {selected.evidence && (
+                       <section>
+                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Logged Evidence</h4>
+                          <div className="relative group rounded-[3rem] overflow-hidden shadow-soft border-4 border-white">
+                             <img src={buildImageUrl(selected.evidence)} alt="Evidence" className="w-full grayscale transition-all duration-700 group-hover:grayscale-0" />
+                             <a 
+                               href={buildImageUrl(selected.evidence)} 
+                               target="_blank" 
+                               rel="noreferrer"
+                               className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-500"
+                             >
+                                <div className="bg-white text-slate-900 px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest">Open Evidence</div>
+                             </a>
+                          </div>
+                          <a href={buildImageUrl(selected.evidence)} download className="mt-6 flex items-center gap-3 text-[10px] font-black text-soft-teal tracking-widest uppercase hover:underline">
+                             <Download size={14} /> Download File Metadata
+                          </a>
+                       </section>
+                     )}
+                     
+                     <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2rem] border border-white">
+                        <div>
+                           <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Filed Date</div>
+                           <div className="text-[11px] font-black uppercase text-slate-500">{new Date(selected.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                        </div>
+                        <div className="text-right">
+                           <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Risk Rating</div>
+                           <div className={`text-xl font-black italic tracking-tighter ${riskMeta(selected.riskScore).color}`}>{selected.riskScore}</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       )}

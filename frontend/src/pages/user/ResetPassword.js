@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../../services/api";
+import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle, ChevronRight } from "lucide-react";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -13,70 +14,113 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
-  const strengthColor = ["","#ef4444","#f59e0b","#10b981"][strength];
+  const strengthColors = ["bg-slate-100", "bg-rose-400", "bg-amber-400", "bg-emerald-400"];
+  const strengthLabels = ["MISSING", "WEAK_HASH", "SECURE_NODE", "ENCRYPTED"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirm) { setError("Passwords don't match"); return; }
-    if (password.length < 6)  { setError("Password must be at least 6 characters"); return; }
+    if (password !== confirm) { setError("Sequence mismatch"); return; }
+    if (password.length < 6)  { setError("Entropy insufficient (min. 6)"); return; }
     setLoading(true); setError("");
     try {
       await API.post(`/users/reset-password/${token}`, { password });
       setDone(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Reset failed. Link may have expired.");
+      setError(err.response?.data?.message || "Link authentication failed");
     } finally { setLoading(false); }
   };
 
   return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", padding:16 }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 70% 50%,rgba(139,92,246,0.1) 0%,transparent 60%)", pointerEvents:"none" }} />
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-soft-teal/10 rounded-full blur-[100px]" />
 
-      <div style={{ width:"100%", maxWidth:420, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"36px 28px", position:"relative", zIndex:1 }}>
+      <div className="w-full max-w-md bg-white p-12 rounded-[4rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
         {done ? (
-          <div style={{ textAlign:"center" }}>
-            <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
-            <h2 style={{ color:"white", fontSize:20, fontWeight:700, margin:"0 0 8px" }}>Password Reset!</h2>
-            <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 20px" }}>Your password has been updated. You can now log in.</p>
-            <button onClick={() => navigate("/login")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"11px 24px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:600 }}>Go to Login</button>
+          <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="w-24 h-24 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-lg scale-110">
+              <CheckCircle size={48} />
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Reset Success</h2>
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest italic mb-10">Node credentials updated and synchronized.</p>
+            <button 
+              onClick={() => navigate("/login")} 
+              className="w-full bg-slate-900 text-white px-10 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl hover:brightness-110 active:scale-95 transition-all"
+            >
+              AUTHENTICATE NOW
+            </button>
           </div>
         ) : (
           <>
-            <div style={{ textAlign:"center", marginBottom:24 }}>
-              <span style={{ fontSize:32 }}>🔒</span>
-              <h2 style={{ color:"white", fontSize:22, fontWeight:700, margin:"10px 0 6px" }}>Set New Password</h2>
-              <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Choose a strong password for your account.</p>
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal mx-auto mb-8 shadow-soft">
+                <Lock size={32} />
+              </div>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Set Protocol</h2>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic">Provide new administrative credentials for node access.</p>
             </div>
 
-            {error && <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16 }}>⚠️ {error}</div>}
+            {error && (
+              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest mb-8 flex items-center gap-3">
+                <span className="shrink-0">⚠️</span> {error}
+              </div>
+            )}
 
-            <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div>
-                <label style={{ color:"#94a3b8", fontSize:13, display:"block", marginBottom:6 }}>New Password</label>
-                <div style={{ position:"relative" }}>
-                  <input type={showPass?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Min. 6 characters" required
-                    style={{ width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"12px 44px 12px 14px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box" }}
-                    onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-                  <button type="button" onClick={()=>setShowPass(!showPass)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16 }}>{showPass?"🙈":"👁️"}</button>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">New Encryption key</label>
+                <div className="relative group">
+                  <input 
+                    type={showPass ? "text" : "password"} 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    placeholder="MIN. 6 CHARS" 
+                    required 
+                    className="w-full bg-slate-50 px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-soft-teal transition-colors"
+                  >
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 {password.length > 0 && (
-                  <div style={{ marginTop:6 }}>
-                    <div style={{ display:"flex", gap:4 }}>
-                      {[1,2,3].map(i => <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i<=strength ? strengthColor : "rgba(255,255,255,0.1)" }} />)}
-                    </div>
-                    <span style={{ fontSize:11, color:strengthColor, marginTop:3, display:"block" }}>{["","Weak","Good","Strong"][strength]}</span>
+                  <div className="px-4">
+                     <div className="flex gap-2 mb-2">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${i <= strength ? strengthColors[strength] : "bg-slate-100"}`} />
+                        ))}
+                     </div>
+                     <span className={`text-[8px] font-black uppercase tracking-widest ${strengthColors[strength].replace('bg-', 'text-')}`}>
+                        LOG_STRENGTH: {strengthLabels[strength]}
+                     </span>
                   </div>
                 )}
               </div>
-              <div>
-                <label style={{ color:"#94a3b8", fontSize:13, display:"block", marginBottom:6 }}>Confirm Password</label>
-                <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Repeat your password" required
-                  style={{ width:"100%", background:"rgba(255,255,255,0.05)", border:`1px solid ${confirm && confirm!==password ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius:10, padding:"12px 14px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box" }} />
-                {confirm && confirm !== password && <span style={{ color:"#f87171", fontSize:12, marginTop:4, display:"block" }}>Passwords don't match</span>}
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">Confirm Protocol</label>
+                <input 
+                  type="password" 
+                  value={confirm} 
+                  onChange={e => setConfirm(e.target.value)} 
+                  placeholder="REPEAT KEY" 
+                  required 
+                  className={`w-full bg-slate-50 px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border transition-all shadow-inner ${confirm && confirm !== password ? "border-rose-200 bg-rose-50/30" : "border-transparent focus:border-soft-teal/20 focus:bg-white"}`}
+                />
               </div>
-              <button type="submit" disabled={loading || (confirm && confirm !== password)}
-                style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", gap:8, opacity: loading ? 0.7 : 1 }}>
-                {loading ? <span style={{ width:16, height:16, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "Reset Password"}
+
+              <button 
+                type="submit" 
+                disabled={loading || (confirm && confirm !== password)}
+                className="w-full bg-slate-900 text-white h-20 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-30"
+              >
+                {loading ? (
+                  <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>FINALIZE RESET <ChevronRight size={18} /></>
+                )}
               </button>
             </form>
           </>

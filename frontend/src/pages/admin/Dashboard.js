@@ -2,53 +2,31 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
-import useWindowWidth from "../../hooks/useWindowWidth";
 import {
-  LineChart, Line, PieChart, Pie, BarChart, Bar,
+  LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell
 } from "recharts";
+import { Shield, AlertTriangle, CheckCircle, Clock, BarChart2, List, ChevronRight, Zap } from "lucide-react";
 
-const COLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"];
-
-const priorityMeta = {
-  Critical: { color: "#ef4444", bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.25)", icon: "🚨" },
-  High:     { color: "#f59e0b", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.25)", icon: "⚠️" },
-  Medium:   { color: "#3b82f6", bg: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.25)", icon: "📋" },
-  Low:      { color: "#10b981", bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", icon: "✅" },
-};
+const COLORS = ["#06B2B2", "#f59e0b", "#10b981", "#ef4444", "#6366f1", "#06b6d4"];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
-      <div style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 14px" }}>
-        <p style={{ color: "#94a3b8", fontSize: 12, margin: "0 0 4px" }}>{label}</p>
-        <p style={{ color: "white", fontSize: 16, fontWeight: 700, margin: 0 }}>{payload[0].value}</p>
+      <div className="bg-white/90 backdrop-blur-md border border-white shadow-hover p-4 rounded-[1.5rem]">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+        <p className="text-xl font-black text-slate-900">{payload[0].value} Cases</p>
       </div>
     );
   }
   return null;
 };
 
-const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }) => {
-  if (percent < 0.05) return null;
-  const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>
-      {`${(percent * 100).toFixed(0)}%`}
-    </text>
-  );
-};
-
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -63,10 +41,10 @@ export default function Dashboard() {
   if (loading) {
     return (
       <Layout>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300 }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ width: 36, height: 36, border: "3px solid rgba(59,130,246,0.3)", borderTop: "3px solid #3b82f6", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
-            <p style={{ color: "#64748b", fontSize: 14 }}>Loading analytics...</p>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
+            <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Analyzing Data Nodes...</p>
           </div>
         </div>
       </Layout>
@@ -76,170 +54,206 @@ export default function Dashboard() {
   if (!stats) {
     return (
       <Layout>
-        <div style={{ textAlign: "center", padding: 60 }}>
-          <p style={{ color: "#64748b" }}>Failed to load analytics. Please refresh.</p>
+        <div className="text-center py-20 bg-rose-50/50 rounded-[3rem] border border-rose-100">
+          <AlertTriangle className="mx-auto text-rose-500 mb-4" size={40} />
+          <p className="text-rose-900 font-black uppercase italic tracking-tighter text-xl">Connection Interrupted</p>
+          <p className="text-rose-600 text-xs font-semibold mt-2 uppercase tracking-widest">Failed to communicate with intelligence server</p>
+          <button onClick={() => window.location.reload()} className="mt-8 bg-rose-600 text-white px-10 py-4 rounded-full font-black text-sm tracking-widest shadow-lg shadow-rose-200">RETRY SYNC</button>
         </div>
       </Layout>
     );
   }
 
   const total    = stats.statusDistribution?.reduce((s, i) => s + i.count, 0) || 0;
-  const pending  = stats.statusDistribution?.find(s => s.status === "Pending")?.count || 0;
-  const invest   = stats.statusDistribution?.find(s => s.status === "Investigating")?.count || 0;
   const resolved = stats.statusDistribution?.find(s => s.status === "Resolved")?.count || 0;
+  const invest   = stats.statusDistribution?.find(s => s.status === "Investigating")?.count || 0;
 
-  const statCards = [
-    { label: "Total Cases",    value: total,              icon: "📋", color: "#60a5fa", bg: "rgba(96,165,250,0.1)",  border: "rgba(96,165,250,0.2)" },
-    { label: "Pending",        value: pending,            icon: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.2)" },
-    { label: "Investigating",  value: invest,             icon: "🔍", color: "#3b82f6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.2)" },
-    { label: "Resolved",       value: resolved,           icon: "✅", color: "#10b981", bg: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.2)" },
-    { label: "Critical Cases", value: stats.criticalCases || 0, icon: "🚨", color: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.2)" },
+  const summaryStats = [
+    { label: "Total Reports", value: total, icon: List, bg: "bg-blue-50", text: "text-blue-600" },
+    { label: "Resolved", value: resolved, icon: CheckCircle, bg: "bg-emerald-50", text: "text-emerald-600" },
+    { label: "In Progress", value: invest, icon: Clock, bg: "bg-indigo-50", text: "text-indigo-600" },
+    { label: "Critical Risk", value: stats.criticalCases || 0, icon: AlertTriangle, bg: "bg-rose-50", text: "text-rose-600" },
   ];
 
   return (
     <Layout>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>Analytics Dashboard</h1>
-        <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>Overview of all complaint activity.</p>
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Operations Analytics</h1>
+          <div className="flex items-center gap-3 mt-4">
+             <div className="h-1 w-12 bg-soft-teal rounded-full" />
+             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Sector 7G Intelligence Feed</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-full border border-emerald-100">
+           <Zap className="fill-emerald-500 text-emerald-500" size={16} />
+           <span className="text-[10px] font-black uppercase tracking-widest">System Optimization Active</span>
+        </div>
       </div>
 
-      {/* Critical Alert */}
+      {/* Critical Alert Pin */}
       {stats.criticalCases > 0 && (
-        <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: "14px 18px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🚨</span>
-            <div>
-              <div style={{ color: "#fca5a5", fontWeight: 700, fontSize: 14 }}>{stats.criticalCases} Critical Case{stats.criticalCases > 1 ? "s" : ""} Require Immediate Attention</div>
-              <div style={{ color: "#f87171", fontSize: 12, marginTop: 2 }}>These cases have a risk score of 80 or above.</div>
-            </div>
+        <div className="bg-rose-600 text-white p-8 rounded-[2.5rem] mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-rose-200 overflow-hidden relative">
+          <div className="relative z-10 flex items-center gap-6">
+             <div className="bg-white/20 p-4 rounded-3xl backdrop-blur-md">
+                <AlertTriangle className="text-white" size={28} />
+             </div>
+             <div>
+                <h4 className="text-xl font-black uppercase italic tracking-tighter leading-none">High-Risk Detection Alert</h4>
+                <p className="text-sm font-semibold opacity-80 mt-2">{stats.criticalCases} cases require immediate triage (Risk Factor > 80%).</p>
+             </div>
           </div>
-          <button onClick={() => navigate("/complaints")}
-            style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#fca5a5", padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            Review Now →
+          <button onClick={() => navigate("/complaints")} className="relative z-10 bg-white text-rose-600 px-10 py-5 rounded-full font-black text-sm tracking-widest hover:scale-105 transition-all">
+            TRIAGE NOW
           </button>
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
         </div>
       )}
 
-      {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 24 }}>
-        {statCards.map(card => (
-          <div key={card.label} style={{ background: card.bg, border: `1px solid ${card.border}`, borderRadius: 12, padding: "18px 16px" }}>
-            <div style={{ fontSize: 22, marginBottom: 10 }}>{card.icon}</div>
-            <div style={{ fontSize: 30, fontWeight: 800, color: card.color, lineHeight: 1 }}>{card.value}</div>
-            <div style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>{card.label}</div>
+      {/* Top Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-12">
+        {summaryStats.map(stat => (
+          <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] transition-soft hover:scale-105 cursor-default border border-white/50`}>
+            <div className="bg-white/60 w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+               <stat.icon className={stat.text} size={20} className="md:w-[22px] md:h-[22px]" />
+            </div>
+            <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter`}>{stat.value}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Charts Row 1 */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr", gap: 16, marginBottom: 16 }}>
-
-        {/* Monthly Trend */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Monthly Complaints Trend</h3>
-          {stats.monthlyTrend?.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={stats.monthlyTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(59,130,246,0.3)" }} />
-                <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2.5} dot={{ fill: "#3b82f6", r: 4 }} activeDot={{ r: 6, fill: "#60a5fa" }} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div style={{ height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#475569", fontSize: 13 }}>No trend data yet</p>
+      <div className="grid lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 space-y-10">
+          {/* Main Trend Card */}
+          <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100">
+            <div className="flex items-center justify-between mb-10">
+               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                  <BarChart2 className="text-soft-teal" size={16} /> Flux Pattern Analysis
+               </h3>
+               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">6 Month Matrix</span>
             </div>
-          )}
-        </div>
-
-        {/* Crime Distribution Pie */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Crime Types</h3>
-          {stats.crimeDistribution?.length > 0 ? (
-            <>
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie data={stats.crimeDistribution} dataKey="count" nameKey="crimeType" outerRadius={70} labelLine={false} label={<CustomPieLabel />}>
-                    {stats.crimeDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12 }} />
-                </PieChart>
+            <div className="h-[350px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={stats.monthlyTrend}>
+                  <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#06B2B2" 
+                    strokeWidth={5} 
+                    dot={{ fill: '#fff', stroke: '#06B2B2', strokeWidth: 3, r: 6 }} 
+                    activeDot={{ r: 9, fill: '#06B2B2', stroke: '#fff', strokeWidth: 4 }}
+                  />
+                </LineChart>
               </ResponsiveContainer>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                {stats.crimeDistribution.map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[i % COLORS.length], flexShrink: 0 }} />
-                      <span style={{ color: "#94a3b8", fontSize: 11 }}>{item.crimeType}</span>
-                    </div>
-                    <span style={{ color: "white", fontSize: 11, fontWeight: 600 }}>{item.count}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#475569", fontSize: 13 }}>No data yet</p>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Charts Row 2 */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
-
-        {/* Status Distribution Bar */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Status Distribution</h3>
-          {stats.statusDistribution?.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={stats.statusDistribution} barSize={36}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="status" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {stats.statusDistribution.map((entry, i) => (
-                    <Cell key={i} fill={entry.status === "Pending" ? "#f59e0b" : entry.status === "Investigating" ? "#3b82f6" : "#10b981"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div style={{ height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#475569", fontSize: 13 }}>No data yet</p>
-            </div>
-          )}
-        </div>
-
-        {/* Priority Breakdown */}
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ color: "white", fontSize: 14, fontWeight: 600, margin: "0 0 20px" }}>Priority Breakdown</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {["Critical", "High", "Medium", "Low"].map(p => {
-              const meta = priorityMeta[p];
-              const count = stats.priorityDistribution?.find(d => d.priority === p)?.count || 0;
-              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-              return (
-                <div key={p}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ color: "#94a3b8", fontSize: 13 }}>{meta.icon} {p}</span>
-                    <span style={{ color: meta.color, fontSize: 13, fontWeight: 600 }}>{count} <span style={{ color: "#475569", fontWeight: 400 }}>({pct}%)</span></span>
-                  </div>
-                  <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
-                    <div style={{ height: "100%", width: `${pct}%`, background: meta.color, borderRadius: 2, transition: "width 0.6s ease" }} />
-                  </div>
-                </div>
-              );
-            })}
           </div>
-          <button onClick={() => navigate("/complaints")}
-            style={{ marginTop: 20, width: "100%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)", color: "#60a5fa", padding: "10px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            Manage All Complaints →
-          </button>
+
+          <div className="grid md:grid-cols-2 gap-10">
+            {/* Status Pill Bars */}
+            <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-10">State Distribution</h3>
+              <div className="space-y-8">
+                {stats.statusDistribution?.map((item, i) => {
+                  const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                  const colors = {
+                    Pending: 'bg-orange-400 shadow-orange-100',
+                    Investigating: 'bg-indigo-500 shadow-indigo-100',
+                    Resolved: 'bg-emerald-500 shadow-emerald-100'
+                  };
+                  return (
+                    <div key={i}>
+                      <div className="flex justify-between items-end mb-3 px-2">
+                         <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight italic">{item.status}</span>
+                         <span className="text-sm font-black text-slate-900">{pct}%</span>
+                      </div>
+                      <div className="w-full bg-white h-4 rounded-full overflow-hidden p-1 shadow-inner">
+                        <div className={`h-full rounded-full transition-all duration-1000 ${colors[item.status] || 'bg-slate-400'} shadow-lg`} style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Categorization Bubble List */}
+            <div className="bg-slate-900 text-white p-10 rounded-[4rem] shadow-soft relative overflow-hidden">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-soft-teal mb-10 relative z-10">Top Threat Vectors</h3>
+              <div className="space-y-4 relative z-10">
+                 {stats.crimeDistribution?.slice(0, 5).map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-5 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+                       <span className="text-xs font-bold text-slate-200 uppercase tracking-tight">{item.crimeType}</span>
+                       <span className="text-sm font-black text-soft-teal">{item.count}</span>
+                    </div>
+                 ))}
+              </div>
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-soft-teal/10 rounded-full blur-3xl" />
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Info Column */}
+        <div className="space-y-10">
+           <div className="bg-soft-teal text-white p-10 rounded-[4rem] shadow-lg shadow-soft-teal/20">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-md">
+                 <Shield size={28} />
+              </div>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter leading-none mb-6">Security <br/>Assurance</h3>
+              <p className="text-sm font-medium text-white/80 leading-relaxed mb-10">
+                Independent node monitoring verified <span className="font-black text-white">{total}</span> unique patterns. 
+              </p>
+              <div className="space-y-5">
+                 {[
+                   { l: "Security", v: "Verified", b: "bg-blue-400" },
+                   { l: "Protocol", v: "AES-256", b: "bg-indigo-400" }
+                 ].map(line => (
+                   <div key={line.l} className="flex items-center justify-between">
+                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">{line.l}</span>
+                     <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${line.b} text-slate-900`}>{line.v}</span>
+                   </div>
+                 ))}
+              </div>
+           </div>
+
+           <div className="bg-[#FEF9C3] p-10 rounded-[4rem] border border-yellow-200">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-yellow-700 mb-10">Priority Map</h3>
+              <div className="h-[250px] mt-[-20px]">
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={stats.priorityDistribution} layout="vertical">
+                      <XAxis type="number" hide />
+                      <YAxis 
+                        dataKey="priority" 
+                        type="category" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#854d0e', fontSize: 11, fontWeight: 900 }}
+                        width={70}
+                      />
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                      <Bar dataKey="count" radius={[0, 20, 20, 0]}>
+                        {stats.priorityDistribution?.map((entry, index) => (
+                           <Cell key={index} fill={entry.priority === 'Critical' ? '#ef4444' : entry.priority === 'High' ? '#f59e0b' : '#3b82f6'} shadow="0 4px 10px rgba(0,0,0,0.1)" />
+                        ))}
+                      </Bar>
+                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+           </div>
         </div>
       </div>
     </Layout>

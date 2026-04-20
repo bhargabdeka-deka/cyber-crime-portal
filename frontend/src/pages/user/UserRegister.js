@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../../services/api";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { ShieldCheck, User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertTriangle } from "lucide-react";
 
 export default function UserRegister() {
   const [formData, setFormData] = useState({ name:"", email:"", password:"" });
@@ -10,113 +10,162 @@ export default function UserRegister() {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); setSuccess("");
-    if (formData.password.length < 6) { setError("Password must be at least 6 characters"); return; }
+    if (formData.password.length < 6) { setError("MINIMUM_SECURITY: 6 CHARACTERS REQUIRED"); return; }
     setLoading(true);
     try {
       await API.post("/users/register", formData);
-      setSuccess("Account created! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1500);
+      setSuccess("IDENTITY CREATED. INITIALIZING REDIRECT...");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      setError(err.response?.data?.message || "REGISTRATION_FAILURE: SYSTEM_DENIED");
     } finally { setLoading(false); }
   };
 
   const strength = formData.password.length === 0 ? 0 : formData.password.length < 6 ? 1 : formData.password.length < 10 ? 2 : 3;
-  const strengthColor = ["","#ef4444","#f59e0b","#10b981"][strength];
+  const strengthColor = ["bg-slate-100", "bg-rose-500", "bg-orange-500", "bg-emerald-500"][strength];
 
   return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", padding:16, position:"relative" }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 80% 50%,rgba(59,130,246,0.12) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <button onClick={() => navigate("/")} style={{ position:"fixed", top:16, left:16, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"7px 14px", borderRadius:8, cursor:"pointer", fontSize:13, zIndex:10 }}>← Home</button>
+    <div className="min-h-screen flex flex-col bg-soft-blue">
+      {/* Identity Bar */}
+      <div className="bg-slate-900 text-white py-1.5 px-4 text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 fixed top-0 w-full z-50">
+        <span>Cyber Intelligence Network</span>
+        <span className="opacity-30">|</span>
+        <span>Secure Access Node</span>
+      </div>
 
-      <div style={{ display:"flex", width:"100%", maxWidth: isMobile ? 400 : 860, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, overflow:"hidden", position:"relative", zIndex:1, flexDirection: isMobile ? "column" : "row" }}>
-
-        {/* Left panel */}
-        {!isMobile && (
-          <div style={{ flex:1, background:"linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.2))", padding:"48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32 }}>
-              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:32, height:32, borderRadius:8, objectFit:"cover" }} />
-              <span style={{ color:"white", fontWeight:700, fontSize:20 }}>CyberShield</span>
+      <div className="flex-grow flex items-center justify-center p-4 md:p-6 pt-16 md:pt-12">
+        <div className="w-full max-w-4xl bg-white border border-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-soft flex flex-col md:flex-row gap-10 md:gap-16">
+          
+          {/* Left Summary */}
+          <div className="md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-50 pb-16 md:pb-0 md:pr-16">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-soft-teal rounded-3xl shadow-soft mb-8 text-white rotate-6">
+              <ShieldCheck size={28} />
             </div>
-            <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 12px", lineHeight:1.3 }}>Your safety is our mission.</h2>
-            <p style={{ color:"rgba(255,255,255,0.6)", fontSize:14, lineHeight:1.6, margin:"0 0 28px" }}>Create a free account and start reporting cyber crimes with AI-powered analysis.</p>
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              {[["1","Create your free account"],["2","Submit your complaint"],["3","AI analyzes and prioritizes"],["4","Track until resolved"]].map(([n,t]) => (
-                <div key={n} style={{ display:"flex", alignItems:"center", gap:12 }}>
-                  <div style={{ width:24, height:24, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", color:"white", fontSize:12, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{n}</div>
-                  <span style={{ color:"rgba(255,255,255,0.75)", fontSize:14 }}>{t}</span>
-                </div>
-              ))}
+            <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase italic leading-none mb-6">
+              Establish Your <span className="text-soft-teal">Network Identity</span>
+            </h1>
+            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest leading-relaxed mb-10 italic">
+              Join India's most advanced community-driven cyber defense portal. Secure. Anonymous. Real-time.
+            </p>
+            
+            <div className="space-y-6">
+               {[
+                 { l: "Global Threat Intelligence", s: "Access real-time scam database" },
+                 { l: "AI Incident Analysis", s: "Instant diagnostic on your reports" },
+                 { l: "Secure Case Logging", s: "Track incidents from filing to resolution" }
+               ].map((item, i) => (
+                 <div key={i} className="flex gap-4">
+                    <div className="w-6 h-6 rounded-full bg-soft-blue flex items-center justify-center text-soft-teal shrink-0">
+                       <CheckCircle size={14} />
+                    </div>
+                    <div>
+                       <div className="text-[10px] font-black uppercase text-slate-800 tracking-widest">{item.l}</div>
+                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.s}</div>
+                    </div>
+                 </div>
+               ))}
             </div>
           </div>
-        )}
 
-        {/* Right panel */}
-        <div style={{ flex:1, padding: isMobile ? "32px 20px" : "48px 36px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-          {isMobile && (
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:24 }}>
-              <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
-              <span style={{ color:"white", fontWeight:700, fontSize:18 }}>CyberShield</span>
-            </div>
-          )}
-          <h2 style={{ fontSize:24, fontWeight:700, color:"white", margin:"0 0 6px" }}>Create account</h2>
-          <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 24px" }}>Free forever. No credit card required.</p>
+          {/* Right Form */}
+          <div className="md:w-1/2 flex flex-col justify-center">
+            <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tighter italic">Create Access Node</h2>
+            
+            {(error || success) && (
+              <div className={`mb-8 p-6 rounded-3xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${error ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
+                {error ? <AlertTriangle size={18} /> : <CheckCircle size={18} />}
+                <p className="text-[10px] font-black uppercase tracking-widest">{error || success}</p>
+              </div>
+            )}
 
-          {error && <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>⚠️ {error}</div>}
-          {success && <div style={{ background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.3)", color:"#6ee7b7", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>✅ {success}</div>}
-
-          <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:16 }}>
-            <div>
-              <label style={lbl}>Full Name</label>
-              <div style={{ position:"relative" }}>
-                <span style={icoStyle}>👤</span>
-                <input name="name" type="text" placeholder="John Doe" value={formData.name} onChange={handleChange} required style={inp} onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-              </div>
-            </div>
-            <div>
-              <label style={lbl}>Email address</label>
-              <div style={{ position:"relative" }}>
-                <span style={icoStyle}>✉️</span>
-                <input name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required style={inp} onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-              </div>
-            </div>
-            <div>
-              <label style={lbl}>Password</label>
-              <div style={{ position:"relative" }}>
-                <span style={icoStyle}>🔒</span>
-                <input name="password" type={showPass?"text":"password"} placeholder="Min. 6 characters" value={formData.password} onChange={handleChange} required style={{ ...inp, paddingRight:44 }} onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-                <button type="button" onClick={() => setShowPass(!showPass)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16 }}>{showPass?"🙈":"👁️"}</button>
-              </div>
-              {formData.password.length > 0 && (
-                <div style={{ marginTop:6 }}>
-                  <div style={{ display:"flex", gap:4 }}>
-                    {[1,2,3].map(i => <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i<=strength ? strengthColor : "rgba(255,255,255,0.1)", transition:"background 0.3s" }} />)}
-                  </div>
-                  <span style={{ fontSize:11, color:strengthColor, marginTop:3, display:"block" }}>{["","Weak","Good","Strong"][strength]}</span>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Full Identity Name</label>
+                <div className="relative group">
+                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
+                  <input 
+                    name="name" 
+                    type="text" 
+                    required 
+                    value={formData.name} 
+                    onChange={handleChange}
+                    placeholder="JOHN DOE"
+                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
+                  />
                 </div>
-              )}
-            </div>
-            <button type="submit" disabled={loading} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor:"pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", minHeight:48, opacity: loading ? 0.7 : 1 }}>
-              {loading ? <span style={{ width:18, height:18, border:"2px solid rgba(255,255,255,0.3)", borderTop:"2px solid white", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} /> : "Create Account →"}
-            </button>
-          </form>
-          <p style={{ color:"#94a3b8", fontSize:14, textAlign:"center", marginTop:20 }}>
-            Already have an account? <span onClick={() => navigate("/login")} style={{ color:"#60a5fa", cursor:"pointer", fontWeight:500 }}>Sign in</span>
-          </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Communication Address (Email)</label>
+                <div className="relative group">
+                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
+                  <input 
+                    name="email" 
+                    type="email" 
+                    required 
+                    value={formData.email} 
+                    onChange={handleChange}
+                    placeholder="NAME@NETWORK.COM"
+                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Security Protocol Secret (Password)</label>
+                <div className="relative group">
+                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
+                  <input 
+                    name="password" 
+                    type={showPass ? "text" : "password"} 
+                    required 
+                    value={formData.password} 
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-50 pl-14 pr-14 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-soft-teal">
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {formData.password.length > 0 && (
+                  <div className="px-6 flex gap-2 mt-3">
+                     {[1,2,3].map(i => (
+                       <div key={i} className={`flex-grow h-1 rounded-full transition-all ${i <= strength ? strengthColor : 'bg-slate-100'}`} />
+                     ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-6">
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-slate-900 text-white h-16 rounded-full font-black text-[10px] tracking-[0.3em] uppercase hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-4 shadow-xl"
+                >
+                  {loading ? "INITIALIZING..." : <>CREATE ACCESS NODE <ArrowRight size={16} /></>}
+                </button>
+              </div>
+
+              <div className="pt-8 text-center border-t border-slate-50">
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Already part of the network? <Link to="/login" className="text-soft-teal hover:underline ml-2">Login Here</Link>
+                 </p>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+      
+      <div className="text-center py-10">
+         <Link to="/" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">← RETURN TO SYSTEM GATEWAY</Link>
       </div>
     </div>
   );
 }
-
-const lbl = { color:"#94a3b8", fontSize:13, fontWeight:500, display:"block", marginBottom:6 };
-const icoStyle = { position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", fontSize:15, pointerEvents:"none" };
-const inp = { width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"12px 14px 12px 42px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box", fontFamily:"inherit", transition:"border-color 0.2s" };

@@ -2,15 +2,26 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import analyzeComplaint from "../utils/riskAnalyzer";
-import useWindowWidth from "../hooks/useWindowWidth";
+import Footer from "../components/Footer";
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  CheckCircle, 
+  User, 
+  MapPin, 
+  Paperclip, 
+  Plus, 
+  ChevronRight, 
+  Zap,
+  Lock,
+  ArrowRight
+} from "lucide-react";
 
 const SCAM_TYPES = ["UPI Fraud","Phishing","Job Scam","Lottery Scam","Romance Scam","Investment Scam","Identity Theft","Account Hacking","Cyber Harassment","Other"];
 
 export default function AnonReport() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const w = useWindowWidth();
-  const isMobile = w < 640;
 
   const [form, setForm] = useState({
     title: "", description: "",
@@ -50,132 +61,188 @@ export default function AnonReport() {
   };
 
   const meta = analysis ? ({
-    Critical:{color:"#ef4444",bg:"rgba(239,68,68,0.12)",border:"rgba(239,68,68,0.3)",icon:"🚨"},
-    High:{color:"#f59e0b",bg:"rgba(245,158,11,0.12)",border:"rgba(245,158,11,0.3)",icon:"⚠️"},
-    Medium:{color:"#3b82f6",bg:"rgba(59,130,246,0.12)",border:"rgba(59,130,246,0.3)",icon:"📋"},
-    Low:{color:"#10b981",bg:"rgba(16,185,129,0.12)",border:"rgba(16,185,129,0.3)",icon:"✅"},
-  }[analysis.priority] || {color:"#10b981",bg:"rgba(16,185,129,0.12)",border:"rgba(16,185,129,0.3)",icon:"✅"}) : null;
+    Critical:{color:"text-rose-600", bg:"bg-rose-50", border:"border-rose-100", icon: AlertTriangle},
+    High:{color:"text-orange-600", bg:"bg-orange-50", border:"border-orange-100", icon: AlertTriangle},
+    Medium:{color:"text-blue-600", bg:"bg-blue-50", border:"border-blue-100", icon: Zap},
+    Low:{color:"text-emerald-600", bg:"bg-emerald-50", border:"border-emerald-100", icon: CheckCircle},
+  }[analysis.priority] || {color:"text-emerald-600", bg:"bg-emerald-50", border:"border-emerald-100", icon: CheckCircle}) : null;
 
-  return (
-    <div style={{ minHeight:"100vh", background:"#0a0f1e", fontFamily:"'Segoe UI',system-ui,sans-serif", color:"white" }}>
-      <div style={{ position:"fixed", inset:0, background:"radial-gradient(ellipse at 30% 40%,rgba(239,68,68,0.08) 0%,transparent 60%)", pointerEvents:"none" }} />
-      <nav style={{ position:"sticky", top:0, zIndex:50, background:"rgba(10,15,30,0.92)", backdropFilter:"blur(12px)", borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"12px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => navigate("/")}>
-          <img src="/logo1.jpeg" alt="CyberShield" style={{ width:26, height:26, borderRadius:6, objectFit:"cover" }} />
-          <span style={{ fontWeight:700, fontSize:15 }}>CyberShield</span>
+  const pageContent = (
+    <div className="max-w-3xl mx-auto py-10 px-6 min-h-screen">
+      {done ? (
+        <div className="text-center animate-in fade-in zoom-in-95 duration-500">
+           <div className="w-24 h-24 bg-soft-teal rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-lg rotate-6">
+              <ShieldCheck size={48} />
+           </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Threat Logged</h1>
+           <p className="text-lg font-medium text-slate-400 italic mb-10">Thank you for contributing to the network's collective security.</p>
+           
+           <div className="bg-white border-2 border-slate-50 p-10 rounded-[4rem] shadow-soft mb-12">
+              <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Permanent Reference ID</div>
+              <div className="text-2xl font-black text-slate-900 tracking-widest bg-slate-50 py-6 rounded-3xl border border-slate-100 mb-6">{done}</div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Store this ID to track your incident response.</p>
+           </div>
+
+           <div className="flex flex-col md:flex-row justify-center gap-6">
+              <button onClick={() => navigate("/check-scam")} className="bg-slate-50 px-10 py-5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all border border-slate-100 shadow-sm">CHECK ANOTHER NODE</button>
+              <button onClick={() => navigate("/register")} className="bg-slate-900 text-white px-10 py-5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3">
+                 CREATE IDENTITY <ArrowRight size={16} />
+              </button>
+           </div>
         </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <button onClick={() => navigate("/login")} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"#94a3b8", padding:"6px 12px", borderRadius:8, cursor:"pointer", fontSize:13 }}>Login for full access</button>
-        </div>
-      </nav>
-
-      <div style={{ maxWidth:660, margin:"0 auto", padding: isMobile ? "24px 16px 60px" : "48px 24px", position:"relative", zIndex:1 }}>
-
-        {done ? (
-          <div style={{ textAlign:"center", padding:"60px 24px" }}>
-            <div style={{ fontSize:56, marginBottom:16 }}>🛡️</div>
-            <h2 style={{ color:"white", fontSize:24, fontWeight:800, margin:"0 0 10px" }}>Report Submitted!</h2>
-            <p style={{ color:"#94a3b8", fontSize:15, margin:"0 0 8px" }}>Thank you for helping protect others.</p>
-            <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:10, padding:"10px 16px", display:"inline-block", marginBottom:24 }}>
-              <span style={{ color:"#64748b", fontSize:12 }}>Case ID: </span>
-              <span style={{ color:"white", fontSize:13, fontFamily:"monospace", fontWeight:600 }}>{done}</span>
+      ) : (
+        <>
+          <div className="mb-16">
+            <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-500 tracking-widest uppercase mb-6 border border-emerald-100">
+              <Lock size={14} /> Anonymous Entry Authorized
             </div>
-            <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
-              <button onClick={() => navigate("/check-scam")} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", color:"white", padding:"10px 20px", borderRadius:8, cursor:"pointer", fontSize:14 }}>Check Another Number</button>
-              <button onClick={() => navigate("/register")} style={{ background:"linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"10px 20px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:600 }}>Create Account to Track</button>
-            </div>
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">File Incident</h1>
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] italic">No identity verification required for public logs.</p>
           </div>
-        ) : (
-          <>
-            <div style={{ marginBottom:24 }}>
-              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.2)", color:"#6ee7b7", padding:"4px 12px", borderRadius:20, fontSize:12, marginBottom:12 }}>
-                🔓 No account required
-              </div>
-              <h1 style={{ color:"white", fontSize: isMobile ? 22 : 28, fontWeight:800, margin:"0 0 6px" }}>Report a Scam Anonymously</h1>
-              <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Your report helps others avoid the same scam. No login needed.</p>
-            </div>
 
-            {status.msg && (
-              <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#fca5a5", padding:"11px 14px", borderRadius:10, fontSize:14, marginBottom:16 }}>⚠️ {status.msg}</div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding: isMobile ? "16px" : "24px", display:"flex", flexDirection:"column", gap:18 }}>
-
+          <form onSubmit={handleSubmit} className="space-y-10 group mb-20">
+             <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 space-y-8 shadow-sm">
                 <div>
-                  <label style={lbl}>What happened? <span style={{color:"#ef4444"}}>*</span></label>
-                  <input name="title" type="text" placeholder="e.g. Fake job offer, UPI fraud call..." value={form.title} onChange={handleChange} required style={inp}
-                    onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Identify Case</label>
+                   <input 
+                     name="title" 
+                     type="text" 
+                     placeholder="E.G. UPI FRAUD DURING ONLINE PURCHASE" 
+                     value={form.title} 
+                     onChange={handleChange} 
+                     required 
+                     className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                   />
                 </div>
 
-                <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:16 }}>
-                  <div>
-                    <label style={lbl}>Scam Type</label>
-                    <select name="scamType" value={form.scamType} onChange={handleChange} style={{ ...inp, cursor:"pointer" }}>
-                      <option value="" style={{background:"#1e293b"}}>Auto-detect</option>
-                      {SCAM_TYPES.map(t => <option key={t} value={t} style={{background:"#1e293b"}}>{t}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={lbl}>Phone / URL / UPI ID</label>
-                    <input name="scamTarget" type="text" placeholder="The scam number or link" value={form.scamTarget} onChange={handleChange} style={inp}
-                      onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={lbl}>Location <span style={{color:"#64748b",fontWeight:400}}>(optional)</span></label>
-                  <input name="location" type="text" placeholder="e.g. Guwahati, Assam" value={form.location} onChange={handleChange} style={inp}
-                    onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+                <div className="grid md:grid-cols-2 gap-8">
+                   <div>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Threat Classification</label>
+                      <select 
+                        name="scamType" 
+                        value={form.scamType} 
+                        onChange={handleChange}
+                        className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm appearance-none cursor-pointer"
+                      >
+                         <option value="">AUTO-DETECT</option>
+                         {SCAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                   </div>
+                   <div>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Subject Target (ID/URL)</label>
+                      <input 
+                        name="scamTarget" 
+                        type="text" 
+                        placeholder="ENTITY IDENTIFIER" 
+                        value={form.scamTarget} 
+                        onChange={handleChange} 
+                        className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                      />
+                   </div>
                 </div>
 
                 <div>
-                  <label style={lbl}>Describe what happened <span style={{color:"#ef4444"}}>*</span></label>
-                  <textarea name="description" placeholder="Tell us exactly what happened..." value={form.description} onChange={handleChange} required rows={4}
-                    style={{...inp, resize:"vertical", minHeight:100}}
-                    onFocus={e=>e.target.style.borderColor="rgba(59,130,246,0.5)"} onBlur={e=>e.target.style.borderColor="rgba(255,255,255,0.1)"} />
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Operational Location</label>
+                   <div className="relative">
+                      <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                      <input 
+                        name="location" 
+                        type="text" 
+                        placeholder="GUWAHATI, ASSAM" 
+                        value={form.location} 
+                        onChange={handleChange} 
+                        className="w-full bg-white border border-transparent pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                      />
+                   </div>
+                </div>
+
+                <div>
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Full Incident Log</label>
+                   <textarea 
+                     name="description" 
+                     placeholder="DETAILED SEQUENCE OF EVENTS..." 
+                     value={form.description} 
+                     onChange={handleChange} 
+                     required 
+                     rows={6}
+                     className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm italic"
+                   />
                 </div>
 
                 {analysis && meta && (
-                  <div style={{ background:meta.bg, border:`1px solid ${meta.border}`, borderRadius:10, padding:"12px 14px" }}>
-                    <div style={{ color:meta.color, fontWeight:600, fontSize:13, marginBottom:8 }}>⚡ AI Preview</div>
-                    <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
-                      <div><div style={{color:"#64748b",fontSize:11}}>Type</div><div style={{color:"white",fontSize:13,fontWeight:600}}>{analysis.crimeType}</div></div>
-                      <div><div style={{color:"#64748b",fontSize:11}}>Priority</div><div style={{color:meta.color,fontSize:13,fontWeight:600}}>{meta.icon} {analysis.priority}</div></div>
-                      <div><div style={{color:"#64748b",fontSize:11}}>Risk Score</div><div style={{color:meta.color,fontSize:16,fontWeight:800}}>{analysis.riskScore}</div></div>
-                    </div>
+                  <div className={`${meta.bg} ${meta.border} border-2 rounded-[3.5rem] p-10 animate-in zoom-in-95`}>
+                     <div className="flex items-center gap-3 mb-8">
+                        <Zap className={meta.color} size={18} />
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${meta.color}`}>AI Live Extraction Preview</span>
+                     </div>
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div>
+                           <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Category</div>
+                           <div className="text-xs font-black text-slate-800 italic uppercase">{analysis.scamType}</div>
+                        </div>
+                        <div>
+                           <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Threat ID</div>
+                           <div className="text-xs font-black text-slate-800 italic uppercase">NEW_LOG</div>
+                        </div>
+                        <div>
+                           <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Priority</div>
+                           <div className={`text-xs font-black uppercase flex items-center gap-1 ${meta.color}`}>
+                              <meta.icon size={12} /> {analysis.priority}
+                           </div>
+                        </div>
+                        <div>
+                           <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Risk Rating</div>
+                           <div className={`text-2xl font-black italic tracking-tighter ${meta.color}`}>{analysis.riskScore}</div>
+                        </div>
+                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label style={lbl}>Evidence <span style={{color:"#64748b",fontWeight:400}}>(optional)</span></label>
-                  <label style={{ display:"flex", alignItems:"center", gap:12, background:"rgba(255,255,255,0.03)", border:"1px dashed rgba(255,255,255,0.15)", borderRadius:10, padding:"12px 14px", cursor:"pointer" }}>
-                    <span style={{fontSize:20}}>📎</span>
-                    <div>
-                      <div style={{color: fileName ? "white" : "#64748b", fontSize:13}}>{fileName || "Attach screenshot or document"}</div>
-                      <div style={{color:"#475569",fontSize:11,marginTop:2}}>PNG, JPG, PDF up to 10MB</div>
-                    </div>
-                    <input type="file" name="evidence" onChange={handleChange} style={{display:"none"}} accept="image/*,.pdf,.doc,.docx" />
-                  </label>
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Digital Evidence</label>
+                   <label className="flex items-center gap-5 bg-white border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] cursor-pointer hover:border-soft-teal transition-all">
+                      <div className="w-14 h-14 bg-soft-blue rounded-2xl flex items-center justify-center text-soft-teal">
+                         <Paperclip size={24} />
+                      </div>
+                      <div>
+                         <div className="text-xs font-black uppercase text-slate-800">{fileName || "Attach Incident Visuals"}</div>
+                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-tight mt-1">LOG FORMAT: PNG, JPG, PDF (MAX 10MB)</div>
+                      </div>
+                      <input type="file" name="evidence" onChange={handleChange} className="hidden" accept="image/*,.pdf,.doc,.docx" />
+                   </label>
                 </div>
+             </div>
 
-                <button type="submit" disabled={loading}
-                  style={{ background: loading ? "rgba(59,130,246,0.4)" : "linear-gradient(135deg,#3b82f6,#8b5cf6)", border:"none", color:"white", padding:"13px", borderRadius:10, cursor: loading ? "not-allowed" : "pointer", fontSize:15, fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-                  {loading ? <><span style={{width:16,height:16,border:"2px solid rgba(255,255,255,0.3)",borderTop:"2px solid white",borderRadius:"50%",animation:"spin 0.8s linear infinite",display:"inline-block"}} /> Submitting...</> : "Submit Report →"}
-                </button>
+             <button 
+               type="submit" 
+               disabled={loading}
+               className="w-full bg-slate-900 h-24 rounded-full text-white text-xs font-black uppercase tracking-[0.4em] flex items-center justify-center gap-6 shadow-xl hover:brightness-110 active:scale-95 transition-all"
+             >
+                {loading ? <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : <>TRANSMIT ANONYMOUS LOG <ArrowRight size={24} /></>}
+             </button>
 
-                <p style={{ color:"#475569", fontSize:12, textAlign:"center", margin:0 }}>
-                  Want to track your complaint status?{" "}
-                  <span onClick={() => navigate("/register")} style={{color:"#60a5fa",cursor:"pointer"}}>Create a free account</span>
-                </p>
-              </div>
-            </form>
-          </>
-        )}
-      </div>
+             <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                Identity status: <span className="text-emerald-500">PROTECTED</span> • Network: <span className="text-soft-teal">ONLINE</span>
+             </p>
+          </form>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#E0F4FF] font-sans flex flex-col">
+      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-4 md:px-10 py-4 md:py-6 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
+            <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
+          </div>
+          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
+        </div>
+        <button onClick={() => navigate("/login")} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-4">Sign In</button>
+      </nav>
+      <div className="px-4 md:px-6 flex-grow">{pageContent}</div>
+      <Footer />
     </div>
   );
 }
-
-const lbl = { color:"#94a3b8", fontSize:13, fontWeight:500, display:"block", marginBottom:6 };
-const inp = { width:"100%", background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"11px 14px", color:"white", fontSize:14, outline:"none", boxSizing:"border-box", fontFamily:"inherit", transition:"border-color 0.2s" };

@@ -15,6 +15,8 @@ import ScamChecker from "./pages/ScamChecker";
 import Trending from "./pages/Trending";
 import AnonReport from "./pages/AnonReport";
 import ApiDocs from "./pages/ApiDocs";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
         <Route path="/trending"   element={<Trending />} />
         <Route path="/report"     element={<AnonReport />} />
         <Route path="/api-docs"   element={<ApiDocs />} />
+        <Route path="/privacy"    element={<Privacy />} />
+        <Route path="/terms"      element={<Terms />} />
 
         {/* Admin */}
         <Route path="/dashboard"  element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />
@@ -46,11 +50,17 @@ function App() {
 
         {/* 404 */}
         <Route path="*" element={
-          <div style={{ minHeight: "100vh", background: "#0a0f1e", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "Segoe UI", color: "white", gap: 16 }}>
-            <div style={{ fontSize: 72 }}>🔍</div>
-            <h1 style={{ fontSize: 32, fontWeight: 700 }}>404 — Page Not Found</h1>
-            <p style={{ color: "#94a3b8" }}>The page you're looking for doesn't exist.</p>
-            <a href="/" style={{ background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", color: "white", padding: "12px 24px", borderRadius: 10, textDecoration: "none", fontWeight: 600, marginTop: 8 }}>Go Home</a>
+          <div className="min-h-screen bg-[#E0F4FF] flex flex-col items-center justify-center font-sans p-6 text-center">
+            <div className="w-24 h-24 bg-white rounded-[2rem] shadow-soft flex items-center justify-center text-5xl mb-10 animate-bounce">
+               🔍
+            </div>
+            <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Error 404</h1>
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest italic mb-10 max-w-xs leading-relaxed">
+              Target node not found. The synchronization link has expired or never existed.
+            </p>
+            <a href="/" className="bg-slate-900 text-white px-12 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-105 transition-all">
+               Return to Landing
+            </a>
           </div>
         } />
       </Routes>
