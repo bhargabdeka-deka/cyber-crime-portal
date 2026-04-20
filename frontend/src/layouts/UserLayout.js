@@ -121,7 +121,7 @@ export default function UserLayout({ children }) {
                     <button
                       key={item.path}
                       onClick={() => navigate(item.path)}
-                      className={`w-full flex items-center gap-5 px-6 py-4 rounded-[1.5rem] text-[13px] font-black uppercase tracking-tight transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-900 hover:text-soft-teal hover:bg-slate-50'}`}
+                      className={`w-full flex items-center gap-5 px-6 py-4 rounded-[1.5rem] text-sm font-semibold tracking-wide transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-700 hover:text-soft-teal hover:bg-slate-50'}`}
                     >
                       <item.icon className="shrink-0" size={20} strokeWidth={2.5} />
                       {!collapsed && <span>{item.label}</span>}

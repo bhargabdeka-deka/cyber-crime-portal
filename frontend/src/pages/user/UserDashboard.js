@@ -31,8 +31,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white/90 backdrop-blur-md border border-white shadow-hover p-4 rounded-[1.5rem]">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-        <p className="text-xl font-black text-slate-900">{payload[0].value} Cases</p>
+        <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
+        <p className="text-xl font-bold text-slate-900">{payload[0].value} Cases</p>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default function UserDashboard() {
         <div className="min-h-[400px] flex items-center justify-center">
           <div className="flex flex-col items-center">
             <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
-            <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Syncing User Profile...</p>
+            <p className="mt-6 text-xs font-semibold text-slate-500 tracking-wide">Syncing User Profile...</p>
           </div>
         </div>
       </UserLayout>
@@ -122,14 +122,14 @@ export default function UserDashboard() {
                  <ShieldCheck size={32} />
               </div>
               <div>
-                 <h4 className="text-lg font-black text-slate-800 uppercase tracking-tighter leading-none">Security Contribution</h4>
-                 <p className="text-sm font-semibold text-emerald-600 mt-2 uppercase tracking-wide">
+                 <h4 className="text-lg font-bold text-slate-800 tracking-tight leading-none">Security Contribution</h4>
+                 <p className="text-sm font-medium text-emerald-600 mt-2">
                     Estimated {impact.estimatedProtected} persons protected via your reports.
                  </p>
               </div>
            </div>
            <div className="hidden lg:block h-10 w-px bg-emerald-200" />
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest hidden lg:block">System integrity boosted</p>
+           <p className="text-xs font-semibold text-slate-500 tracking-wide hidden lg:block">System integrity boosted</p>
         </div>
       )}
 
@@ -137,8 +137,8 @@ export default function UserDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-12">
         {statCards.map(stat => (
           <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft`}>
-            <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter mb-2`}>{stat.value}</div>
-            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</div>
+            <div className={`text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-2`}>{stat.value}</div>
+            <div className="text-xs font-semibold text-slate-500 tracking-wide">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -230,7 +230,7 @@ export default function UserDashboard() {
                <Search size={32} />
             </div>
             <div>
-               <h4 className="text-xl font-black text-white uppercase tracking-tighter">Global Integrity Scan</h4>
+               <h4 className="text-xl font-bold text-white tracking-tight">Global Integrity Scan</h4>
                <p className="text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
             </div>
             <div className="ml-auto">
@@ -243,7 +243,7 @@ export default function UserDashboard() {
                <Zap size={32} />
             </div>
             <div>
-               <h4 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Threat Advisories</h4>
+               <h4 className="text-xl font-bold text-slate-900 tracking-tight">Threat Advisories</h4>
                <p className="text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
             </div>
             <div className="ml-auto">
