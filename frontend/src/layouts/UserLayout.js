@@ -40,17 +40,17 @@ export default function UserLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-[#E0F4FF] font-sans text-slate-100">
       {/* Network Connectivity Bar */}
-      <div className="bg-slate-900 text-white py-2 px-4 text-[9px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 sticky top-0 z-[100] shrink-0 font-bold">
+      <div className="bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] shrink-0">
         <span>CyberShield Global Network</span>
-        <span className="opacity-20">||</span>
-        <span>Secure Session Active</span>
+        <span className="opacity-30">·</span>
+        <span className="text-emerald-400 font-medium">Secure Session Active</span>
       </div>
 
       <div className="flex-grow flex overflow-hidden lg:p-6 lg:gap-6">
         {isMobile ? (
           <div className="flex flex-col w-full">
             {/* Mobile Top Header */}
-            <header className="bg-white px-6 h-20 flex items-center justify-between sticky top-[33px] z-[60] shadow-soft rounded-b-[2rem]">
+            <header className="bg-white px-6 h-20 flex items-center justify-between sticky top-[37px] z-[60] shadow-soft rounded-b-[2rem]">
               <div className="flex items-center gap-3" onClick={() => navigate("/")}>
                 <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
                   <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
@@ -74,7 +74,7 @@ export default function UserLayout({ children }) {
                       <button
                         key={item.path}
                         onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
-                        className={`flex items-center gap-6 text-lg font-black uppercase tracking-tighter p-6 rounded-[2rem] transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-400 bg-slate-50'}`}
+                        className={`flex items-center gap-6 text-lg font-bold capitalize tracking-wide p-6 rounded-[2rem] transition-all ${active ? 'bg-soft-teal text-white shadow-lg shadow-soft-teal/20' : 'text-slate-600 bg-slate-50'}`}
                       >
                         <item.icon size={24} />
                         {item.label}
@@ -84,10 +84,10 @@ export default function UserLayout({ children }) {
                   <div className="h-px bg-slate-100 my-4" />
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-6 text-lg font-black uppercase tracking-tighter p-6 rounded-[2rem] text-rose-500 bg-rose-50"
+                    className="flex items-center gap-6 text-lg font-bold capitalize tracking-wide p-6 rounded-[2rem] text-rose-500 bg-rose-50"
                   >
                     <LogOut size={24} />
-                    SIGNOUT
+                    Sign Out
                   </button>
                 </nav>
               </div>
@@ -108,7 +108,7 @@ export default function UserLayout({ children }) {
                       <span className="text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center leading-none">
                         CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
                       </span>
-                      <span className="text-[10px] font-black text-soft-teal tracking-[0.2em] mt-1">USER CONSOLE</span>
+                      <span className="text-xs font-semibold text-soft-teal tracking-wide mt-1">User Console</span>
                     </div>
                   )}
                 </div>

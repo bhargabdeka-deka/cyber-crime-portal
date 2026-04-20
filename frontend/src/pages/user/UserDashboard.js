@@ -98,19 +98,19 @@ export default function UserDashboard() {
       {/* 1. Header Greeting */}
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4 shadow-sm border border-white">
+           <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 shadow-sm border border-white">
               <Zap size={14} className="fill-soft-teal" /> Network Access Verified
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
              {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
            </h1>
            <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
-           <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-5">
+           <p className="text-sm font-medium text-slate-600 tracking-wide mt-5">
              {total === 0 ? "No active incidents reported in your sector." : `Managing ${total} intelligence reports.`}
            </p>
         </div>
-        <button onClick={() => navigate("/submit-complaint")} className="bg-soft-teal text-white px-8 py-4 rounded-full font-black text-xs tracking-widest hover:scale-105 transition-all shadow-lg flex items-center gap-3">
-           <Plus size={18} /> FILE NEW REPORT
+        <button onClick={() => navigate("/submit-complaint")} className="bg-soft-teal text-white px-8 py-4 rounded-full font-semibold text-sm tracking-wide hover:scale-105 transition-all shadow-lg flex items-center gap-3">
+           <Plus size={18} /> File New Report
         </button>
       </div>
 
