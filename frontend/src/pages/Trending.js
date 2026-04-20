@@ -153,14 +153,16 @@ export default function Trending() {
     <div className="min-h-screen bg-[#E0F4FF] font-sans flex flex-col">
       <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-4 md:px-10 py-4 md:py-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
-            <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
+            <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
           </div>
-          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
+          <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
+            CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
+          </span>
         </div>
         <div className="flex gap-2 md:gap-4">
-          <button onClick={() => navigate("/check-scam")} className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-2 md:px-4">Checker</button>
-          <button onClick={() => navigate("/login")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg">Access</button>
+          <button onClick={() => navigate("/check-scam")} className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all px-2 md:px-4 tracking-wide">Checker</button>
+          <button onClick={() => navigate("/login")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm font-semibold tracking-wide shadow-lg">Access</button>
         </div>
       </nav>
       <div className="px-4 md:px-6 flex-grow">{pageContent}</div>

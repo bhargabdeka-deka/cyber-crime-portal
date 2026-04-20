@@ -29,9 +29,9 @@ export default function ForgotPassword() {
 
       <button 
         onClick={() => navigate("/login")} 
-        className="fixed top-8 left-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-soft-teal transition-all bg-white/50 backdrop-blur-md px-6 py-3 rounded-full shadow-sm border border-white"
+        className="fixed top-8 left-8 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all bg-white/50 backdrop-blur-md px-6 py-3 rounded-full shadow-sm border border-white tracking-wide"
       >
-        <ArrowLeft size={16} /> GO_BACK
+        <ArrowLeft size={16} /> Go Back
       </button>
 
       <div className="w-full max-w-md bg-white p-12 rounded-[4rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
@@ -39,8 +39,8 @@ export default function ForgotPassword() {
           <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal mx-auto mb-8 shadow-soft">
             <Key size={32} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Reset Access</h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic px-4">Initialize protocol to recover forgotten node credentials.</p>
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-4">Reset Access</h2>
+          <p className="text-sm font-medium text-slate-500 tracking-wide leading-relaxed px-4">Initialize protocol to recover forgotten node credentials.</p>
         </div>
 
         {sent ? (
@@ -49,35 +49,35 @@ export default function ForgotPassword() {
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-6 shadow-sm">
                 <CheckCircle size={32} />
               </div>
-              <h3 className="text-sm font-black text-emerald-600 uppercase tracking-widest mb-2 italic">Transmission Sent</h3>
-              <p className="text-[11px] font-bold text-emerald-800 uppercase italic leading-relaxed">Check your localized inbox for the recovery packet.</p>
+              <h3 className="text-sm font-bold text-emerald-600 tracking-wide mb-2">Transmission Sent</h3>
+              <p className="text-sm font-medium text-emerald-800 leading-relaxed">Check your inbox for the recovery link.</p>
               <button 
                 onClick={() => navigate("/login")} 
-                className="mt-8 bg-emerald-500 text-white px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg hover:brightness-110 transition-all font-sans"
+                className="mt-8 bg-emerald-500 text-white px-10 py-4 rounded-full text-sm font-semibold tracking-wide shadow-lg hover:brightness-110 transition-all font-sans"
               >
-                RETURN TO LOGIN
+                Return to Login
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
-              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-3xl text-sm font-medium tracking-wide flex items-center gap-3">
                 <span className="shrink-0">⚠️</span> {error}
               </div>
             )}
             
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 block">Authorized Email</label>
+              <label className="text-xs font-semibold text-slate-500 tracking-wide px-4 block">Authorized Email</label>
               <div className="relative group">
                 <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-200 group-focus-within:text-soft-teal transition-colors" size={20} />
                 <input 
                   type="email" 
                   value={email} 
                   onChange={e => setEmail(e.target.value)} 
-                  placeholder="USER@DOMAIN.COM" 
+                  placeholder="user@domain.com" 
                   required
-                  className="w-full bg-slate-50 pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
+                  className="w-full bg-slate-50 pl-14 pr-8 py-5 rounded-full text-sm font-medium outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
                 />
               </div>
             </div>
@@ -85,12 +85,12 @@ export default function ForgotPassword() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-slate-900 text-white h-20 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-xl hover:brightness-110 active:scale-95 transition-all"
+              className="w-full bg-slate-900 text-white h-16 rounded-full text-sm font-semibold tracking-wide flex items-center justify-center gap-4 shadow-xl hover:brightness-110 active:scale-95 transition-all"
             >
               {loading ? (
                 <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
-                <>SEND RECOVERY LINK <ChevronRight size={18} /></>
+                <>Send Recovery Link <ChevronRight size={18} /></>
               )}
             </button>
 
@@ -98,7 +98,7 @@ export default function ForgotPassword() {
                <button 
                  type="button" 
                  onClick={() => navigate("/login")}
-                 className="text-[9px] font-black uppercase tracking-widest text-slate-300 hover:text-slate-600 transition-colors"
+                 className="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors tracking-wide"
                >
                  I remember my credentials
                </button>

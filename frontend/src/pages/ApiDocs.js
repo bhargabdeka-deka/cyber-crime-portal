@@ -55,25 +55,27 @@ export default function ApiDocs() {
 
   return (
     <div className="min-h-screen bg-[#E0F4FF] font-sans flex flex-col">
-      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-10 py-6 flex items-center justify-between">
+      <nav className="sticky top-0 z-[100] bg-white/70 backdrop-blur-lg border-b border-white px-6 md:px-10 py-4 md:py-6 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-10 h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
-            <ShieldCheck size={22} />
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
+            <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
           </div>
-          <span className="text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
+          <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
+            CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
+          </span>
         </div>
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-soft-teal transition-all">
-           <ArrowLeft size={16} /> GO_BACK
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all tracking-wide">
+           <ArrowLeft size={16} /> Go Back
         </button>
       </nav>
 
       <div className="max-w-4xl mx-auto py-20 px-6 flex-grow">
          <div className="mb-16">
-            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-6">
+            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-2 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-6">
                <Terminal size={14} /> Network Protocols
             </div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">API Documentation</h1>
-            <p className="text-lg font-medium text-slate-400 max-w-xl leading-relaxed italic">
+            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight mb-6">API Documentation</h1>
+            <p className="text-lg font-medium text-slate-500 max-w-xl leading-relaxed">
               Integrate the Cyber Intelligence Network (CIN) into your own applications via standard REST protocols.
             </p>
          </div>
@@ -84,13 +86,13 @@ export default function ApiDocs() {
                   <Globe size={24} />
                </div>
                <div>
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Endpoint</div>
-                  <div className="text-sm font-black text-slate-800 italic uppercase mt-1">{BASE}</div>
+                  <div className="text-xs font-semibold text-slate-500 tracking-wide">Base Endpoint</div>
+                  <div className="text-sm font-bold text-slate-800 mt-1 break-all">{BASE}</div>
                </div>
             </div>
             <div className="bg-emerald-50 px-6 py-2 rounded-full border border-emerald-100 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Secure Node</span>
+               <span className="text-xs font-semibold text-emerald-600 tracking-wide">Secure Node</span>
             </div>
          </div>
 
@@ -99,21 +101,21 @@ export default function ApiDocs() {
                <div key={i} className="bg-white rounded-[4rem] border border-white shadow-soft overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-700" style={{ animationDelay: `${i*100}ms` }}>
                   <div className="p-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/50">
                      <div className="flex items-center gap-4">
-                        <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 ${methodColors[ep.method]}`}>{ep.method}</span>
-                        <code className="text-sm font-black text-slate-800 uppercase tracking-tighter italic">{ep.path}</code>
+                        <span className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wide border-2 ${methodColors[ep.method]}`}>{ep.method}</span>
+                        <code className="text-sm font-bold text-slate-800 tracking-tight break-all">{ep.path}</code>
                      </div>
                      <div className="flex items-center gap-2 bg-white px-5 py-2 rounded-full border border-slate-100">
                         <Lock size={12} className="text-slate-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">AUTH: {ep.auth}</span>
+                        <span className="text-xs font-semibold text-slate-500 tracking-wide">Auth: {ep.auth}</span>
                      </div>
                   </div>
                   <div className="p-10 md:p-14">
-                     <p className="text-sm font-semibold text-slate-500 mb-10 leading-relaxed italic uppercase tracking-wide">{ep.desc}</p>
+                     <p className="text-sm font-medium text-slate-600 mb-10 leading-relaxed">{ep.desc}</p>
                      
                      <div className="grid lg:grid-cols-2 gap-10">
                         {ep.body && (
                            <div>
-                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                              <div className="text-xs font-semibold text-slate-500 tracking-wide mb-4 flex items-center gap-2">
                                  <FileCode size={14} /> Request Body
                               </div>
                               <pre className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 text-xs text-soft-teal font-bold overflow-auto leading-relaxed shadow-inner">
@@ -125,7 +127,7 @@ export default function ApiDocs() {
                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                               <Zap size={14} className="fill-slate-400" /> Response Format
                            </div>
-                           <pre className="bg-slate-50 p-8 rounded-[2.5rem] border border-white text-xs text-slate-600 font-bold overflow-auto leading-relaxed shadow-inner italic">
+                           <pre className="bg-slate-50 p-8 rounded-[2.5rem] border border-white text-xs text-slate-600 font-medium overflow-auto leading-relaxed shadow-inner">
                               {ep.response}
                            </pre>
                         </div>
@@ -137,12 +139,12 @@ export default function ApiDocs() {
 
          <div className="mt-20 bg-slate-900 rounded-[4rem] p-16 text-center shadow-2xl relative overflow-hidden">
             <div className="relative z-10">
-               <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-6">Scale Your Project</h3>
+               <h3 className="text-3xl font-bold text-white tracking-tight mb-6">Scale Your Project</h3>
                <p className="text-slate-400 text-sm font-medium mb-10 max-w-md mx-auto leading-relaxed">
                   Join the developer network to get higher rate limits, authenticated endpoints, and priority support.
                </p>
-               <button onClick={() => navigate("/register")} className="bg-soft-teal text-white px-12 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-lg">
-                  GENERATE API KEY <ChevronRight size={16} className="inline ml-2" />
+               <button onClick={() => navigate("/register")} className="bg-soft-teal text-white px-12 py-5 rounded-full text-sm font-semibold tracking-wide hover:scale-105 transition-all shadow-lg">
+                  Generate API Key <ChevronRight size={16} className="inline ml-2" />
                </button>
             </div>
             <div className="absolute top-0 left-0 w-full h-full bg-soft-teal/5 pointer-events-none" />

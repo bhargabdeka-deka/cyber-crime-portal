@@ -92,7 +92,7 @@ export default function UserLayout({ children }) {
                 </nav>
               </div>
             )}
-            <div className="flex-grow overflow-y-auto p-6">{children}</div>
+            <div className="flex-grow overflow-y-auto p-6 pt-4">{children}</div>
           </div>
         ) : (
           <>
