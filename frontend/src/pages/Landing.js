@@ -143,78 +143,79 @@ export default function Landing() {
                 ))}
               </div>
 
-              {checkResult && verdictConfig[checkResult.verdict] && (
-                <div className="mt-12 animate-in fade-in zoom-in-95 duration-500 w-full max-w-4xl mx-auto text-left">
-                  <div className={`${verdictConfig[checkResult.verdict].bg} border-2 ${verdictConfig[checkResult.verdict].border} rounded-[3rem] p-8 md:p-10 shadow-soft relative overflow-hidden`}>
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10 relative z-10">
-                      <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                  <div className={`w-20 h-20 rounded-[2rem] bg-white flex items-center justify-center ${verdictConfig[checkResult.verdict].color} shadow-lg shadow-white/50 border border-white shrink-0`}>
-                    {(() => {
-                      const IconComponent = verdictConfig[checkResult.verdict].icon;
-                      return <IconComponent size={40} strokeWidth={2.5} />;
-                    })()}
-                  </div>
-                  <div className="text-center md:text-left">
-                    <h3 className={`text-3xl md:text-4xl font-brand font-black tracking-tighter leading-none mb-3 ${verdictConfig[checkResult.verdict].color}`}>{verdictConfig[checkResult.verdict].title}</h3>
-                    <p className="text-sm font-medium text-slate-500 tracking-wide max-w-lg">{verdictConfig[checkResult.verdict].sub}</p>
-                  </div>
-                      </div>
-                      <button 
-                        onClick={() => navigate(`/check-scam/${query}`)}
-                        className="bg-white px-8 py-4 rounded-full text-xs font-bold shadow-hover text-slate-700 hover:text-soft-teal transition-all flex items-center gap-3 shrink-0"
-                      >
-                         <Share2 size={18} /> Share Intel
-                      </button>
-                    </div>
+               {(() => {
+                 const vc = checkResult ? (verdictConfig[checkResult.verdict] || verdictConfig.safe) : null;
+                 if (!vc) return null;
+                 return (
+                   <div className="mt-12 animate-in fade-in zoom-in-95 duration-500 w-full max-w-4xl mx-auto text-left">
+                     <div className={`${vc.bg} border-2 ${vc.border} rounded-[3rem] p-8 md:p-10 shadow-soft relative overflow-hidden`}>
+                       <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10 relative z-10">
+                         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                           <div className={`w-20 h-20 rounded-[2rem] bg-white flex items-center justify-center ${vc.color} shadow-lg shadow-white/50 border border-white shrink-0`}>
+                             <vc.icon size={40} strokeWidth={2.5} />
+                           </div>
+                           <div className="text-center md:text-left">
+                             <h3 className={`text-3xl md:text-4xl font-brand font-black tracking-tighter leading-none mb-3 ${vc.color}`}>{vc.title}</h3>
+                             <p className="text-sm font-medium text-slate-500 tracking-wide max-w-lg">{vc.sub}</p>
+                           </div>
+                         </div>
+                         <button 
+                           onClick={() => navigate(`/check-scam/${query}`)}
+                           className="bg-white px-8 py-4 rounded-full text-xs font-bold shadow-hover text-slate-700 hover:text-soft-teal transition-all flex items-center gap-3 shrink-0"
+                         >
+                           <Share2 size={18} /> Share Intel
+                         </button>
+                       </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
-                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
-                          {checkResult.reports || 0}
-                        </div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Reports Found</div>
-                      </div>
-                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
-                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
-                          {checkResult.riskLevel === 'LOW' ? '—' : checkResult.avgRiskScore || '—'}
-                        </div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Risk Score</div>
-                      </div>
-                      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
-                        <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${verdictConfig[checkResult.verdict].color}`}>
-                          {checkResult.riskLevel || 'LOW'}
-                        </div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Severity</div>
-                      </div>
-                    </div>
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                         <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                           <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${vc.color}`}>
+                             {checkResult.reports || 0}
+                           </div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Reports Found</div>
+                         </div>
+                         <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                           <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${vc.color}`}>
+                             {checkResult.riskLevel === 'LOW' ? '—' : checkResult.avgRiskScore || '—'}
+                           </div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Risk Score</div>
+                         </div>
+                         <div className="bg-white/50 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white text-center shadow-sm transition-all hover:shadow-md">
+                           <div className={`text-4xl font-brand font-bold tracking-tighter mb-2 ${vc.color}`}>
+                             {checkResult.riskLevel || 'LOW'}
+                           </div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Severity</div>
+                         </div>
+                       </div>
 
-                    {checkResult.actionAdvice && (
-                      <div className="grid md:grid-cols-2 gap-8 mt-12 relative z-10">
-                        <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50">
-                          <h4 className="text-xs font-brand font-bold text-rose-500 uppercase tracking-widest mb-6">Security Warnings</h4>
-                          <ul className="space-y-4">
-                            {checkResult.actionAdvice.avoid.map((a, i) => (
-                              <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-rose-800">
-                                <span className="w-2 h-2 rounded-full bg-rose-400" /> {a}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-emerald-50/50 p-8 rounded-[2.5rem] border border-emerald-100/50">
-                          <h4 className="text-xs font-brand font-bold text-emerald-600 uppercase tracking-widest mb-6">Recommended Actions</h4>
-                          <ul className="space-y-4">
-                            {checkResult.actionAdvice.doThis.map((a, i) => (
-                              <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-emerald-800">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400" /> {a}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                       {checkResult.actionAdvice && (
+                         <div className="grid md:grid-cols-2 gap-8 mt-12 relative z-10">
+                           <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50">
+                             <h4 className="text-xs font-brand font-bold text-rose-500 uppercase tracking-widest mb-6">Security Warnings</h4>
+                             <ul className="space-y-4">
+                               {checkResult.actionAdvice.avoid.map((a, i) => (
+                                 <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-rose-800">
+                                   <span className="w-2 h-2 rounded-full bg-rose-400" /> {a}
+                                 </li>
+                               ))}
+                             </ul>
+                           </div>
+                           <div className="bg-emerald-50/50 p-8 rounded-[2.5rem] border border-emerald-100/50">
+                             <h4 className="text-xs font-brand font-bold text-emerald-600 uppercase tracking-widest mb-6">Recommended Actions</h4>
+                             <ul className="space-y-4">
+                               {checkResult.actionAdvice.doThis.map((a, i) => (
+                                 <li key={i} className="flex items-center gap-3 text-[11px] font-semibold text-emerald-800">
+                                   <span className="w-2 h-2 rounded-full bg-emerald-400" /> {a}
+                                 </li>
+                               ))}
+                             </ul>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   </div>
+                 );
+               })()}
            </div>
         </section>
 
