@@ -57,10 +57,12 @@ export default function Landing() {
       <header className="px-4 md:px-6 py-4 md:py-6 sticky top-0 z-50">
         <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
           <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => navigate("/")}>
-             <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-full flex items-center justify-center text-white">
-                <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
+             <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-white">
+                <img src="/logo1.jpeg" alt="CyberShield Logo" className="w-full h-full object-cover scale-[1.05]" />
              </div>
-             <span className="text-lg md:text-xl font-extrabold tracking-tight text-slate-800">Cyber<span className="text-soft-teal font-medium">Shield</span></span>
+             <span className="text-2xl font-black tracking-[-0.04em] text-slate-900 font-brand flex items-center">
+                CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
+             </span>
           </div>
 
           <div className="hidden lg:flex items-center gap-8">
@@ -80,13 +82,16 @@ export default function Landing() {
       <main className="flex-grow pt-10 pb-20">
         <section className="max-w-4xl mx-auto px-6 flex flex-col items-center text-center">
            <div className="space-y-10">
-              <div className="inline-flex items-center gap-2 bg-white/50 border border-white px-4 py-2 rounded-full text-[11px] font-bold text-soft-teal tracking-widest uppercase shadow-sm">
-                 <Zap size={14} className="fill-soft-teal" /> Instant Security Verification
-              </div>
+               <div className="flex flex-col items-center gap-6">
+                 <div className="inline-flex items-center gap-2 bg-white/50 border border-white px-4 py-2 rounded-full text-[11px] font-black text-soft-teal tracking-widest uppercase shadow-sm">
+                    <Zap size={14} className="fill-soft-teal" /> Instant Security Verification
+                 </div>
+                 <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight">"Protecting Your Digital Assets, Our Priority"</p>
+               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 leading-[0.95] tracking-tighter">
                 Stay Safe In <br/>
-                <span className="text-soft-teal italic">Digital World.</span>
+                <span className="text-soft-teal">Digital World.</span>
               </h1>
               
               <p className="text-sm md:text-lg font-medium text-slate-500 leading-relaxed max-w-[280px] md:max-w-md">
@@ -158,7 +163,7 @@ export default function Landing() {
                    <div className={`w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform ${item.iconColor}`}>
                       <item.icon size={28} />
                    </div>
-                   <h4 className={`text-2xl font-black uppercase italic mb-4 leading-none ${item.text}`}>{item.title}</h4>
+                   <h4 className={`text-2xl font-black uppercase mb-4 leading-none ${item.text}`}>{item.title}</h4>
                    <p className={`text-sm font-medium leading-relaxed ${item.text} opacity-70`}>{item.desc}</p>
                    <div className="mt-8">
                       <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center ${item.text}`}>
@@ -175,15 +180,15 @@ export default function Landing() {
            <div className="max-w-6xl mx-auto bg-slate-900 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 relative overflow-hidden">
               <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
                  <div>
-                    <h2 className="text-3xl md:text-5xl font-black text-white leading-[0.95] tracking-tighter uppercase mb-6 italic">
-                       Zero Trust. <br/>
-                       <span className="text-soft-teal">Maximum Safety.</span>
+                    <h2 className="text-4xl md:text-5xl font-bold font-serif text-white tracking-tight mb-4">
+                       Trusted Security. <br/>
+                       <span className="text-soft-teal italic font-medium">Verified Intelligence.</span>
                     </h2>
-                    <p className="text-base md:text-lg text-slate-400 font-medium mb-10 max-w-sm">
-                       Join the network and help others stay protected from evolving digital threats.
-                    </p>
-                    <button onClick={() => navigate("/register")} className="bg-white text-slate-900 px-10 py-5 rounded-full font-black text-sm tracking-widest hover:bg-soft-teal hover:text-white transition-all uppercase w-full md:w-auto">
-                       get started now
+                     <p className="text-base md:text-lg text-slate-300 font-medium mb-10 max-w-sm">
+                        Join our platform to access advanced threat intelligence and protect your digital assets.
+                     </p>
+                    <button onClick={() => navigate("/register")} className="bg-white text-slate-900 px-8 py-4 rounded-full font-semibold tracking-wide hover:bg-soft-teal hover:text-white transition-all shadow-lg hover:shadow-soft-teal/50 w-full md:w-auto">
+                       Get Started Now
                     </button>
                  </div>
                  <div className="flex justify-center">
@@ -195,8 +200,8 @@ export default function Landing() {
                          { label: "Identity Theft", icon: ShieldCheck }
                        ].map((stat, i) => (
                          <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
-                            <stat.icon className="text-soft-teal mb-4" size={28} />
-                            <div className="text-white text-xs font-black uppercase tracking-widest">{stat.label}</div>
+                             <stat.icon className="text-soft-teal mb-3" size={24} strokeWidth={2} />
+                             <div className="text-white text-sm font-medium tracking-wide">{stat.label}</div>
                          </div>
                        ))}
                     </div>

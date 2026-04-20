@@ -74,8 +74,8 @@ export default function AnonReport() {
            <div className="w-24 h-24 bg-soft-teal rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-lg rotate-6">
               <ShieldCheck size={48} />
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Threat Logged</h1>
-           <p className="text-lg font-medium text-slate-400 italic mb-10">Thank you for contributing to the network's collective security.</p>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-6">Threat Logged</h1>
+           <p className="text-lg font-medium text-slate-400 mb-10">Thank you for contributing to the network's collective security.</p>
            
            <div className="bg-white border-2 border-slate-50 p-10 rounded-[4rem] shadow-soft mb-12">
               <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Permanent Reference ID</div>
@@ -96,8 +96,8 @@ export default function AnonReport() {
             <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-500 tracking-widest uppercase mb-6 border border-emerald-100">
               <Lock size={14} /> Anonymous Entry Authorized
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">File Incident</h1>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] italic">No identity verification required for public logs.</p>
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">File Incident</h1>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">No identity verification required for public logs.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-10 group mb-20">
@@ -165,7 +165,7 @@ export default function AnonReport() {
                      onChange={handleChange} 
                      required 
                      rows={6}
-                     className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm italic"
+                     className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm"
                    />
                 </div>
 
@@ -178,11 +178,11 @@ export default function AnonReport() {
                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         <div>
                            <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Category</div>
-                           <div className="text-xs font-black text-slate-800 italic uppercase">{analysis.scamType}</div>
+                           <div className="text-xs font-black text-slate-800 uppercase">{analysis.scamType}</div>
                         </div>
                         <div>
                            <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Threat ID</div>
-                           <div className="text-xs font-black text-slate-800 italic uppercase">NEW_LOG</div>
+                           <div className="text-xs font-black text-slate-800 uppercase">NEW_LOG</div>
                         </div>
                         <div>
                            <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Priority</div>
@@ -192,7 +192,7 @@ export default function AnonReport() {
                         </div>
                         <div>
                            <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Risk Rating</div>
-                           <div className={`text-2xl font-black italic tracking-tighter ${meta.color}`}>{analysis.riskScore}</div>
+                           <div className={`text-2xl font-black tracking-tighter ${meta.color}`}>{analysis.riskScore}</div>
                         </div>
                      </div>
                   </div>
@@ -237,7 +237,7 @@ export default function AnonReport() {
           <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
             <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
           </div>
-          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
+          <span className="text-lg md:text-xl font-black tracking-tighter uppercase text-slate-800">Shield</span>
         </div>
         <button onClick={() => navigate("/login")} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-4">Sign In</button>
       </nav>

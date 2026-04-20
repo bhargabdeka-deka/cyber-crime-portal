@@ -117,8 +117,8 @@ export default function Complaints() {
            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
               <Activity size={14} /> Intelligence Index
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Incident Log</h1>
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-3">{totalCount} Record Entries</p>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Incident Log</h1>
+           <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-3">{totalCount} Record Entries</p>
         </div>
         <div className="flex gap-4">
           <a href={`${process.env.REACT_APP_API_URL || ""}/api/complaints/export/csv`}
@@ -131,7 +131,7 @@ export default function Complaints() {
       {/* Filter Pillbox */}
       <div className="bg-slate-50 p-6 rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-4 mb-12">
         <div className="relative flex-grow min-w-[280px]">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
           <input 
             type="text" 
             placeholder="SEARCH BY CASE ID OR KEYWORD..." 
@@ -170,7 +170,7 @@ export default function Complaints() {
         <div className="h-[400px] flex items-center justify-center">
            <div className="flex flex-col items-center">
               <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
-              <p className="mt-6 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Syncing Archives...</p>
+              <p className="mt-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Syncing Archives...</p>
            </div>
         </div>
       ) : complaints.length === 0 ? (
@@ -178,8 +178,8 @@ export default function Complaints() {
           <div className="inline-flex w-20 h-20 bg-white rounded-3xl items-center justify-center mb-8 shadow-soft">
              <FileText className="text-slate-200" size={32} />
           </div>
-          <h3 className="text-xl font-black text-slate-800 uppercase italic">No Matches Found</h3>
-          <p className="text-sm font-medium text-slate-400 mt-2 uppercase tracking-widest">Adjust your scan parameters.</p>
+          <h3 className="text-xl font-black text-slate-800 uppercase">No Matches Found</h3>
+          <p className="text-sm font-medium text-slate-600 mt-2 uppercase tracking-widest">Adjust your scan parameters.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -187,13 +187,13 @@ export default function Complaints() {
             <table className="w-full">
               <thead>
                 <tr className="bg-transparent border-b-2 border-slate-100">
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Identification</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Reporter</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Type</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Rank</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Risk</th>
-                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</th>
-                  <th className="text-right py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Identification</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Reporter</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Type</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Rank</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Risk</th>
+                  <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 text-center">Status</th>
+                  <th className="text-right py-6 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -204,7 +204,7 @@ export default function Complaints() {
                     className="hover:bg-soft-blue/20 cursor-pointer transition-all group rounded-3xl"
                   >
                     <td className="py-8 px-8">
-                      <div className="text-sm font-black text-slate-900 tracking-tighter uppercase italic">{c.caseId}</div>
+                      <div className="text-sm font-black text-slate-900 tracking-tighter uppercase">{c.caseId}</div>
                     </td>
                     <td className="py-8 px-8">
                        <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export default function Complaints() {
                        </div>
                     </td>
                     <td className="py-8 px-8">
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{c.crimeType}</span>
+                       <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{c.crimeType}</span>
                     </td>
                     <td className="py-8 px-8">
                        <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase border ${priorityConfig[c.priority]?.color || 'bg-slate-50'}`}>
@@ -238,7 +238,7 @@ export default function Complaints() {
                        </select>
                     </td>
                     <td className="py-8 px-8 text-right">
-                       <div className="inline-flex w-10 h-10 rounded-full bg-white shadow-sm items-center justify-center text-slate-300 group-hover:text-soft-teal group-hover:scale-110 transition-all">
+                       <div className="inline-flex w-10 h-10 rounded-full bg-white shadow-sm items-center justify-center text-slate-500 group-hover:text-soft-teal group-hover:scale-110 transition-all">
                           <ChevronRight size={20} />
                        </div>
                     </td>
@@ -251,7 +251,7 @@ export default function Complaints() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 py-12 px-8">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Matrix Page {page} of {totalPages}</span>
+              <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Matrix Page {page} of {totalPages}</span>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => setPage(p => Math.max(1, p - 1))} 
@@ -280,7 +280,7 @@ export default function Complaints() {
       {selected && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-slate-900/10 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setSelected(null)}>
           <div className="w-full max-w-4xl bg-white shadow-hover p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border border-white flex flex-col max-h-[90vh] relative animate-in zoom-in-95 duration-500" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelected(null)} className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+            <button onClick={() => setSelected(null)} className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-slate-600 rounded-full flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
                <X size={20} />
             </button>
 
@@ -291,8 +291,8 @@ export default function Complaints() {
                         <FileText size={28} />
                      </div>
                      <div>
-                        <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">{selected.caseId}</h3>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">Incident Payload Log</p>
+                        <h3 className="text-3xl font-black tracking-tighter uppercase leading-none text-slate-900">{selected.caseId}</h3>
+                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-3">Incident Payload Log</p>
                      </div>
                   </div>
                   <div className="h-1 w-20 bg-soft-teal/20 rounded-full" />
@@ -301,34 +301,34 @@ export default function Complaints() {
                <div className="grid md:grid-cols-2 gap-16">
                   <div className="space-y-12">
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Subject Attribution</h4>
+                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Subject Attribution</h4>
                         <div className="bg-slate-50 p-6 rounded-[2rem] flex items-center gap-5 border border-white">
                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center font-black text-soft-teal text-xl shadow-soft">
                               {selected.user?.name?.[0]}
                            </div>
                            <div>
-                              <div className="text-lg font-black text-slate-800 uppercase italic tracking-tighter">{selected.user?.name}</div>
-                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{selected.user?.email}</div>
+                              <div className="text-lg font-black text-slate-800 uppercase tracking-tighter">{selected.user?.name}</div>
+                              <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">{selected.user?.email}</div>
                            </div>
                         </div>
                      </section>
 
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Classification Data</h4>
+                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Classification Data</h4>
                         <div className="grid grid-cols-2 gap-4">
                            <div className="bg-slate-50 p-6 rounded-[2rem] border border-white">
-                              <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Category</div>
-                              <div className="text-sm font-black text-slate-800 uppercase italic">{selected.crimeType}</div>
+                              <div className="text-[9px] font-black text-slate-600 uppercase mb-2">Category</div>
+                              <div className="text-sm font-black text-slate-800 uppercase">{selected.crimeType}</div>
                            </div>
                            <div className="bg-slate-50 p-6 rounded-[2rem] border border-white">
-                              <div className="text-[9px] font-black text-slate-400 uppercase mb-2">Priority</div>
-                              <div className="text-sm font-black text-soft-teal uppercase italic">{selected.priority}</div>
+                              <div className="text-[9px] font-black text-slate-600 uppercase mb-2">Priority</div>
+                              <div className="text-sm font-black text-soft-teal uppercase">{selected.priority}</div>
                            </div>
                         </div>
                      </section>
 
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Workflow Status</h4>
+                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Workflow Status</h4>
                         <div className="flex gap-3 bg-slate-50 p-3 rounded-full border border-white">
                            {STEPS.map(step => {
                              const active = selected.status === step;
@@ -337,7 +337,7 @@ export default function Complaints() {
                                  key={step} 
                                  onClick={() => handleStatusChange(selected._id, step)}
                                  disabled={active || updating === selected._id}
-                                 className={`flex-grow h-12 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${active ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900'}`}
+                                 className={`flex-grow h-12 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${active ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-600 hover:text-slate-900'}`}
                                >
                                  {step}
                                </button>
@@ -349,15 +349,15 @@ export default function Complaints() {
 
                   <div className="space-y-12">
                      <section>
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Description Payload</h4>
-                        <div className="bg-soft-blue/20 p-8 rounded-[2.5rem] border border-white text-sm font-semibold leading-relaxed text-slate-600 italic">
+                        <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Description Payload</h4>
+                        <div className="bg-soft-blue/20 p-8 rounded-[2.5rem] border border-white text-sm font-semibold leading-relaxed text-slate-600">
                            "{selected.description}"
                         </div>
                      </section>
 
                      {selected.evidence && (
                        <section>
-                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Visual Evidence</h4>
+                          <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Visual Evidence</h4>
                           <div className="relative group rounded-[3rem] overflow-hidden shadow-soft border-4 border-white">
                              <img src={buildImageUrl(selected.evidence)} alt="Evidence" className="w-full transition-transform duration-700 group-hover:scale-110" />
                              <a 
@@ -376,12 +376,12 @@ export default function Complaints() {
                      
                      <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2rem] border border-white">
                         <div>
-                           <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Created At</div>
+                           <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Created At</div>
                            <div className="text-[11px] font-black uppercase text-slate-500">{new Date(selected.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                         </div>
                         <div className="text-right">
-                           <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Security Score</div>
-                           <div className="text-xl font-black text-slate-900 italic tracking-tighter">{selected.riskScore}</div>
+                           <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Security Score</div>
+                           <div className="text-xl font-black text-slate-900 tracking-tighter">{selected.riskScore}</div>
                         </div>
                      </div>
                   </div>

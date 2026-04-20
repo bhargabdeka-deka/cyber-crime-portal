@@ -92,11 +92,11 @@ export default function SubmitComplaint() {
     <UserLayout>
        <div className="max-w-3xl">
           <div className="mb-12">
-            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
-              <Plus size={14} /> NEW INCIDENT REPORT
+            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 border border-slate-100 shadow-sm">
+              <Plus size={14} /> New Incident Report
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">File Complaint</h1>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-4">Secure log entry powered by AI diagnostics.</p>
+            <h1 className="text-4xl md:text-5xl font-bold font-serif text-slate-900 tracking-tight leading-none">File Complaint</h1>
+            <p className="text-sm font-medium font-serif text-slate-500 tracking-wide mt-4">Secure log entry powered by AI diagnostics.</p>
           </div>
 
           {status.msg && (
@@ -125,69 +125,69 @@ export default function SubmitComplaint() {
             <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 space-y-8">
                {/* Title */}
                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Identify Case</label>
+                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Identify Case</label>
                   <input 
                     name="title" 
                     type="text" 
-                    placeholder="E.G. UPI FRAUD DURING ONLINE PURCHASE" 
+                    placeholder="e.g. UPI fraud during online purchase" 
                     value={formData.title} 
                     onChange={handleChange} 
                     required 
-                    className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 focus:shadow-md outline-none transition-all shadow-sm text-slate-800 placeholder:text-slate-500"
                   />
                </div>
 
                <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Classification</label>
+                    <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Classification</label>
                     <select 
                       name="scamType" 
                       value={formData.scamType} 
                       onChange={handleChange}
-                      className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none cursor-pointer shadow-sm appearance-none"
+                      className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none cursor-pointer shadow-sm appearance-none text-slate-800"
                     >
-                      <option value="">AUTO-DETECT</option>
+                      <option value="">Auto-Detect</option>
                       {SCAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Subject Target (ID/URL)</label>
+                    <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Subject Target (ID/URL)</label>
                     <input 
                       name="scamTarget" 
                       type="text" 
-                      placeholder="9876543210 OR FAKE-SITE.COM" 
+                      placeholder="9876543210 or fake-site.com" 
                       value={formData.scamTarget} 
                       onChange={handleChange} 
-                      className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                      className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
                     />
                   </div>
                </div>
 
                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Operational Location</label>
+                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Operational Location</label>
                   <div className="relative">
-                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                     <input 
                       name="location" 
                       type="text" 
-                      placeholder="GUWAHATI, ASSAM" 
+                      placeholder="Guwahati, Assam" 
                       value={formData.location} 
                       onChange={handleChange} 
-                      className="w-full bg-white border border-transparent pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                      className="w-full bg-white border border-transparent pl-14 pr-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
                     />
                   </div>
                </div>
 
                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Incident Log Payload</label>
+                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Incident Log Payload</label>
                   <textarea 
                     name="description" 
-                    placeholder="DESCRIBE THE SEQUENCE OF EVENTS IN DETAIL..." 
+                    placeholder="Describe the sequence of events in detail..." 
                     value={formData.description} 
                     onChange={handleChange} 
                     required 
                     rows={6}
-                    className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm transition-all italic"
+                    className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-medium leading-relaxed text-slate-800 outline-none focus:border-soft-teal/30 shadow-sm transition-all placeholder:text-slate-500"
                   />
                </div>
 
@@ -223,14 +223,14 @@ export default function SubmitComplaint() {
 
                {/* Evidence Upload */}
                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Supporting Evidence</label>
-                  <label className="flex items-center gap-5 bg-white border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] cursor-pointer hover:border-soft-teal transition-all group">
-                     <div className="w-14 h-14 bg-soft-blue rounded-2xl flex items-center justify-center text-soft-teal group-hover:bg-soft-teal group-hover:text-white transition-all">
+                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Supporting Evidence</label>
+                  <label className="flex items-center gap-5 bg-white border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] cursor-pointer hover:border-soft-teal transition-all group shadow-sm">
+                     <div className="w-14 h-14 bg-soft-blue rounded-2xl flex items-center justify-center text-soft-teal group-hover:bg-soft-teal group-hover:text-white transition-all shadow-sm">
                         <Paperclip size={24} />
                      </div>
                      <div className="flex-grow">
-                        <div className="text-xs font-black uppercase text-slate-800">{fileName || "Attach Incident Evidence"}</div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">PNG, JPG, PDF (MAX 10MB)</div>
+                        <div className="text-sm font-semibold text-slate-700 capitalize tracking-wide">{fileName || "Attach Incident Evidence"}</div>
+                        <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">PNG, JPG, PDF (MAX 10MB)</div>
                      </div>
                      <input type="file" name="evidence" onChange={handleChange} className="hidden" accept="image/*,.pdf,.doc,.docx" />
                   </label>

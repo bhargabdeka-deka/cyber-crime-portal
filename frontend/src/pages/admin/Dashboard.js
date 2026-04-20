@@ -15,7 +15,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white/90 backdrop-blur-md border border-white shadow-hover p-4 rounded-[1.5rem]">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1">{label}</p>
         <p className="text-xl font-black text-slate-900">{payload[0].value} Cases</p>
       </div>
     );
@@ -44,7 +44,7 @@ export default function Dashboard() {
         <div className="min-h-[400px] flex items-center justify-center">
           <div className="flex flex-col items-center">
             <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
-            <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Analyzing Data Nodes...</p>
+            <p className="mt-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Analyzing Data Nodes...</p>
           </div>
         </div>
       </Layout>
@@ -56,7 +56,7 @@ export default function Dashboard() {
       <Layout>
         <div className="text-center py-20 bg-rose-50/50 rounded-[3rem] border border-rose-100">
           <AlertTriangle className="mx-auto text-rose-500 mb-4" size={40} />
-          <p className="text-rose-900 font-black uppercase italic tracking-tighter text-xl">Connection Interrupted</p>
+          <p className="text-rose-900 font-black uppercase tracking-tighter text-xl">Connection Interrupted</p>
           <p className="text-rose-600 text-xs font-semibold mt-2 uppercase tracking-widest">Failed to communicate with intelligence server</p>
           <button onClick={() => window.location.reload()} className="mt-8 bg-rose-600 text-white px-10 py-4 rounded-full font-black text-sm tracking-widest shadow-lg shadow-rose-200">RETRY SYNC</button>
         </div>
@@ -79,11 +79,12 @@ export default function Dashboard() {
     <Layout>
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Operations Analytics</h1>
-          <div className="flex items-center gap-3 mt-4">
-             <div className="h-1 w-12 bg-soft-teal rounded-full" />
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Sector 7G Intelligence Feed</p>
-          </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Operations Analytics</h1>
+           <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3">"Data Driven Intelligence for a Secure Tomorrow"</p>
+           <div className="flex items-center gap-3 mt-5">
+              <div className="h-1 w-12 bg-soft-teal rounded-full" />
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Sector 7G Intelligence Feed</p>
+           </div>
         </div>
         <div className="flex items-center gap-4 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-full border border-emerald-100">
            <Zap className="fill-emerald-500 text-emerald-500" size={16} />
@@ -99,7 +100,7 @@ export default function Dashboard() {
                 <AlertTriangle className="text-white" size={28} />
              </div>
              <div>
-                <h4 className="text-xl font-black uppercase italic tracking-tighter leading-none">High-Risk Detection Alert</h4>
+                <h4 className="text-xl font-black uppercase tracking-tighter leading-none">High-Risk Detection Alert</h4>
                 <p className="text-sm font-semibold opacity-80 mt-2">{stats.criticalCases} cases require immediate triage (Risk Factor > 80%).</p>
              </div>
           </div>
@@ -119,7 +120,7 @@ export default function Dashboard() {
                <stat.icon className={stat.text} size={20} className="md:w-[22px] md:h-[22px]" />
             </div>
             <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter`}>{stat.value}</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{stat.label}</div>
+            <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -129,10 +130,10 @@ export default function Dashboard() {
           {/* Main Trend Card */}
           <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100">
             <div className="flex items-center justify-between mb-10">
-               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
                   <BarChart2 className="text-soft-teal" size={16} /> Flux Pattern Analysis
                </h3>
-               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">6 Month Matrix</span>
+               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">6 Month Matrix</span>
             </div>
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -167,7 +168,7 @@ export default function Dashboard() {
           <div className="grid md:grid-cols-2 gap-10">
             {/* Status Pill Bars */}
             <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-10">State Distribution</h3>
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-600 mb-10">State Distribution</h3>
               <div className="space-y-8">
                 {stats.statusDistribution?.map((item, i) => {
                   const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
@@ -179,7 +180,7 @@ export default function Dashboard() {
                   return (
                     <div key={i}>
                       <div className="flex justify-between items-end mb-3 px-2">
-                         <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight italic">{item.status}</span>
+                         <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{item.status}</span>
                          <span className="text-sm font-black text-slate-900">{pct}%</span>
                       </div>
                       <div className="w-full bg-white h-4 rounded-full overflow-hidden p-1 shadow-inner">
@@ -213,7 +214,7 @@ export default function Dashboard() {
               <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-md">
                  <Shield size={28} />
               </div>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter leading-none mb-6">Security <br/>Assurance</h3>
+              <h3 className="text-2xl font-black uppercase tracking-tighter leading-none mb-6">Security <br/>Assurance</h3>
               <p className="text-sm font-medium text-white/80 leading-relaxed mb-10">
                 Independent node monitoring verified <span className="font-black text-white">{total}</span> unique patterns. 
               </p>

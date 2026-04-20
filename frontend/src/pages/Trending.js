@@ -55,11 +55,11 @@ export default function Trending() {
   const pageContent = (
     <div className="max-w-6xl mx-auto py-10">
       <div className="mb-10 md:mb-16">
-        <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full text-[10px] font-black text-rose-500 tracking-widest uppercase mb-6 border border-rose-100">
+        <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full text-xs font-semibold text-rose-500 tracking-wide mb-4 border border-rose-100 shadow-sm">
            <Flame size={14} className="fill-rose-500" /> Live Threat Intel
         </div>
-        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Threat Advisories</h1>
-        <p className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-[0.2em] italic leading-relaxed">Real-time pattern analysis from the Cyber Intelligence Network.</p>
+        <h1 className="text-4xl md:text-6xl font-bold font-serif text-slate-900 tracking-tight mb-3">Threat Advisories</h1>
+        <p className="text-base md:text-lg font-serif font-medium text-slate-500 tracking-wide">Real-time pattern analysis from the Cyber Intelligence Network.</p>
       </div>
 
       {loading ? (
@@ -80,8 +80,8 @@ export default function Trending() {
               { label: "Risk Mit.", value: `${data.stats?.highCount||0}%`, color: "text-emerald-600", bg: "bg-emerald-50" }
             ].map(s => (
               <div key={s.label} className={`${s.bg} p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-white flex flex-col items-center justify-center text-center shadow-soft`}>
-                <div className="text-2xl md:text-4xl font-black italic tracking-tighter leading-none mb-2 md:mb-3">{s.value}</div>
-                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</div>
+                <div className="text-2xl md:text-4xl font-bold tracking-tighter leading-none mb-2 md:mb-3">{s.value}</div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">{s.label}</div>
               </div>
             ))}
           </div>
@@ -90,7 +90,7 @@ export default function Trending() {
             <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-soft border border-slate-50">
                <div className="flex items-center gap-3 mb-10">
                   <PieChart className="text-soft-teal" size={20} />
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800 italic">Sector Analysis</h3>
+                  <h3 className="text-lg font-bold font-serif tracking-tight text-slate-700">Sector Analysis</h3>
                </div>
                <div className="space-y-10">
                  {data.topCategories?.map(t => {
@@ -102,10 +102,10 @@ export default function Trending() {
                             <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg md:rounded-2xl flex items-center justify-center text-slate-400">
                                {scamTypeIcon[t.category] || <Info size={16} />}
                             </div>
-                            <span className="text-xs md:text-sm font-black text-slate-800 uppercase italic tracking-tight">{t.category}</span>
+                            <span className="text-sm md:text-base font-semibold text-slate-700 capitalize tracking-wide">{t.category}</span>
                          </div>
                          <div className="text-right">
-                            <span className="text-sm md:text-lg font-black text-slate-900 italic">{t.count}</span>
+                            <span className="text-sm md:text-lg font-bold text-slate-800">{t.count}</span>
                          </div>
                        </div>
                        <div className="w-full bg-slate-50 h-2 rounded-full border border-white">
@@ -120,7 +120,7 @@ export default function Trending() {
             <div className="bg-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-xl">
                <div className="flex items-center gap-3 mb-10">
                   <Target className="text-rose-400" size={20} />
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 italic">Critical Targets</h3>
+                  <h3 className="text-lg font-bold font-serif tracking-tight text-slate-300">Critical Targets</h3>
                </div>
                <div className="space-y-4">
                  {data.topTargets?.slice(0,5).map((t,i) => (
@@ -130,12 +130,12 @@ export default function Trending() {
                             #{i+1}
                          </div>
                          <div className="max-w-[120px] md:max-w-none overflow-hidden text-ellipsis whitespace-nowrap">
-                            <div className="text-[11px] md:text-sm font-black uppercase italic tracking-tight">{t.value}</div>
-                            <div className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-60">{t.category}</div>
+                            <div className="text-sm md:text-base font-semibold tracking-wide text-slate-100">{t.value}</div>
+                            <div className="text-[10px] md:text-xs font-medium text-slate-400 capitalize tracking-wide mt-1 opacity-80">{t.category}</div>
                          </div>
                       </div>
                       <div className="text-right">
-                         <div className="text-sm md:text-lg font-black text-rose-500 italic leading-none">{t.reports}×</div>
+                         <div className="text-sm md:text-lg font-bold text-rose-500 leading-none">{t.reports}×</div>
                       </div>
                    </div>
                  ))}

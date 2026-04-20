@@ -101,10 +101,11 @@ export default function UserDashboard() {
            <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4 shadow-sm border border-white">
               <Zap size={14} className="fill-soft-teal" /> Network Access Verified
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
              {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
            </h1>
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-4">
+           <p className="font-serif italic text-slate-600 text-lg font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
+           <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-5">
              {total === 0 ? "No active incidents reported in your sector." : `Managing ${total} intelligence reports.`}
            </p>
         </div>
@@ -121,7 +122,7 @@ export default function UserDashboard() {
                  <ShieldCheck size={32} />
               </div>
               <div>
-                 <h4 className="text-lg font-black text-slate-800 uppercase italic tracking-tighter leading-none">Security Contribution</h4>
+                 <h4 className="text-lg font-black text-slate-800 uppercase tracking-tighter leading-none">Security Contribution</h4>
                  <p className="text-sm font-semibold text-emerald-600 mt-2 uppercase tracking-wide">
                     Estimated {impact.estimatedProtected} persons protected via your reports.
                  </p>
@@ -137,7 +138,7 @@ export default function UserDashboard() {
         {statCards.map(stat => (
           <div key={stat.label} className={`${stat.bg} p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft`}>
             <div className={`text-3xl md:text-4xl font-black text-slate-900 tracking-tighter mb-2`}>{stat.value}</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -146,14 +147,14 @@ export default function UserDashboard() {
       <div className="grid lg:grid-cols-2 gap-10">
         {/* Status Analysis */}
         <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 h-full">
-           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-10 flex items-center gap-2">
-              <Activity className="text-soft-teal" size={16} strokeWidth={3} /> Status Breakdown
+           <h3 className="text-sm font-bold text-slate-600 tracking-wide mb-10 flex items-center gap-2">
+              <Activity className="text-soft-teal" size={18} strokeWidth={3} /> Status Breakdown
            </h3>
            
            {total === 0 ? (
              <div className="h-48 flex flex-col items-center justify-center text-center">
                 <FileText className="text-slate-200 mb-4" size={40} />
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Intelligence Data</p>
+                <p className="text-xs font-semibold text-slate-500 capitalize tracking-wide">No Intelligence Data</p>
              </div>
            ) : (
              <div className="space-y-8">
@@ -163,8 +164,8 @@ export default function UserDashboard() {
                  return (
                    <div key={key}>
                      <div className="flex justify-between items-end mb-3">
-                        <span className="text-[11px] font-black text-slate-700 uppercase italic tracking-tight">{key}</span>
-                        <span className="text-xs font-black text-slate-400">{count} Units</span>
+                        <span className="text-sm font-bold text-slate-800 capitalize">{key}</span>
+                        <span className="text-sm font-semibold text-slate-600">{count} Units</span>
                      </div>
                      <div className="w-full bg-white h-4 rounded-full overflow-hidden p-1 shadow-inner border border-slate-100">
                         <div className={`h-full rounded-full transition-all duration-1000 ${cfg.color.replace('text-', 'bg-')} shadow-sm`} style={{ width: `${pct}%` }} />
@@ -179,9 +180,9 @@ export default function UserDashboard() {
         {/* Recent Cases */}
         <div className="bg-white p-10 rounded-[4rem] shadow-soft border border-slate-50 h-full flex flex-col">
            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Recent Reports</h3>
+              <h3 className="text-sm font-bold text-slate-600 tracking-wide">Recent Reports</h3>
               {total > 0 && (
-                <button onClick={() => navigate("/my-complaints")} className="text-[10px] font-black text-soft-teal hover:underline tracking-widest uppercase">View All</button>
+                <button onClick={() => navigate("/my-complaints")} className="text-xs font-bold text-soft-teal hover:underline tracking-wide">View All</button>
               )}
            </div>
 
@@ -190,8 +191,8 @@ export default function UserDashboard() {
                 <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal">
                    <ShieldCheck size={40} />
                 </div>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Clean Status: Zero Reports</p>
-                <button onClick={() => navigate("/submit-complaint")} className="text-xs font-black text-soft-teal border-b-2 border-soft-teal/20 pb-1 hover:border-soft-teal transition-all">FILE YOUR FIRST CASE</button>
+                <p className="text-sm font-bold text-slate-500 tracking-wide">Clean Status: Zero Reports</p>
+                <button onClick={() => navigate("/submit-complaint")} className="text-sm font-bold text-soft-teal hover:underline transition-all">File Your First Case</button>
              </div>
            ) : (
              <div className="space-y-6">
@@ -205,15 +206,15 @@ export default function UserDashboard() {
                            })()}
                         </div>
                         <div>
-                           <div className="text-sm font-black text-slate-900 tracking-tighter uppercase italic">{c.caseId}</div>
-                           <div className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{c.crimeType}</div>
+                           <div className="text-sm font-bold text-slate-900 tracking-tight capitalize">{c.caseId}</div>
+                           <div className="text-xs font-semibold text-slate-500 capitalize mt-1">{c.crimeType}</div>
                         </div>
                      </div>
                      <div className="flex items-center gap-4">
-                        <div className="text-[9px] font-black text-slate-300 uppercase hidden md:block">
+                        <div className="text-xs font-semibold text-slate-500 hidden md:block">
                            {new Date(c.createdAt).toLocaleDateString()}
                         </div>
-                        <ChevronRight className="text-slate-200 group-hover:text-soft-teal transition-all" size={20} />
+                        <ChevronRight className="text-slate-300 group-hover:text-soft-teal transition-all" size={20} />
                      </div>
                   </div>
                 ))}
@@ -229,7 +230,7 @@ export default function UserDashboard() {
                <Search size={32} />
             </div>
             <div>
-               <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">Global Integrity Scan</h4>
+               <h4 className="text-xl font-black text-white uppercase tracking-tighter">Global Integrity Scan</h4>
                <p className="text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
             </div>
             <div className="ml-auto">
@@ -242,7 +243,7 @@ export default function UserDashboard() {
                <Zap size={32} />
             </div>
             <div>
-               <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Threat Advisories</h4>
+               <h4 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Threat Advisories</h4>
                <p className="text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
             </div>
             <div className="ml-auto">

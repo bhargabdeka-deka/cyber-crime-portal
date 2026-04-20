@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
-import useWindowWidth from "../../hooks/useWindowWidth";
+import { Users as UsersIcon, Search, User, Shield, CheckCircle, ChevronRight, Activity, Calendar, Mail } from "lucide-react";
 
 export default function Users() {
   const [users, setUsers]     = useState([]);
@@ -10,8 +10,6 @@ export default function Users() {
   const [page, setPage]       = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal]     = useState(0);
-  const w = useWindowWidth();
-  const isMobile = w < 768;
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -20,7 +18,9 @@ export default function Users() {
       setUsers(res.data.users);
       setTotal(res.data.total);
       setTotalPages(res.data.pages);
-    } catch {} finally { setLoading(false); }
+    } catch (err) {
+      console.error("USER_FETCH_FAILURE", err);
+    } finally { setLoading(false); }
   }, [page, search]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
@@ -29,84 +29,134 @@ export default function Users() {
 
   return (
     <Layout>
-      {/* Header */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, flexWrap:"wrap", gap:12 }}>
+      {/* Header Matrix */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
         <div>
-          <h1 style={{ color:"white", fontSize:22, fontWeight:700, margin:"0 0 4px" }}>Users</h1>
-          <p style={{ color:"#64748b", fontSize:14, margin:0 }}>{total} registered users</p>
+           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
+              <UsersIcon size={14} /> Identity Registry
+           </div>
+           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Registered Nodes</h1>
+           <p className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] mt-3">{total} Authenticated Users</p>
+        </div>
+        
+        <div className="bg-white/60 backdrop-blur-md px-6 py-4 rounded-[2.5rem] border border-white flex items-center gap-6 shadow-soft">
+           <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Network Operational</span>
+           </div>
         </div>
       </div>
 
-      {/* Search */}
-      <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:12, padding:"12px 16px", marginBottom:20, display:"flex", gap:10, alignItems:"center" }}>
-        <span style={{ color:"#64748b", fontSize:14 }}>🔍</span>
-        <input type="text" placeholder="Search by name or email..." value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
-          style={{ flex:1, background:"none", border:"none", color:"white", fontSize:14, outline:"none", fontFamily:"inherit" }} />
+      {/* Control Module */}
+      <div className="bg-slate-50 p-6 rounded-[3rem] border border-slate-100 flex flex-col md:flex-row items-center gap-4 mb-10 shadow-sm">
+        <div className="relative flex-grow w-full">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <input 
+            type="text" 
+            placeholder="SEARCH BY IDENTITY NAME OR EMAIL ADDR..." 
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="w-full bg-white pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:outline-none text-xs font-black uppercase tracking-widest transition-all shadow-sm placeholder:text-slate-400"
+          />
+        </div>
       </div>
 
       {loading ? (
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:300 }}>
-          <div style={{ width:32, height:32, border:"3px solid rgba(59,130,246,0.3)", borderTop:"3px solid #3b82f6", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
+        <div className="h-[400px] flex items-center justify-center">
+           <div className="flex flex-col items-center">
+              <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
+              <p className="mt-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Synchronizing Registry...</p>
+           </div>
         </div>
       ) : (
-        <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, overflow:"hidden" }}>
-          {/* Header row — desktop only */}
-          {!isMobile && (
-            <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr", padding:"12px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)", background:"rgba(255,255,255,0.02)" }}>
-              {["User","Email","Role","Joined","Status"].map(h => (
-                <div key={h} style={{ color:"#64748b", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.05em" }}>{h}</div>
+        <div className="space-y-4">
+          {users.length === 0 ? (
+            <div className="bg-slate-50 rounded-[3rem] py-24 text-center border border-slate-100 flex flex-col items-center">
+               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-soft border border-slate-50">
+                  <User className="text-slate-300" size={32} />
+               </div>
+               <h3 className="text-lg font-black text-slate-900 uppercase">No Identity Match</h3>
+               <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-widest leading-relaxed">Adjust your scan parameters or verify registry connectivity.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {users.map((u) => (
+                <div key={u._id} className="bg-white p-6 md:p-8 rounded-[2.5rem] md:rounded-[3.5rem] border border-white shadow-soft hover:shadow-hover transition-all group">
+                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                      
+                      {/* Identity Bar */}
+                      <div className="flex items-center gap-6">
+                         <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center shrink-0 shadow-lg text-xl font-black transform transition-transform group-hover:-rotate-6 ${u.role === 'admin' ? 'bg-slate-900 text-white' : 'bg-soft-blue text-soft-teal'}`}>
+                            {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover rounded-[1.8rem]" /> : initials(u.name)}
+                         </div>
+                         <div>
+                            <div className="flex items-center gap-3 mb-1">
+                               <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">{u.name}</h3>
+                               {u.role === 'admin' && (
+                                 <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Admin Node</span>
+                               )}
+                            </div>
+                            <div className="flex items-center gap-4">
+                               <div className="flex items-center gap-2 text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+                                  <Mail size={12} className="text-slate-400" /> {u.email}
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+
+                      {/* Meta Distribution */}
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 md:gap-16">
+                         <div className="flex flex-col hidden lg:flex">
+                             <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                <Calendar size={10} /> Established
+                             </div>
+                             <div className="text-[11px] font-black text-slate-900 uppercase">
+                                {new Date(u.createdAt).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"})}
+                             </div>
+                         </div>
+                         <div className="flex flex-col">
+                             <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                <Activity size={10} /> Security Status
+                             </div>
+                             <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase">
+                                <CheckCircle size={12} /> Active Node
+                             </div>
+                         </div>
+                         <div className="flex flex-col items-end justify-center">
+                            <button className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-soft-teal group-hover:text-white transition-all shadow-sm">
+                               <ChevronRight size={20} />
+                            </button>
+                         </div>
+                      </div>
+
+                   </div>
+                </div>
               ))}
             </div>
           )}
-
-          {users.length === 0 ? (
-            <div style={{ padding:"40px 24px", textAlign:"center", color:"#475569" }}>No users found.</div>
-          ) : users.map((u, i) => (
-            <div key={u._id}
-              style={{ display: isMobile ? "block" : "grid", gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr", padding: isMobile ? "14px 16px" : "14px 20px", borderBottom: i < users.length-1 ? "1px solid rgba(255,255,255,0.04)" : "none", alignItems:"center" }}>
-
-              {/* Name + avatar */}
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom: isMobile ? 8 : 0 }}>
-                <div style={{ width:34, height:34, borderRadius:"50%", background: u.avatar ? "transparent" : "linear-gradient(135deg,#3b82f6,#8b5cf6)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, fontWeight:700, flexShrink:0, overflow:"hidden" }}>
-                  {u.avatar ? <img src={u.avatar} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} /> : initials(u.name)}
-                </div>
-                <div>
-                  <div style={{ color:"white", fontSize:13, fontWeight:600 }}>{u.name}</div>
-                  {isMobile && <div style={{ color:"#64748b", fontSize:12 }}>{u.email}</div>}
-                </div>
-              </div>
-
-              {!isMobile && <div style={{ color:"#94a3b8", fontSize:13 }}>{u.email}</div>}
-
-              <div>
-                <span style={{ background: u.role==="admin" ? "rgba(239,68,68,0.12)" : "rgba(59,130,246,0.12)", color: u.role==="admin" ? "#f87171" : "#93c5fd", border:`1px solid ${u.role==="admin" ? "rgba(239,68,68,0.25)" : "rgba(59,130,246,0.25)"}`, padding:"2px 8px", borderRadius:20, fontSize:11, fontWeight:600 }}>
-                  {u.role==="admin" ? "👑 Admin" : "👤 User"}
-                </span>
-              </div>
-
-              <div style={{ color:"#64748b", fontSize:12 }}>
-                {new Date(u.createdAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}
-              </div>
-
-              <div>
-                <span style={{ background:"rgba(16,185,129,0.1)", color:"#6ee7b7", border:"1px solid rgba(16,185,129,0.2)", padding:"2px 8px", borderRadius:20, fontSize:11 }}>Active</span>
-              </div>
-            </div>
-          ))}
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Navigation Matrix */}
       {totalPages > 1 && (
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:16, flexWrap:"wrap", gap:10 }}>
-          <span style={{ color:"#64748b", fontSize:13 }}>Page {page} of {totalPages}</span>
-          <div style={{ display:"flex", gap:6 }}>
-            <button onClick={() => setPage(p=>Math.max(1,p-1))} disabled={page===1}
-              style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color: page===1?"#475569":"white", padding:"7px 14px", borderRadius:8, cursor: page===1?"not-allowed":"pointer", fontSize:13 }}>← Prev</button>
-            <button onClick={() => setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages}
-              style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color: page===totalPages?"#475569":"white", padding:"7px 14px", borderRadius:8, cursor: page===totalPages?"not-allowed":"pointer", fontSize:13 }}>Next →</button>
-          </div>
+        <div className="mt-16 flex flex-col sm:flex-row items-center justify-between gap-8 py-10 px-8 bg-slate-50 rounded-[3rem] border border-slate-100">
+           <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Registry Page {page} of {totalPages}</span>
+           <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                disabled={page === 1}
+                className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-900 shadow-sm border border-slate-200 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-slate-900 hover:text-white transition-all"
+              >
+                <ChevronRight size={20} className="rotate-180" />
+              </button>
+              <button 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                disabled={page === totalPages}
+                className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-900 shadow-sm border border-slate-200 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-slate-900 hover:text-white transition-all"
+              >
+                <ChevronRight size={20} />
+              </button>
+           </div>
         </div>
       )}
     </Layout>

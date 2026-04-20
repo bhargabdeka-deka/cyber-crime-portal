@@ -101,11 +101,11 @@ export default function Profile() {
     <UserLayout>
       <div className="max-w-4xl">
         <div className="mb-12">
-           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-4">
-              <User size={14} /> SECURITY PROFILE
+           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 shadow-sm border border-slate-100">
+              <User size={14} /> Security Profile
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Settings</h1>
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-3">Manage your network identity.</p>
+           <h1 className="text-4xl md:text-5xl font-bold font-serif text-slate-900 tracking-tight leading-none">Settings</h1>
+           <p className="text-sm font-medium font-serif text-slate-500 tracking-wide mt-4">Manage your network identity.</p>
         </div>
 
         {status.msg && (
@@ -130,17 +130,17 @@ export default function Profile() {
                           </div>
                        </div>
                     </div>
-                    <h3 className="text-xl font-black uppercase italic tracking-tighter mb-2">{form.name || "UNIDENTIFIED"}</h3>
-                    <p className="text-[11px] font-bold text-soft-teal uppercase tracking-widest mb-8">{storedUser.email}</p>
+                    <h3 className="text-2xl font-bold capitalize tracking-tight mb-2">{form.name || "Unidentified"}</h3>
+                    <p className="text-sm font-medium text-slate-300 opacity-90 mb-8">{storedUser.email}</p>
                     
                     <div className="flex flex-col gap-3">
                        <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Reports</span>
-                          <span className="text-sm font-black italic">{complaints.length}</span>
+                          <span className="text-xs font-medium tracking-wide text-slate-300">Reports</span>
+                          <span className="text-sm font-semibold">{complaints.length}</span>
                        </div>
                        <div className="bg-white/5 p-4 rounded-3xl border border-white/10 flex items-center justify-between">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Security</span>
-                          <span className="text-sm font-black italic text-emerald-400">Verified</span>
+                          <span className="text-xs font-medium tracking-wide text-slate-300">Security</span>
+                          <span className="text-sm font-semibold text-emerald-400">Verified</span>
                        </div>
                     </div>
                  </div>
@@ -153,44 +153,44 @@ export default function Profile() {
                  <form onSubmit={handleSave} className="space-y-8">
                     <div className="grid md:grid-cols-2 gap-8">
                        <div>
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Identification Name</label>
+                          <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Identification Name</label>
                           <input 
                             value={form.name} 
                             onChange={e => setForm({...form, name:e.target.value})} 
-                            className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                            className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
                           />
                        </div>
                        <div>
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Contact Protocol (Phone)</label>
+                          <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Contact Protocol (Phone)</label>
                           <input 
                             value={form.phone} 
                             onChange={e => setForm({...form, phone:e.target.value})} 
                             placeholder="+91 00000 00000"
-                            className="w-full bg-white border border-transparent px-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                            className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
                           />
                        </div>
                     </div>
 
                     <div>
-                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Geographic Node (Location)</label>
+                       <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Geographic Node (Location)</label>
                        <div className="relative">
-                          <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                           <input 
                             value={form.location} 
                             onChange={e => setForm({...form, location:e.target.value})} 
-                            placeholder="CITY, COUNTRY"
-                            className="w-full bg-white border border-transparent pl-14 pr-8 py-5 rounded-full text-xs font-black uppercase tracking-widest focus:border-soft-teal/20 outline-none shadow-sm"
+                            placeholder="City, Country"
+                            className="w-full bg-white border border-transparent pl-14 pr-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
                           />
                        </div>
                     </div>
 
                     <div>
-                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block px-4">Security Bio</label>
+                       <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Security Bio</label>
                        <textarea 
                          value={form.bio} 
                          onChange={e => setForm({...form, bio:e.target.value})} 
                          rows={4}
-                         className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-semibold leading-relaxed text-slate-600 outline-none focus:border-soft-teal/20 shadow-sm transition-all italic"
+                         className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-medium leading-relaxed outline-none focus:border-soft-teal/30 shadow-sm transition-all text-slate-800 placeholder:text-slate-500"
                        />
                     </div>
 
@@ -198,9 +198,9 @@ export default function Profile() {
                        <button 
                          type="submit" 
                          disabled={loading}
-                         className="w-full bg-slate-900 h-20 rounded-full text-white text-xs font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:brightness-110 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                         className="w-full bg-slate-900 py-4 rounded-full text-white text-sm font-semibold tracking-wide flex items-center justify-center gap-3 hover:bg-soft-teal hover:shadow-soft-teal/40 transition-all shadow-lg disabled:opacity-50"
                        >
-                         {loading ? <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : <><Save size={18} /> UPDATE IDENTITY</>}
+                         {loading ? <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : <><Save size={18} /> Update Identity</>}
                        </button>
                     </div>
                  </form>
@@ -212,15 +212,15 @@ export default function Profile() {
                        <LogOut size={24} />
                     </div>
                     <div>
-                       <h4 className="text-sm font-black text-slate-800 uppercase italic tracking-tighter">Terminate Session</h4>
-                       <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">Disconnect from security network</p>
+                       <h4 className="text-lg font-bold font-serif tracking-tight text-slate-800">Terminate Session</h4>
+                       <p className="text-xs font-medium text-slate-600 mt-1">Disconnect from security network</p>
                     </div>
                  </div>
                  <button 
                    onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/"); }}
-                   className="bg-white text-rose-600 px-10 py-4 rounded-full font-black text-[10px] tracking-widest border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                   className="bg-white text-rose-600 px-8 py-3 rounded-full font-semibold text-sm tracking-wide border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                  >
-                   EXIT_NOW
+                   Exit Session
                  </button>
               </div>
            </div>

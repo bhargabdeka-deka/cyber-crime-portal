@@ -44,13 +44,13 @@ export default function UserRegister() {
           
           {/* Left Summary */}
           <div className="md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-50 pb-16 md:pb-0 md:pr-16">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-soft-teal rounded-3xl shadow-soft mb-8 text-white rotate-6">
-              <ShieldCheck size={28} />
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-black rounded-full shadow-soft mb-8 text-white rotate-6 overflow-hidden border border-slate-50">
+              <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
             </div>
-            <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase italic leading-none mb-6">
+            <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none mb-6">
               Establish Your <span className="text-soft-teal">Network Identity</span>
             </h1>
-            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest leading-relaxed mb-10 italic">
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest leading-relaxed mb-10">
               Join India's most advanced community-driven cyber defense portal. Secure. Anonymous. Real-time.
             </p>
             
@@ -66,7 +66,7 @@ export default function UserRegister() {
                     </div>
                     <div>
                        <div className="text-[10px] font-black uppercase text-slate-800 tracking-widest">{item.l}</div>
-                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.s}</div>
+                       <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">{item.s}</div>
                     </div>
                  </div>
                ))}
@@ -75,7 +75,7 @@ export default function UserRegister() {
 
           {/* Right Form */}
           <div className="md:w-1/2 flex flex-col justify-center">
-            <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tighter italic">Create Access Node</h2>
+            <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tighter">Create Access Node</h2>
             
             {(error || success) && (
               <div className={`mb-8 p-6 rounded-3xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${error ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
@@ -164,7 +164,7 @@ export default function UserRegister() {
       </div>
       
       <div className="text-center py-10">
-         <Link to="/" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">← RETURN TO SYSTEM GATEWAY</Link>
+         <Link to="/" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">← RETURN TO SYSTEM GATEWAY</Link>
       </div>
     </div>
   );

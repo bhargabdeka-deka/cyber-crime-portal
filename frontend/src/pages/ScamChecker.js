@@ -73,11 +73,11 @@ export default function ScamChecker() {
   const pageContent = (
     <div className="max-w-4xl mx-auto py-10 min-h-screen">
       <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-[10px] font-black text-soft-teal tracking-widest uppercase mb-6">
+        <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 shadow-sm border border-slate-100">
            <Zap size={14} className="fill-soft-teal" /> Global Intelligence Scan
         </div>
-        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-6">Verify Safety</h1>
-        <p className="text-sm md:text-lg font-medium text-slate-400 max-w-xl mx-auto leading-relaxed italic px-4">
+        <h1 className="text-4xl md:text-6xl font-bold font-serif text-slate-900 tracking-tight mb-6">Verify Safety</h1>
+        <p className="text-sm md:text-lg font-medium font-serif text-slate-600 max-w-xl mx-auto leading-relaxed px-4">
           Search any phone number, URL, or UPI ID to verify against our global threat database.
         </p>
       </div>
@@ -85,28 +85,28 @@ export default function ScamChecker() {
       <form onSubmit={handleCheck} className="mb-12 px-2 md:px-0">
         <div className="flex flex-col md:flex-row gap-4 bg-white p-3 md:p-4 rounded-[2.5rem] md:rounded-[4rem] border-2 border-slate-50 shadow-soft focus-within:border-soft-teal/20 transition-all">
           <div className="flex-grow flex items-center px-4 md:px-6">
-             <Search className="text-slate-200 shrink-0" size={20} />
+             <Search className="text-slate-400 shrink-0" size={20} />
              <input 
                type="text" 
                value={query} 
                onChange={e => { setQuery(e.target.value); setResult(null); }}
-               placeholder="IDENTIFIER..."
-               className="w-full bg-none border-none text-slate-800 placeholder:text-slate-200 text-sm md:text-lg font-black uppercase tracking-widest p-4 outline-none "
+               placeholder="Enter phone number, URL, or UPI ID..."
+               className="w-full bg-none border-none text-slate-800 placeholder:text-slate-500 text-base md:text-lg font-medium tracking-wide p-4 outline-none "
              />
           </div>
           <button 
             type="submit" 
             disabled={loading || !query.trim()}
-            className="bg-slate-900 text-white rounded-full px-8 md:px-12 py-4 md:py-5 font-black text-[10px] md:text-xs tracking-widest uppercase hover:brightness-110 shadow-lg disabled:opacity-30 transition-all flex items-center justify-center gap-3"
+            className="bg-slate-900 text-white rounded-full px-8 md:px-12 py-4 md:py-5 font-semibold text-sm tracking-wide hover:bg-soft-teal hover:shadow-lg hover:shadow-soft-teal/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3"
           >
-            {loading ? <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : "EXECUTE SCAN"}
+            {loading ? <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" /> : "Execute Scan"}
           </button>
         </div>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
-           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest py-2">Quick Verify:</span>
+           <span className="text-xs font-semibold text-slate-500 py-2">Quick Verify:</span>
            {["9876543210","sbi-kyc-update.com","lottery@scam.in"].map(ex => (
              <button key={ex} type="button" onClick={() => { setQuery(ex); doCheck(ex); }}
-               className="bg-white border-2 border-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 rounded-full hover:border-soft-teal/20 transition-all shadow-sm">
+               className="bg-white border text-xs font-medium text-slate-600 px-4 py-2 rounded-full hover:border-soft-teal/30 hover:text-soft-teal transition-all shadow-sm">
                {ex}
              </button>
            ))}
@@ -124,8 +124,8 @@ export default function ScamChecker() {
                        <vc.icon size={48} strokeWidth={3} />
                     </div>
                     <div className="text-center md:text-left">
-                       <h3 className={`text-4xl font-black uppercase italic tracking-tighter leading-none mb-3 ${vc.color}`}>{vc.title}</h3>
-                       <p className="text-sm font-bold text-slate-400 uppercase tracking-widest italic">{vc.sub}</p>
+                       <h3 className={`text-4xl font-black uppercase tracking-tighter leading-none mb-3 ${vc.color}`}>{vc.title}</h3>
+                       <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{vc.sub}</p>
                     </div>
                  </div>
                  <button 
@@ -139,7 +139,7 @@ export default function ScamChecker() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-8 relative z-10">
                  {[{label:"Threats",value:result.reports},{label:"Risk Matrix",value:result.avgRiskScore||"—"},{label:"Severity",value:result.riskLevel||"SAFE"}].map(s => (
                     <div key={s.label} className="bg-white/40 p-8 rounded-[3rem] text-center border border-white shadow-sm">
-                       <div className={`text-4xl font-black italic tracking-tighter mb-2 ${vc.color}`}>{s.value}</div>
+                       <div className={`text-4xl font-black tracking-tighter mb-2 ${vc.color}`}>{s.value}</div>
                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</div>
                     </div>
                  ))}
@@ -151,7 +151,7 @@ export default function ScamChecker() {
                       <h4 className="text-[10px] font-black text-rose-600 uppercase tracking-[0.2em] mb-6">DO NOT ENGAGE</h4>
                       <ul className="space-y-4">
                          {result.actionAdvice.avoid.map((a,i) => (
-                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-rose-800 uppercase italic">
+                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-rose-800 uppercase">
                               <span className="w-2 h-2 rounded-full bg-rose-400" /> {a}
                            </li>
                          ))}
@@ -161,7 +161,7 @@ export default function ScamChecker() {
                       <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-6">RECOMMENDED ACTION</h4>
                       <ul className="space-y-4">
                          {result.actionAdvice.doThis.map((a,i) => (
-                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-emerald-800 uppercase italic">
+                           <li key={i} className="flex items-center gap-3 text-xs font-bold text-emerald-800 uppercase">
                               <span className="w-2 h-2 rounded-full bg-emerald-400" /> {a}
                            </li>
                          ))}
@@ -179,7 +179,7 @@ export default function ScamChecker() {
               <div className="h-1 flex-grow bg-slate-100 rounded-full" />
               <div className="flex items-center gap-3">
                  <Activity className="text-soft-teal" size={20} />
-                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Recent Activity</h3>
+                 <h3 className="text-lg font-serif font-bold text-slate-800 tracking-tight">Recent Activity</h3>
               </div>
               <div className="h-1 flex-grow bg-slate-100 rounded-full" />
            </div>
@@ -191,12 +191,12 @@ export default function ScamChecker() {
                   className="bg-white p-8 rounded-[3rem] border-2 border-slate-50 flex items-center justify-between group cursor-pointer hover:border-soft-teal/20 transition-all shadow-sm"
                 >
                   <div>
-                    <div className="text-sm font-black text-slate-800 uppercase italic tracking-tighter mb-1">{a.value}</div>
-                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{a.category}</div>
+                    <div className="text-base font-semibold text-slate-800 mb-1">{a.value}</div>
+                    <div className="text-xs font-semibold text-slate-600 capitalize tracking-wide">{a.category}</div>
                   </div>
                   <div className="flex items-center gap-6">
-                    <span className={`text-[10px] font-black uppercase ${a.riskLevel==="CRITICAL"?"text-rose-500":"text-amber-500"}`}>{a.riskLevel}</span>
-                    <ChevronRight size={20} className="text-slate-200 group-hover:text-soft-teal" />
+                    <span className={`text-xs font-bold uppercase tracking-wider ${a.riskLevel==="CRITICAL"?"text-rose-500":"text-amber-500"}`}>{a.riskLevel}</span>
+                    <ChevronRight size={20} className="text-slate-400 group-hover:text-soft-teal" />
                   </div>
                 </div>
               ))}
@@ -215,10 +215,10 @@ export default function ScamChecker() {
           <div className="w-8 h-8 md:w-10 md:h-10 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-soft">
             <ShieldCheck size={18} className="md:w-[22px] md:h-[22px]" />
           </div>
-          <span className="text-lg md:text-xl font-black italic tracking-tighter uppercase text-slate-800">Shield</span>
+          <span className="text-lg md:text-xl font-black tracking-tighter uppercase text-slate-800">Shield</span>
         </div>
         <div className="flex gap-2 md:gap-4 items-center">
-          <button onClick={() => navigate("/login")} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all px-2 md:px-4">Sign In</button>
+          <button onClick={() => navigate("/login")} className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all px-2 md:px-4">Sign In</button>
           <button onClick={() => navigate("/register")} className="bg-slate-900 text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-[10px] font-black uppercase tracking-widest shadow-lg">New Access</button>
         </div>
       </nav>
