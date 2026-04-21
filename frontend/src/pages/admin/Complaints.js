@@ -208,7 +208,7 @@ export default function Complaints() {
             <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-500 rounded-full animate-spin mr-3" />
             Loading complaints...
           </div>
-        ) : complaints.length === 0 ? (
+        ) : (Array.isArray(complaints) ? complaints : []).length === 0 ? (
           <div className="py-20 flex flex-col items-center text-slate-400">
             <FileText size={32} className="mb-3 opacity-30" />
             <p className="text-sm">No complaints found. Try adjusting your filters.</p>
@@ -228,7 +228,7 @@ export default function Complaints() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {complaints.map(c => (
+                {(Array.isArray(complaints) ? complaints : []).map(c => (
                   <tr key={c._id} className="hover:bg-slate-50 transition cursor-pointer" onClick={() => setSelected(c)}>
                     <td className="px-4 py-3">
                       <div className="text-xs font-mono text-slate-700">{c.caseId?.slice(0, 12)}...</div>
@@ -312,7 +312,7 @@ export default function Complaints() {
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Reporter</p>
                 <p className="text-sm text-slate-800 font-medium">{selected.user?.name || "Anonymous"}</p>
-                <p className="text-xs text-slate-400">{selected.user?.email}</p>
+                <p className="text-xs text-slate-400">{selected.user?.email || "No Email"}</p>
               </div>
 
               {/* Type & Priority */}

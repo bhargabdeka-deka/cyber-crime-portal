@@ -15,9 +15,10 @@ export default function UserDashboard() {
   const [loading, setLoading]       = useState(true);
   const [impact, setImpact]         = useState(null);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   useEffect(() => {
+    if (!user) return;
     API.get("/complaints/my")
       .then(res => setComplaints(res.data))
       .catch(() => {})
@@ -25,16 +26,27 @@ export default function UserDashboard() {
     API.get("/users/impact")
       .then(res => setImpact(res.data))
       .catch(() => {});
-  }, []);
+  }, [user]);
 
-  const total         = complaints.length;
-  const pending       = complaints.filter(c => c.status === "Pending").length;
-  const investigating = complaints.filter(c => c.status === "Investigating").length;
-  const resolved      = complaints.filter(c => c.status === "Resolved").length;
+  if (!user || Object.keys(user).length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4" />
+          Loading User Session...
+        </div>
+      </div>
+    );
+  }
 
-  const recent = [...complaints]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5);
+  const total         = complaints?.length || 0;
+  const pending       = (Array.isArray(complaints) ? complaints : []).filter(c => c.status === "Pending").length;
+  const investigating = (Array.isArray(complaints) ? complaints : []).filter(c => c.status === "Investigating").length;
+  const resolved      = (Array.isArray(complaints) ? complaints : []).filter(c => c.status === "Resolved").length;
+
+  const recent = Array.isArray(complaints) 
+    ? [...complaints].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5)
+    : [];
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -62,7 +74,7 @@ export default function UserDashboard() {
       {/* Page Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{greeting}, {user?.name?.split(" ")[0]}</h1>
+          <h1 className="text-xl font-bold text-slate-900">{greeting}, {user?.name?.split(" ")[0] || "User"}</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             {total === 0 ? "No reports filed yet." : `You have ${total} report${total > 1 ? "s" : ""} on record.`}
           </p>
@@ -107,7 +119,7 @@ export default function UserDashboard() {
           ) : (
             <div className="space-y-4">
               {Object.entries(statusConfig).map(([key, cfg]) => {
-                const count = complaints.filter(c => c.status === key).length;
+                const count = (Array.isArray(complaints) ? complaints : []).filter(c => c.status === key).length;
                 const pct   = total > 0 ? Math.round((count / total) * 100) : 0;
                 return (
                   <div key={key}>

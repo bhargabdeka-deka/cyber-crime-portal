@@ -4,12 +4,14 @@ import API from "../services/api";
 import { Users, FileWarning, Activity } from "lucide-react";
 
 const AdminDashboard = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
   const [stats, setStats] = useState({ users: 0, pending: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!user) return;
     const fetchDashboardData = async () => {
       try {
         const [usersRes, complaintsRes] = await Promise.all([
@@ -20,8 +22,8 @@ const AdminDashboard = () => {
         const allComplaints = complaintsRes.data.complaints || [];
 
         setStats({
-          users: usersRes.data.total ?? usersRes.data.users?.length ?? 0,
-          pending: allComplaints.filter(c => c.status?.toLowerCase() === "pending").length,
+          users: usersRes.data.total ?? usersRes.data?.users?.length ?? 0,
+          pending: (Array.isArray(allComplaints) ? allComplaints : []).filter(c => c.status?.toLowerCase() === "pending").length,
         });
         setError(null);
       } catch (err) {
@@ -32,7 +34,18 @@ const AdminDashboard = () => {
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [user]);
+
+  if (!user || Object.keys(user).length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4" />
+          Loading System Admin...
+        </div>
+      </div>
+    );
+  }
 
   const displayValue = (val) => {
     if (loading) return "...";
@@ -69,7 +82,7 @@ const AdminDashboard = () => {
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Welcome back, {user.name}</p>
+        <p className="text-sm text-slate-500 mt-0.5">Welcome back, {user?.name || "User"}</p>
       </div>
 
       {/* Error Banner */}

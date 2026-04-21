@@ -14,7 +14,7 @@ export default function Users() {
   const [newAdmin, setNewAdmin]         = useState({ name: "", email: "", password: "" });
   const [authError, setAuthError]       = useState("");
   const [creating, setCreating]         = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const currentUser = JSON.parse(localStorage.getItem("user") || "null");
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -29,6 +29,17 @@ export default function Users() {
   }, [page, search]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  if (!currentUser || Object.keys(currentUser).length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4" />
+          Loading Users Node...
+        </div>
+      </div>
+    );
+  }
 
   const handleDisableUser = async (id, name) => {
     if (!window.confirm(`Disable account for "${name}"? This action cannot be undone.`)) return;
@@ -99,7 +110,7 @@ export default function Users() {
             <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-500 rounded-full animate-spin mr-3" />
             Loading users...
           </div>
-        ) : users.length === 0 ? (
+        ) : (Array.isArray(users) ? users : []).length === 0 ? (
           <div className="py-20 flex flex-col items-center text-slate-400">
             <User size={32} className="mb-3 opacity-30" />
             <p className="text-sm">No users found.</p>
@@ -116,7 +127,7 @@ export default function Users() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {users.map(u => (
+              {(Array.isArray(users) ? users : []).map(u => (
                 <tr key={u._id} className="hover:bg-slate-50 transition">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">

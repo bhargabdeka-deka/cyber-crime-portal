@@ -209,7 +209,7 @@ export default function Landing() {
                     <div className="bg-white rounded-md p-3 border border-red-100">
                       <p className="text-[10px] font-semibold text-red-600 uppercase tracking-wide mb-1.5">What to avoid</p>
                       <ul className="space-y-1">
-                        {checkResult.actionAdvice.avoid.slice(0, 2).map((a, i) => (
+                        {(checkResult.actionAdvice?.avoid || []).slice(0, 2).map((a, i) => (
                           <li key={i} className="text-xs text-red-800 flex gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1 shrink-0" />{a}
                           </li>
@@ -219,7 +219,7 @@ export default function Landing() {
                     <div className="bg-white rounded-md p-3 border border-emerald-100">
                       <p className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1.5">What to do</p>
                       <ul className="space-y-1">
-                        {checkResult.actionAdvice.doThis.slice(0, 2).map((a, i) => (
+                        {(checkResult.actionAdvice?.doThis || []).slice(0, 2).map((a, i) => (
                           <li key={i} className="text-xs text-emerald-800 flex gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" />{a}
                           </li>

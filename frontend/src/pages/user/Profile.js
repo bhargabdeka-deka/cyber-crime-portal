@@ -9,26 +9,24 @@ import {
 
 export default function Profile() {
   const navigate   = useNavigate();
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+
   const [form, setForm] = useState({
-    name:     storedUser.name     || "",
-    phone:    storedUser.phone    || "",
-    location: storedUser.location || "",
-    bio:      storedUser.bio      || "",
+    name:     storedUser?.name     || "",
+    phone:    storedUser?.phone    || "",
+    location: storedUser?.location || "",
+    bio:      storedUser?.bio      || "",
   });
   const [loading, setLoading]       = useState(false);
   const [fetching, setFetching]     = useState(true);
   const [status, setStatus]         = useState({ type: "", msg: "" });
   const [complaints, setComplaints] = useState([]);
-  const [avatar, setAvatar]         = useState(storedUser.avatar || "");
+  const [avatar, setAvatar]         = useState(storedUser?.avatar || "");
   const [uploading, setUploading]   = useState(false);
   const fileInputRef = useRef(null);
 
-  const initials = form.name
-    ? form.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-    : "U";
-
   useEffect(() => {
+    if (!storedUser) return;
     API.get("/users/profile").then(res => {
       const u = res.data.user;
       setForm({ name: u.name || "", phone: u.phone || "", location: u.location || "", bio: u.bio || "" });
@@ -37,6 +35,21 @@ export default function Profile() {
 
     API.get("/complaints/my").then(res => setComplaints(res.data)).catch(() => {});
   }, []);
+
+  if (!storedUser || Object.keys(storedUser).length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4" />
+          Loading Profile...
+        </div>
+      </div>
+    );
+  }
+
+  const initials = form.name
+    ? form.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
 
   const handleAvatarClick  = () => fileInputRef.current?.click();
 
@@ -136,13 +149,13 @@ export default function Profile() {
               </div>
 
               <h3 className="font-semibold text-slate-900 truncate">{form.name || "No name"}</h3>
-              <p className="text-xs text-slate-400 mt-0.5 truncate">{storedUser.email}</p>
+              <p className="text-xs text-slate-400 mt-0.5 truncate">{storedUser?.email || "No Email"}</p>
 
               {/* Stats */}
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-sm border border-slate-100 rounded-md px-3 py-2">
                   <span className="text-slate-500">Reports</span>
-                  <span className="font-semibold text-slate-800">{complaints.length}</span>
+                  <span className="font-semibold text-slate-800">{complaints?.length || 0}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm border border-slate-100 rounded-md px-3 py-2">
                   <span className="text-slate-500">Status</span>

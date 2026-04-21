@@ -82,7 +82,7 @@ export default function Trending() {
             <div className="bg-white border border-slate-200 rounded-lg p-5">
               <h3 className="text-sm font-semibold text-slate-700 mb-4">By Scam Type</h3>
               <div className="space-y-4">
-                {data.topCategories?.map(t => {
+                {(Array.isArray(data.topCategories) ? data.topCategories : []).map(t => {
                   const pct = Math.round((t.count / (data.topCategories[0]?.count || 1)) * 100);
                   return (
                     <div key={t.category}>
@@ -111,7 +111,7 @@ export default function Trending() {
                 <AlertTriangle size={14} className="text-red-400" /> Most Reported Targets
               </h3>
               <div className="space-y-2">
-                {data.topTargets?.slice(0, 5).map((t, i) => (
+                {(Array.isArray(data.topTargets) ? data.topTargets : []).slice(0, 5).map((t, i) => (
                   <div
                     key={t._id}
                     onClick={() => navigate("/check-scam")}

@@ -57,7 +57,8 @@ export default function MyComplaints() {
     } catch {}
   };
 
-  const filtered = filter === "All" ? complaints : complaints.filter(c => c.status === filter);
+  const complaintsSafe = Array.isArray(complaints) ? complaints : [];
+  const filtered = filter === "All" ? complaintsSafe : complaintsSafe.filter(c => c.status === filter);
 
   if (loading) {
     return (
@@ -76,7 +77,7 @@ export default function MyComplaints() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-900">My Reports</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{complaints.length} report{complaints.length !== 1 ? "s" : ""} on record</p>
+          <p className="text-sm text-slate-500 mt-0.5">{(complaints?.length || 0)} report{(complaints?.length || 0) !== 1 ? "s" : ""} on record</p>
         </div>
         <button
           onClick={() => navigate("/submit-complaint")}
@@ -87,7 +88,7 @@ export default function MyComplaints() {
       </div>
 
       {/* Filter Tabs */}
-      {complaints.length > 0 && (
+      {complaintsSafe.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {["All", "Pending", "Investigating", "Resolved"].map(f => (
             <button
@@ -101,7 +102,7 @@ export default function MyComplaints() {
             >
               {f}
               <span className="ml-1.5 opacity-60">
-                {f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}
+                {f === "All" ? complaintsSafe.length : complaintsSafe.filter(c => c.status === f).length}
               </span>
             </button>
           ))}
@@ -109,7 +110,7 @@ export default function MyComplaints() {
       )}
 
       {/* Content */}
-      {complaints.length === 0 ? (
+      {complaintsSafe.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-lg py-20 flex flex-col items-center text-slate-400">
           <FileText size={32} className="mb-3 opacity-30" />
           <p className="text-sm">No reports filed yet.</p>
