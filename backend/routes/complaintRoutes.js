@@ -63,18 +63,37 @@ router.put("/:id/status", protect, authorizeRoles("admin", "superadmin"), valida
 router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
   try {
     const complaints = await Complaint.find().populate("user", "name email").sort({ createdAt: -1 });
-    const header = "Case ID,User,Email,Title,Crime Type,Scam Type,Priority,Risk Score,Status,Location,Date\n";
-    const rows = complaints.map(c =>
-      [c.caseId, c.user?.name||"", c.user?.email||"",
-       `"${(c.title||"").replace(/"/g,'""')}"`,
-       c.crimeType, c.scamType, c.priority, c.riskScore,
-       c.status, c.location||"",
-       new Date(c.createdAt).toLocaleDateString("en-IN")].join(",")
-    ).join("\n");
-    res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename=cybershield-${Date.now()}.csv`);
+
+    const header = [
+      "Case ID", "User", "Email", "Title", "Crime Type",
+      "Scam Type", "Priority", "Risk Score", "Status", "Location", "Date"
+    ].map(h => `"${h}"`).join(",") + "\n";
+
+    const rows = complaints.map(c => {
+      const rowData = [
+        c.caseId,
+        c.user?.name || "N/A",
+        c.user?.email || "N/A",
+        (c.title || "").replace(/"/g, '""'),
+        c.crimeType,
+        c.scamType || "N/A",
+        c.priority,
+        c.riskScore,
+        c.status,
+        c.location || "N/A",
+        new Date(c.createdAt).toISOString().replace("T", " ").slice(0, 19)
+      ];
+      return rowData.map(val => `"${val}"`).join(",");
+    }).join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename=complaints_${Date.now()}.csv`);
+
+    // Add UTF-8 BOM for Excel compatibility
+    res.write("\ufeff");
     res.send(header + rows);
-  } catch {
+  } catch (error) {
+    console.error("CSV_EXPORT_ERROR:", error);
     res.status(500).json({ message: "Export failed" });
   }
 });
