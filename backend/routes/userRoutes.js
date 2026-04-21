@@ -90,22 +90,37 @@ router.post("/forgot-password", resetLimiter, validateForgotPassword, handleVali
     const resetUrl = `${process.env.FRONTEND_URL || "https://cyber-crime-fronten.onrender.com"}/reset-password/${token}`;
 
     await sendEmailTo(email, "CyberShield — Reset Your Password",
-      `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px;background:#f5f7fa;">
-        <div style="background:#ffffff;padding:40px;border-radius:8px;border:1px solid #e2e8f0;">
-          <div style="margin-bottom:24px;">
-            <span style="font-size:18px;font-weight:700;color:#1e293b;">CyberShield</span>
-          </div>
-          <h2 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:12px;">Reset your password</h2>
-          <p style="font-size:14px;color:#64748b;line-height:1.6;margin-bottom:24px;">Hi ${user.name},<br/>We received a request to reset your CyberShield password. Click the button below to choose a new one.</p>
-          <div style="margin-bottom:24px;">
-            <a href="${resetUrl}" style="display:inline-block;background:#1e293b;color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Reset Password</a>
-          </div>
-          <p style="font-size:12px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:20px;line-height:1.6;">
-            This link expires in 60 minutes. If you did not request a password reset, you can safely ignore this email.<br/>
-            &copy; 2026 CyberShield
-          </p>
-        </div>
-      </div>`
+      `<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f7fa; font-family: sans-serif;">
+        <tr>
+          <td align="center" style="padding: 40px 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+              <tr>
+                <td style="padding: 40px;">
+                  <div style="margin-bottom: 32px; text-align: center;">
+                    <span style="font-size: 24px; font-weight: bold; letter-spacing: -0.5px;">
+                      <span style="color: #0f172a;">Cyber</span><span style="color: #2563eb;">Shield</span>
+                    </span>
+                  </div>
+                  <h1 style="font-size: 20px; font-weight: bold; color: #0f172a; margin: 0 0 16px 0; text-align: center;">Reset Your Password</h1>
+                  <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">Hi ${user.name},</p>
+                  <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 32px 0;">We received a request to reset your password. Click the button below to reset it.</p>
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <a href="${resetUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 15px;">Reset Password</a>
+                  </div>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                    <tr>
+                      <td align="center">
+                        <p style="font-size: 13px; color: #94a3b8; margin: 0;">If you did not request this, ignore this email.</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 24px;">&copy; 2026 CyberShield. Secure digital future.</p>
+          </td>
+        </tr>
+      </table>`
     );
 
     res.json({ success: true, message: "If that email exists, a reset link has been sent." });

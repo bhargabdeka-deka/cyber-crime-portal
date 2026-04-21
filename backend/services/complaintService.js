@@ -93,17 +93,39 @@ const updateComplaintStatusService = async (id, status) => {
     sendEmailTo(
       complaint.user.email,
       `CyberShield: Your complaint ${complaint.caseId} is now ${status}`,
-      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;background:#0f172a;color:white;border-radius:12px">
-        <h2 style="color:#60a5fa">⚔️ CyberShield Update</h2>
-        <p>Hi ${complaint.user.name},</p>
-        <p>Your complaint status has been updated:</p>
-        <div style="background:#1e293b;padding:16px;border-radius:8px;margin:16px 0">
-          <p><strong>Case ID:</strong> ${complaint.caseId}</p>
-          <p><strong>Title:</strong> ${complaint.title}</p>
-          <p><strong>New Status:</strong> ${statusEmoji[status] || ""} <strong style="color:#60a5fa">${status}</strong></p>
-        </div>
-        <p style="color:#94a3b8;font-size:13px">Log in to CyberShield to view full details.</p>
-      </div>`
+      `<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f7fa; font-family: sans-serif;">
+        <tr>
+          <td align="center" style="padding: 40px 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+              <tr>
+                <td style="padding: 40px;">
+                  <div style="margin-bottom: 32px; text-align: center;">
+                    <span style="font-size: 24px; font-weight: bold; letter-spacing: -0.5px;">
+                      <span style="color: #0f172a;">Cyber</span><span style="color: #2563eb;">Shield</span>
+                    </span>
+                  </div>
+                  <h1 style="font-size: 20px; font-weight: bold; color: #0f172a; margin: 0 0 16px 0; text-align: center;">Complaint Update</h1>
+                  <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">Hi ${complaint.user.name},</p>
+                  <p style="font-size: 15px; color: #475569; line-height: 1.6; margin: 0 0 24px 0;">Your complaint status has been updated:</p>
+                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin-bottom: 24px;">
+                    <p style="font-size: 14px; color: #64748b; margin: 0 0 8px 0;"><strong>Case ID:</strong> <span style="color: #0f172a;">${complaint.caseId}</span></p>
+                    <p style="font-size: 14px; color: #64748b; margin: 0 0 8px 0;"><strong>Title:</strong> <span style="color: #0f172a;">${complaint.title}</span></p>
+                    <p style="font-size: 14px; color: #64748b; margin: 0;"><strong>Status:</strong> <span style="color: #2563eb; font-weight: bold;">${status}</span></p>
+                  </div>
+                  <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin: 0 0 24px 0; text-align: center;">Log in to your dashboard to view full details.</p>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                    <tr>
+                      <td align="center">
+                        <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; 2026 CyberShield. Secure digital future.</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>`
     ).catch(() => {});
   }
 
