@@ -1,149 +1,150 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import API from "../../services/api";
-import { Lock, Eye, EyeOff, CheckCircle, ChevronRight, ArrowLeft } from "lucide-react";
-import { useScrollDirection } from "../../hooks/useScrollDirection";
+import Logo from "../../components/Logo";
+import { Lock, Eye, EyeOff, CheckCircle, AlertTriangle, ArrowLeft } from "lucide-react";
 
 export default function ResetPassword() {
   const { token } = useParams();
-  const [password, setPassword]   = useState("");
-  const [confirm, setConfirm]     = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [done, setDone]           = useState(false);
-  const [error, setError]         = useState("");
-  const [showPass, setShowPass]   = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm]   = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [done, setDone]         = useState(false);
+  const [error, setError]       = useState("");
+  const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
-  const isVisible = useScrollDirection();
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
-  const strengthColors = ["bg-slate-100", "bg-rose-400", "bg-amber-400", "bg-emerald-400"];
-  const strengthLabels = ["NONE", "WEAK", "SECURE", "ENCRYPTED"];
+  const strengthColor = ["bg-slate-100", "bg-red-500", "bg-orange-400", "bg-emerald-500"][strength];
+  const strengthLabel = ["", "Weak", "Fair", "Strong"][strength];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirm) { setError("Passwords do not match"); return; }
-    if (password.length < 6)  { setError("Password too short (min. 6)"); return; }
+    if (password !== confirm) { setError("Passwords do not match."); return; }
+    if (password.length < 6)  { setError("Password must be at least 6 characters."); return; }
     setLoading(true); setError("");
     try {
       await API.post(`/users/reset-password/${token}`, { password });
       setDone(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Link authentication failed");
+      setError(err.response?.data?.message || "Reset link is invalid or expired.");
     } finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen bg-[#E0F4FF] font-sans flex items-center justify-center p-6 relative overflow-hidden flex-col">
-      {/* Identity Bar */}
-      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 fixed top-0 w-full z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-        <span>CyberShield Global Network</span>
-        <span className="opacity-30">·</span>
-        <span className="text-emerald-400 font-medium">Secure Session Active</span>
+    <div className="min-h-screen bg-[#f5f7fa] flex flex-col items-center justify-center p-4 font-sans">
+
+      {/* Top Bar */}
+      <div className="w-full max-w-sm mb-6 flex items-center gap-3">
+        <Logo size={30} fontSize={14} />
       </div>
 
-      {/* Floating Return Button */}
-      <button 
-        onClick={() => navigate("/login")} 
-        className={`fixed top-20 left-8 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all bg-white/50 backdrop-blur-md px-6 py-3 rounded-full shadow-sm border border-white tracking-wide z-50 ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0 pointer-events-none'}`}
-      >
-        <ArrowLeft size={16} /> Go Back
-      </button>
+      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-lg shadow-sm p-8">
 
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-soft-teal/10 rounded-full blur-[100px]" />
-
-      <div className="w-full max-w-md bg-white p-10 md:p-14 rounded-[3.5rem] shadow-soft border border-white animate-in zoom-in-95 duration-700 relative z-10">
         {done ? (
-          <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="w-20 h-20 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mx-auto mb-8 shadow-lg">
-              <CheckCircle size={40} />
+          /* Success State */
+          <div className="text-center py-4">
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle size={24} className="text-emerald-600" />
             </div>
-            <h2 className="text-3xl font-black font-brand text-slate-900 tracking-tighter leading-none mb-4">Reset Successful</h2>
-            <p className="text-sm font-medium text-slate-500 tracking-wide mb-10">Your node credentials have been updated and synchronized across the network.</p>
-            <button 
-              onClick={() => navigate("/login")} 
-              className="w-full bg-slate-900 text-white px-10 py-5 rounded-full text-xs font-bold tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all uppercase"
+            <h2 className="text-lg font-bold text-slate-900 mb-2">Password updated</h2>
+            <p className="text-sm text-slate-500 mb-6">
+              Your password has been reset successfully. You can now sign in with your new password.
+            </p>
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full bg-slate-900 text-white py-2.5 rounded-md text-sm font-semibold hover:bg-slate-700 transition"
             >
-              Authenticate Now
+              Sign In
             </button>
           </div>
         ) : (
           <>
-            <div className="text-center mb-10">
-              <div className="w-16 h-16 bg-soft-blue/20 rounded-[1.5rem] flex items-center justify-center text-soft-teal mx-auto mb-6 shadow-sm">
-                <Lock size={28} />
-              </div>
-              <h2 className="text-3xl font-black font-brand text-slate-900 tracking-tighter leading-none mb-3">Set Protocol</h2>
-              <p className="text-sm font-medium text-slate-500 tracking-wide max-w-[280px] mx-auto uppercase">Provide new administrative credentials for network node access.</p>
-            </div>
+            <h1 className="text-xl font-bold text-slate-900 mb-1">Set new password</h1>
+            <p className="text-sm text-slate-500 mb-6">
+              Choose a strong password for your account.
+            </p>
 
             {error && (
-              <div className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-[2rem] text-xs font-bold tracking-wide mb-8 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0">⚠️</div>
-                {error}
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm flex items-center gap-2">
+                <AlertTriangle size={15} className="shrink-0" /> {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] px-5 block">New Encryption Key</label>
-                <div className="relative group">
-                  <input 
-                    type={showPass ? "text" : "password"} 
-                    value={password} 
-                    onChange={e => setPassword(e.target.value)} 
-                    placeholder="Min. 6 characters" 
-                    required 
-                    className="w-full bg-slate-50 px-8 py-5 rounded-full text-sm font-semibold tracking-wide outline-none border border-transparent focus:border-soft-teal/20 focus:bg-white transition-all shadow-inner"
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* New Password */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">New password</label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type={showPass ? "text" : "password"}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Min. 6 characters"
+                    required
+                    className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setShowPass(!showPass)}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-soft-teal transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
-                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
+
+                {/* Password strength */}
                 {password.length > 0 && (
-                  <div className="px-5">
-                     <div className="flex gap-2 mb-2">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${i <= strength ? strengthColors[strength] : "bg-slate-100"}`} />
-                        ))}
-                     </div>
-                     <div className="flex justify-between items-center">
-                        <span className={`text-[9px] font-bold uppercase tracking-widest ${strengthColors[strength].replace('bg-', 'text-')}`}>
-                          Strength: {strengthLabels[strength]}
-                        </span>
-                        <span className="text-[9px] font-medium text-slate-400">Encrypted Protocol</span>
-                     </div>
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= strength ? strengthColor : "bg-slate-100"}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-slate-400">{strengthLabel}</p>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] px-5 block">Confirm Protocol</label>
-                <input 
-                  type="password" 
-                  value={confirm} 
-                  onChange={e => setConfirm(e.target.value)} 
-                  placeholder="Repeat encryption key" 
-                  required 
-                  className={`w-full bg-slate-50 px-8 py-5 rounded-full text-sm font-semibold tracking-wide outline-none border transition-all shadow-inner ${confirm && confirm !== password ? "border-rose-200 bg-rose-50/30" : "border-transparent focus:border-soft-teal/20 focus:bg-white"}`}
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
+                <input
+                  type="password"
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  placeholder="Repeat your password"
+                  required
+                  className={`w-full px-3 py-2.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition ${
+                    confirm && confirm !== password
+                      ? "border-red-300 bg-red-50"
+                      : "border-slate-300"
+                  }`}
                 />
+                {confirm && confirm !== password && (
+                  <p className="text-xs text-red-600 mt-1">Passwords do not match.</p>
+                )}
               </div>
 
-              <button 
-                type="submit" 
-                disabled={loading || (confirm && confirm !== password)}
-                className="w-full bg-slate-900 text-white h-20 rounded-full text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-xl hover:bg-soft-teal hover:shadow-soft-teal/30 active:scale-95 transition-all disabled:opacity-30 mt-4"
+              <button
+                type="submit"
+                disabled={loading || (!!confirm && confirm !== password)}
+                className="w-full bg-slate-900 text-white py-2.5 rounded-md text-sm font-semibold hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 mt-2"
               >
-                {loading ? (
-                  <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>Finalize Reset <ChevronRight size={18} /></>
-                )}
+                {loading
+                  ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : "Reset Password"
+                }
               </button>
             </form>
+
+            <p className="mt-6 text-center text-sm text-slate-500">
+              <Link to="/login" className="flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 font-medium transition">
+                <ArrowLeft size={13} /> Back to Sign In
+              </Link>
+            </p>
           </>
         )}
       </div>

@@ -19,13 +19,25 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// Global response error handler — log clearly in dev
+// Global response error handler
 API.interceptors.response.use(
   (res) => res,
   (err) => {
     if (process.env.NODE_ENV === "development") {
       console.error("API Error:", err.config?.url, err.response?.status, err.response?.data);
     }
+
+    // Auto-logout on expired / invalid token
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Only redirect if not already on a public page
+      const publicPaths = ["/", "/login", "/register", "/forgot-password"];
+      if (!publicPaths.includes(window.location.pathname)) {
+        window.location.href = "/login";
+      }
+    }
+
     return Promise.reject(err);
   }
 );

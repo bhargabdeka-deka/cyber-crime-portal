@@ -2,39 +2,30 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
-import { 
-  Plus, 
-  ChevronRight, 
-  Search, 
-  X, 
-  LayoutList, 
-  ShieldCheck, 
-  FileText, 
-  Clock, 
-  CheckCircle, 
-  Filter,
-  Download
+import {
+  Plus, ChevronRight, Search, X,
+  FileText, Clock, CheckCircle, Download
 } from "lucide-react";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 const statusMeta = {
-  Pending:       { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", icon: Clock },
-  Investigating: { color: "text-blue-600",bg: "bg-blue-50", border: "border-blue-100", icon: Search },
-  Resolved:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: CheckCircle },
+  Pending:       { color: "text-amber-600",   bg: "bg-amber-50",   border: "border-amber-200",   label: "Pending",     icon: Clock },
+  Investigating: { color: "text-blue-600",    bg: "bg-blue-50",    border: "border-blue-200",    label: "In Progress", icon: Search },
+  Resolved:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", label: "Resolved",    icon: CheckCircle },
 };
 
 const priorityMeta = {
-  Critical: { color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" },
-  High:     { color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
-  Medium:   { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
-  Low:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+  Critical: { color: "text-red-700",    bg: "bg-red-50",    border: "border-red-200" },
+  High:     { color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200" },
+  Medium:   { color: "text-blue-700",   bg: "bg-blue-50",   border: "border-blue-200" },
+  Low:      { color: "text-slate-600",  bg: "bg-slate-50",  border: "border-slate-200" },
 };
 
 const riskMeta = (score) => {
-  if (score >= 80) return { label: "High",   color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" };
-  if (score >= 50) return { label: "Medium", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" };
-  return               { label: "Low",    color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" };
+  if (score >= 80) return { label: "High",   color: "text-red-600" };
+  if (score >= 50) return { label: "Medium", color: "text-orange-600" };
+  return               { label: "Low",    color: "text-emerald-600" };
 };
 
 const buildImageUrl = (path) => {
@@ -47,9 +38,9 @@ const STEPS = ["Pending", "Investigating", "Resolved"];
 
 export default function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
-  const [filter, setFilter] = useState("All");
+  const [loading, setLoading]       = useState(true);
+  const [selected, setSelected]     = useState(null);
+  const [filter, setFilter]         = useState("All");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,11 +62,9 @@ export default function MyComplaints() {
   if (loading) {
     return (
       <UserLayout>
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
-            <p className="mt-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Accessing Incident Database...</p>
-          </div>
+        <div className="min-h-[400px] flex items-center justify-center text-sm text-slate-400">
+          <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-500 rounded-full animate-spin mr-3" />
+          Loading your reports...
         </div>
       </UserLayout>
     );
@@ -83,104 +72,100 @@ export default function MyComplaints() {
 
   return (
     <UserLayout>
-      {/* Header */}
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
-           <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 border border-slate-100 shadow-sm">
-              <LayoutList size={14} /> User Record Archive
-           </div>
-           <h1 className="text-4xl md:text-5xl font-bold font-serif text-slate-900 tracking-tight leading-none">My Reports</h1>
-           <p className="text-sm font-medium font-serif text-slate-500 tracking-wide mt-4">{complaints.length} Records Verified</p>
+          <h1 className="text-xl font-bold text-slate-900">My Reports</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{complaints.length} report{complaints.length !== 1 ? "s" : ""} on record</p>
         </div>
-        <button onClick={() => navigate("/submit-complaint")} className="bg-slate-900 text-white rounded-full text-sm font-semibold tracking-wide px-8 py-4 flex items-center gap-3 hover:shadow-lg hover:bg-soft-teal hover:shadow-soft-teal/40 transition-all">
-           <Plus size={16} /> New Report
+        <button
+          onClick={() => navigate("/submit-complaint")}
+          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition"
+        >
+          <Plus size={15} /> New Report
         </button>
       </div>
 
-      {/* Filter Matrix */}
+      {/* Filter Tabs */}
       {complaints.length > 0 && (
-        <div className="bg-slate-50 p-4 md:p-6 rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 flex flex-wrap items-center gap-2 md:gap-3 mb-8 md:mb-10 shadow-sm">
-           <Filter className="text-slate-600 ml-4 hidden md:block" size={18} />
-           {["All", "Pending", "Investigating", "Resolved"].map(f => {
-             const active = filter === f;
-             return (
-               <button 
-                 key={f} 
-                 onClick={() => setFilter(f)}
-                 className={`flex-grow md:flex-none px-4 md:px-6 py-3 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-widest transition-all ${active ? 'bg-soft-teal text-white shadow-lg' : 'text-slate-600 hover:text-slate-700'}`}
-               >
-                 {f} <span className="opacity-40 ml-1 md:ml-2">[{f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}]</span>
-               </button>
-             );
-           })}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {["All", "Pending", "Investigating", "Resolved"].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                filter === f
+                  ? "bg-slate-900 text-white"
+                  : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400"
+              }`}
+            >
+              {f}
+              <span className="ml-1.5 opacity-60">
+                {f === "All" ? complaints.length : complaints.filter(c => c.status === f).length}
+              </span>
+            </button>
+          ))}
         </div>
       )}
 
-      {/* Content Area */}
+      {/* Content */}
       {complaints.length === 0 ? (
-        <div className="bg-slate-50 rounded-[4rem] py-32 text-center border border-slate-100">
-          <div className="inline-flex w-24 h-24 bg-white rounded-[2rem] items-center justify-center mb-8 shadow-soft">
-             <ShieldCheck className="text-slate-200" size={48} />
-          </div>
-          <h3 className="text-xl font-black text-slate-800 uppercase">Archived Index Empty</h3>
-          <p className="text-sm font-medium text-slate-500 mt-2 uppercase tracking-widest">You have zero recorded incidents.</p>
-          <button onClick={() => navigate("/submit-complaint")} className="mt-10 bg-soft-teal text-white px-10 py-4 rounded-full font-black text-xs tracking-widest hover:scale-105 transition-all">FILE COMPLAINT</button>
+        <div className="bg-white border border-slate-200 rounded-lg py-20 flex flex-col items-center text-slate-400">
+          <FileText size={32} className="mb-3 opacity-30" />
+          <p className="text-sm">No reports filed yet.</p>
+          <button
+            onClick={() => navigate("/submit-complaint")}
+            className="mt-4 text-sm text-slate-700 font-medium hover:underline"
+          >
+            File your first report →
+          </button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-slate-50 rounded-[3rem] py-20 text-center border border-slate-100 font-bold uppercase tracking-widest text-slate-500">
-           No matching logs found.
+        <div className="py-12 text-center text-sm text-slate-400">
+          No reports match the selected filter.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {filtered.map(c => {
             const sm = statusMeta[c.status] || statusMeta.Pending;
             const pm = priorityMeta[c.priority] || priorityMeta.Low;
-            const rm = riskMeta(c.riskScore);
+            const stepIdx = STEPS.indexOf(c.status);
             return (
-              <div 
-                key={c._id} 
+              <div
+                key={c._id}
                 onClick={() => openDetails(c._id)}
-                className="bg-white p-8 rounded-[3rem] border border-slate-50 shadow-soft hover:shadow-hover transition-all cursor-pointer group"
+                className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition cursor-pointer group"
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex-grow">
-                    <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-sm font-black text-slate-800 tracking-tight uppercase whitespace-nowrap">{c.caseId.slice(0,12)}...</span>
-                        <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase border ${pm.bg} ${pm.color} ${pm.border}`}>{c.priority}</span>
-                     </div>
-                     <div className="text-base md:text-lg font-black text-slate-900 leading-tight mb-2 group-hover:text-soft-teal transition-colors uppercase tracking-tight">{c.title}</div>
-                     <div className="text-[10px] md:text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-widest">
-                        <span>{c.crimeType}</span>
-                        <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                        <span>{new Date(c.createdAt).toLocaleDateString()}</span>
-                     </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                    <div className={`px-3 md:px-4 py-2 rounded-full text-[9px] md:text-xs font-black uppercase ${rm.color} ${rm.bg} border ${rm.border}`}>
-                       Risk: {c.riskScore}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-grow min-w-0">
+                    {/* Case header */}
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="text-xs font-mono text-slate-400">{c.caseId?.slice(0, 14)}...</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${pm.bg} ${pm.color} ${pm.border}`}>
+                        {c.priority}
+                      </span>
+                      <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border ${sm.bg} ${sm.color} ${sm.border}`}>
+                        <sm.icon size={10} /> {sm.label}
+                      </span>
                     </div>
-                    <div className={`px-3 md:px-4 py-2 rounded-full text-[9px] md:text-xs font-black uppercase ${sm.color} ${sm.bg} border ${sm.border} flex items-center gap-2`}>
-                       <sm.icon size={12} className="md:w-[14px] md:h-[14px]" /> {c.status}
-                    </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-soft-teal/10 group-hover:text-soft-teal transition-all shrink-0">
-                       <ChevronRight size={20} />
+                    <div className="text-sm font-semibold text-slate-800 truncate">{c.title}</div>
+                    <div className="text-xs text-slate-400 mt-0.5">
+                      {c.crimeType} · {new Date(c.createdAt).toLocaleDateString()}
                     </div>
                   </div>
+                  <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-600 shrink-0 mt-1 transition" />
                 </div>
 
-                {/* Tracking Bar */}
-                <div className="mt-8 flex items-center gap-2">
-                   {STEPS.map((step, i) => {
-                     const stepIdx = STEPS.indexOf(c.status);
-                     const done = i <= stepIdx;
-                     const current = i === stepIdx;
-                     return (
-                       <div key={step} className="flex-grow h-2 rounded-full relative bg-slate-50 overflow-hidden">
-                          <div className={`absolute inset-0 transition-all duration-1000 ${done ? sm.bg.replace('bg-', 'bg-') : 'bg-transparent'} ${done ? (current ? 'brightness-100' : 'brightness-90 opacity-40') : ''} ${current ? sm.bg.replace('bg-', 'bg-').replace('50', '500') : ''}`} style={{ width: done ? '100%' : '0%' }} />
-                       </div>
-                     );
-                   })}
+                {/* Progress bar */}
+                <div className="flex gap-1 mt-3">
+                  {STEPS.map((step, i) => (
+                    <div
+                      key={step}
+                      className={`flex-1 h-1 rounded-full transition-all ${
+                        i <= stepIdx ? sm.color.replace("text-", "bg-") : "bg-slate-100"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             );
@@ -188,101 +173,119 @@ export default function MyComplaints() {
         </div>
       )}
 
-      {/* DETAIL MODAL */}
+      {/* Detail Modal */}
       {selected && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-slate-900/10 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setSelected(null)}>
-          <div className="w-full max-w-4xl bg-white shadow-hover p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border border-white flex flex-col max-h-[90vh] relative animate-in zoom-in-95 duration-500" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelected(null)} className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-slate-600 rounded-full flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
-               <X size={20} />
-            </button>
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="w-full max-w-2xl bg-white rounded-lg shadow-xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div>
+                <h2 className="font-semibold text-slate-900">{selected.title}</h2>
+                <p className="text-xs font-mono text-slate-400 mt-0.5">{selected.caseId}</p>
+              </div>
+              <button onClick={() => setSelected(null)} className="p-2 rounded-md text-slate-400 hover:bg-slate-100 transition">
+                <X size={18} />
+              </button>
+            </div>
 
-            <div className="flex-grow overflow-y-auto p-4 md:p-6 pt-16 md:pt-20 text-slate-900">
-               <div className="mb-12">
-                  <div className="flex items-center gap-4 mb-6">
-                     <div className="w-14 h-14 bg-soft-teal rounded-2xl flex items-center justify-center text-white shadow-lg">
-                        <FileText size={28} />
-                     </div>
-                     <div>
-                        <h3 className="text-2xl font-bold tracking-tight text-slate-900">{selected.caseId}</h3>
-                        <p className="text-xs font-medium text-slate-500 mt-2">Case Entry Document</p>
-                     </div>
+            {/* Modal Body */}
+            <div className="overflow-y-auto p-6 space-y-5">
+
+              {/* Status & Priority */}
+              <div className="flex flex-wrap gap-2">
+                {(() => {
+                  const sm = statusMeta[selected.status] || statusMeta.Pending;
+                  const pm = priorityMeta[selected.priority] || priorityMeta.Low;
+                  return (
+                    <>
+                      <span className={`px-3 py-1 rounded text-xs font-medium border ${sm.bg} ${sm.color} ${sm.border}`}>{sm.label}</span>
+                      <span className={`px-3 py-1 rounded text-xs font-medium border ${pm.bg} ${pm.color} ${pm.border}`}>{selected.priority}</span>
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* Progress Stepper */}
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Status Progress</p>
+                <div className="flex gap-2">
+                  {STEPS.map((step, i) => {
+                    const stepIdx = STEPS.indexOf(selected.status);
+                    const done = i <= stepIdx;
+                    return (
+                      <div
+                        key={step}
+                        className={`flex-1 py-2 rounded-md text-xs font-medium text-center border transition ${
+                          done
+                            ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-400 border-slate-200"
+                        }`}
+                      >
+                        {step}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Details grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Crime Type</p>
+                  <p className="text-sm text-slate-800">{selected.crimeType}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Risk Score</p>
+                  <p className={`text-lg font-bold ${riskMeta(selected.riskScore).color}`}>{selected.riskScore}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Filed On</p>
+                  <p className="text-sm text-slate-700">
+                    {new Date(selected.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                {selected.location && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Location</p>
+                    <p className="text-sm text-slate-700">{selected.location}</p>
                   </div>
-                  <div className="h-1 w-20 bg-soft-teal/20 rounded-full" />
-               </div>
+                )}
+              </div>
 
-               <div className="grid md:grid-cols-2 gap-10 md:gap-16">
-                  <div className="space-y-8 md:space-y-12">
-                      <section>
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Case Overview</h4>
-                        <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-white">
-                           <div className="text-xl font-bold text-slate-900 mb-4 leading-tight">{selected.title}</div>
-                           <div className="flex gap-2 flex-wrap">
-                              <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold ${statusMeta[selected.status].bg} ${statusMeta[selected.status].color} border ${statusMeta[selected.status].border}`}>
-                                 {selected.status}
-                              </span>
-                              <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold ${priorityMeta[selected.priority].bg} ${priorityMeta[selected.priority].color} border ${priorityMeta[selected.priority].border}`}>
-                                 {selected.priority}
-                              </span>
-                           </div>
-                        </div>
-                     </section>
+              {/* Description */}
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Description</p>
+                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-md border border-slate-100">
+                  {selected.description}
+                </p>
+              </div>
 
-                     <section>
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Detailed Description</h4>
-                        <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-50 text-base font-medium leading-relaxed text-slate-700 shadow-sm">
-                           "{selected.description}"
-                        </div>
-                     </section>
-                  </div>
-
-                  <div className="space-y-12">
-                     <section>
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Status Progress</h4>
-                        <div className="flex gap-2 p-2 bg-slate-50 rounded-full border border-white">
-                          {STEPS.map((step, i) => {
-                            const stepIdx = STEPS.indexOf(selected.status);
-                            const done = i <= stepIdx;
-                            return (
-                              <div key={step} className={`flex-grow h-12 rounded-full flex items-center justify-center transition-all ${done ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 font-semibold'}`}>
-                                 <span className="text-[10px] font-bold uppercase tracking-wide">{step}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                     </section>
-
-                     {selected.evidence && (
-                       <section>
-                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Evidence Document</h4>
-                          <div className="relative group rounded-[3rem] overflow-hidden shadow-soft border-4 border-white">
-                             <img src={buildImageUrl(selected.evidence)} alt="Evidence" className="w-full transition-all duration-700" />
-                             <a 
-                               href={buildImageUrl(selected.evidence)} 
-                               target="_blank" 
-                               rel="noreferrer"
-                               className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-500"
-                             >
-                                <div className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold text-xs uppercase tracking-wide">View Full Size</div>
-                             </a>
-                          </div>
-                          <a href={buildImageUrl(selected.evidence)} download className="mt-6 flex items-center gap-3 text-xs font-bold text-soft-teal tracking-wide hover:underline">
-                             <Download size={14} /> Download Attachment
-                          </a>
-                       </section>
-                     )}
-                     
-                     <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2rem] border border-white">
-                        <div>
-                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Filed Date</div>
-                           <div className="text-sm font-bold text-slate-900">{new Date(selected.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                        </div>
-                        <div className="text-right">
-                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Risk Rating</div>
-                           <div className={`text-2xl font-bold tracking-tight ${riskMeta(selected.riskScore).color}`}>{selected.riskScore}</div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+              {/* Evidence */}
+              {selected.evidence && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Evidence</p>
+                  <a href={buildImageUrl(selected.evidence)} target="_blank" rel="noreferrer">
+                    <img
+                      src={buildImageUrl(selected.evidence)}
+                      alt="Evidence"
+                      className="w-full rounded-md border border-slate-200 hover:opacity-90 transition"
+                    />
+                  </a>
+                  <a
+                    href={buildImageUrl(selected.evidence)}
+                    download
+                    className="mt-2 inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 font-medium transition"
+                  >
+                    <Download size={13} /> Download attachment
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>

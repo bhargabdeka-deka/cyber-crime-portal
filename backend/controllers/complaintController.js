@@ -8,56 +8,56 @@ const {
 } = require("../services/complaintService");
 
 // ================= CREATE =================
-const createComplaint = async (req, res) => {
+const createComplaint = async (req, res, next) => {
   try {
     const { title, description, scamType, scamTarget, location } = req.body;
     const complaint = await createComplaintService(
       req.user.id, title, description, req.file,
       { scamType, scamTarget, location }
     );
-    res.status(201).json(complaint);
+    res.status(201).json({ success: true, complaint });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
 
 // ================= USER COMPLAINTS =================
-const getUserComplaints = async (req, res) => {
+const getUserComplaints = async (req, res, next) => {
   try {
     const complaints = await getUserComplaintsService(req.user.id);
-    res.status(200).json(complaints);
+    res.status(200).json({ success: true, complaints });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
 
 // ================= ADMIN: FILTER + PAGINATION =================
-const getAllComplaints = async (req, res) => {
+const getAllComplaints = async (req, res, next) => {
   try {
     const data = await getAllComplaintsService(req.query);
-    res.status(200).json(data);
+    res.status(200).json({ success: true, ...data });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
 
 // ================= UPDATE STATUS =================
-const updateComplaintStatus = async (req, res) => {
+const updateComplaintStatus = async (req, res, next) => {
   try {
     const complaint = await updateComplaintStatusService(req.params.id, req.body.status);
-    res.status(200).json({ message: "Status updated", complaint });
+    res.status(200).json({ success: true, message: "Status updated", complaint });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    next(error);
   }
 };
 
 // ================= DASHBOARD STATS =================
-const getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res, next) => {
   try {
     const stats = await getDashboardStatsService();
-    res.status(200).json(stats);
+    res.status(200).json({ success: true, stats });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
 
@@ -65,7 +65,7 @@ const getDashboardStats = async (req, res) => {
 const getAnalytics = async (req, res, next) => {
   try {
     const analytics = await getAnalyticsService();
-    res.status(200).json(analytics);
+    res.status(200).json({ success: true, analytics });
   } catch (error) {
     next(error);
   }

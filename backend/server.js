@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 const userRoutes      = require("./routes/userRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const scamRoutes      = require("./routes/scamRoutes");
+const adminRoutes     = require("./routes/adminRoutes");
 const errorHandler    = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -60,6 +61,10 @@ app.use(express.urlencoded({ extended: true }));
 const mongoSanitize = require("express-mongo-sanitize");
 app.use(mongoSanitize());
 
+// Prevent HTTP Parameter Pollution
+const hpp = require("hpp");
+app.use(hpp());
+
 // Handle malformed JSON gracefully
 app.use((err, req, res, next) => {
   if (err.type === "entity.parse.failed") {
@@ -75,6 +80,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/users",      userRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/scam",       scamRoutes);
+app.use("/api/admin",      adminRoutes);
 
 // ================= Serve React Frontend (Production) =================
 // Render runs from repo root, so path is relative to backend folder

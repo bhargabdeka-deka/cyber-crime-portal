@@ -13,21 +13,21 @@ const storage = new CloudinaryStorage({
 
 const fileFilter = (req, file, cb) => {
   const allowed = [
-    "image/jpeg", "image/jpg", "image/png", "image/webp",
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
     "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ];
   if (allowed.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only images (JPG/PNG/WEBP), PDF, and DOC files are allowed"));
+    cb(new Error("Only PNG, JPG, and PDF files are allowed."));
   }
 };
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter,
 });
 

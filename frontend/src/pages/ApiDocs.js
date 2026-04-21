@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ShieldCheck, FileCode, ArrowLeft, ChevronRight, Globe, Lock, Terminal, Zap } from "lucide-react";
 import { useScrollDirection } from "../hooks/useScrollDirection";
 import Footer from "../components/Footer";
+import Logo from "../components/Logo";
 
 const BASE = "https://cyber-crime-portal-2.onrender.com";
 
@@ -67,13 +68,8 @@ export default function ApiDocs() {
       {/* Header Navigation */}
       <header className={`px-4 md:px-6 py-4 md:py-6 sticky top-[37px] z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
         <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
-              <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
-            </div>
-            <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
-              CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
-            </span>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+            <Logo size={30} fontSize={14} />
           </div>
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all tracking-wide">
            <ArrowLeft size={16} /> Go Back

@@ -1,21 +1,39 @@
 const { body, validationResult } = require("express-validator");
 
-// Complaint validation rules
+// Complaint validation rules (title + description + location)
 const validateComplaint = [
   body("title")
     .trim()
     .notEmpty()
     .withMessage("Title is required")
-    .isLength({ min: 5 })
-    .withMessage("Title must be at least 5 characters"),
+    .isLength({ min: 5, max: 100 })
+    .withMessage("Title must be between 5 and 100 characters")
+    .escape(),
 
   body("description")
     .trim()
     .notEmpty()
     .withMessage("Description is required")
-    .isLength({ min: 10 })
-    .withMessage("Description must be at least 10 characters")
+    .isLength({ min: 10, max: 1000 })
+    .withMessage("Description must be between 10 and 1000 characters")
+    .escape(),
+
+  body("location")
+    .trim()
+    .notEmpty()
+    .withMessage("Location is required")
+    .isLength({ max: 200 })
+    .withMessage("Location is too long")
+    .escape(),
 ];
+
+// Middleware: reject if no evidence file was uploaded
+const evidenceRequired = (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "Evidence file is required." });
+  }
+  next();
+};
 
 // Status update validation
 const validateStatusUpdate = [
@@ -29,19 +47,19 @@ const validateStatusUpdate = [
 // Validation result handler
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
+      message: errors.array()[0].msg,   // surface first error cleanly
       errors: errors.array()
     });
   }
-
   next();
 };
 
 module.exports = {
   validateComplaint,
+  evidenceRequired,
   validateStatusUpdate,
   handleValidationErrors
 };

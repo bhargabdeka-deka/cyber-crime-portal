@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../../services/api";
-import { ShieldCheck, User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertTriangle } from "lucide-react";
+import Logo from "../../components/Logo";
+import { User, Mail, Lock, Eye, EyeOff, CheckCircle, AlertTriangle } from "lucide-react";
 
 export default function UserRegister() {
-  const [formData, setFormData] = useState({ name:"", email:"", password:"" });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [error, setError]       = useState("");
+  const [success, setSuccess]   = useState("");
+  const [loading, setLoading]   = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
@@ -16,155 +17,128 @@ export default function UserRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); setSuccess("");
-    if (formData.password.length < 6) { setError("MINIMUM_SECURITY: 6 CHARACTERS REQUIRED"); return; }
+    if (formData.password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setLoading(true);
     try {
       await API.post("/users/register", formData);
-      setSuccess("IDENTITY CREATED. INITIALIZING REDIRECT...");
+      setSuccess("Account created. Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "REGISTRATION_FAILURE: SYSTEM_DENIED");
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally { setLoading(false); }
   };
 
   const strength = formData.password.length === 0 ? 0 : formData.password.length < 6 ? 1 : formData.password.length < 10 ? 2 : 3;
-  const strengthColor = ["bg-slate-100", "bg-rose-500", "bg-orange-500", "bg-emerald-500"][strength];
+  const strengthColor = ["bg-slate-100", "bg-red-500", "bg-orange-400", "bg-emerald-500"][strength];
 
   return (
-    <div className="min-h-screen flex flex-col bg-soft-blue">
-      {/* Identity Bar */}
-      <div className="bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 fixed top-0 w-full z-50">
-        <span>CyberShield Global Network</span>
-        <span className="opacity-30">·</span>
-        <span className="text-emerald-400 font-medium">Secure Session Active</span>
+    <div className="min-h-screen bg-[#f5f7fa] flex flex-col items-center justify-center p-4 font-sans">
+
+      {/* Top Bar */}
+      <div className="w-full max-w-sm mb-6 flex items-center gap-3">
+        <Logo size={30} fontSize={14} />
       </div>
 
-      <div className="flex-grow flex items-center justify-center p-4 md:p-6 pt-16 md:pt-12">
-        <div className="w-full max-w-4xl bg-white border border-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-soft flex flex-col md:flex-row gap-10 md:gap-16">
-          
-          {/* Left Summary */}
-          <div className="md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-50 pb-16 md:pb-0 md:pr-16">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-black rounded-full shadow-soft mb-8 text-white rotate-6 overflow-hidden border border-slate-50">
-              <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
-            </div>
-            <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none mb-6">
-              Establish Your <span className="text-soft-teal">Network Identity</span>
-            </h1>
-            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest leading-relaxed mb-10">
-              Join India's most advanced community-driven cyber defense portal. Secure. Anonymous. Real-time.
-            </p>
-            
-            <div className="space-y-6">
-               {[
-                 { l: "Global Threat Intelligence", s: "Access real-time scam database" },
-                 { l: "AI Incident Analysis", s: "Instant diagnostic on your reports" },
-                 { l: "Secure Case Logging", s: "Track incidents from filing to resolution" }
-               ].map((item, i) => (
-                 <div key={i} className="flex gap-4">
-                    <div className="w-6 h-6 rounded-full bg-soft-blue flex items-center justify-center text-soft-teal shrink-0">
-                       <CheckCircle size={14} />
-                    </div>
-                    <div>
-                       <div className="text-[10px] font-black uppercase text-slate-800 tracking-widest">{item.l}</div>
-                       <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">{item.s}</div>
-                    </div>
-                 </div>
-               ))}
+      {/* Register Card */}
+      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-lg shadow-sm p-8">
+
+        <h1 className="text-xl font-bold text-slate-900 mb-1">Create an account</h1>
+        <p className="text-sm text-slate-500 mb-6">Join to report and track cyber crime incidents.</p>
+
+        {/* Feedback */}
+        {(error || success) && (
+          <div className={`mb-5 p-3 rounded-md border flex items-start gap-2 text-sm ${
+            error
+              ? "bg-red-50 border-red-200 text-red-700"
+              : "bg-emerald-50 border-emerald-200 text-emerald-700"
+          }`}>
+            {error ? <AlertTriangle size={15} className="shrink-0 mt-0.5" /> : <CheckCircle size={15} className="shrink-0 mt-0.5" />}
+            <span>{error || success}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+            <div className="relative">
+              <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                name="name" type="text" required
+                value={formData.name} onChange={handleChange}
+                placeholder="John Doe"
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+              />
             </div>
           </div>
 
-          {/* Right Form */}
-          <div className="md:w-1/2 flex flex-col justify-center">
-            <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tighter">Create Access Node</h2>
-            
-            {(error || success) && (
-              <div className={`mb-8 p-6 rounded-3xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${error ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
-                {error ? <AlertTriangle size={18} /> : <CheckCircle size={18} />}
-                <p className="text-[10px] font-black uppercase tracking-widest">{error || success}</p>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email address</label>
+            <div className="relative">
+              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                name="email" type="email" required
+                value={formData.email} onChange={handleChange}
+                placeholder="you@example.com"
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <div className="relative">
+              <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                name="password" type={showPass ? "text" : "password"} required
+                value={formData.password} onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+
+            {/* Password Strength */}
+            {formData.password.length > 0 && (
+              <div className="flex gap-1 mt-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= strength ? strengthColor : "bg-slate-100"}`} />
+                ))}
               </div>
             )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Full Identity Name</label>
-                <div className="relative group">
-                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
-                  <input 
-                    name="name" 
-                    type="text" 
-                    required 
-                    value={formData.name} 
-                    onChange={handleChange}
-                    placeholder="JOHN DOE"
-                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Communication Address (Email)</label>
-                <div className="relative group">
-                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
-                  <input 
-                    name="email" 
-                    type="email" 
-                    required 
-                    value={formData.email} 
-                    onChange={handleChange}
-                    placeholder="NAME@NETWORK.COM"
-                    className="w-full bg-slate-50 pl-14 pr-6 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Security Protocol Secret (Password)</label>
-                <div className="relative group">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-soft-teal" size={18} />
-                  <input 
-                    name="password" 
-                    type={showPass ? "text" : "password"} 
-                    required 
-                    value={formData.password} 
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="w-full bg-slate-50 pl-14 pr-14 py-4 rounded-full border border-transparent focus:border-soft-teal/20 focus:bg-white focus:outline-none text-xs font-black uppercase tracking-widest transition-all"
-                  />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-soft-teal">
-                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {formData.password.length > 0 && (
-                  <div className="px-6 flex gap-2 mt-3">
-                     {[1,2,3].map(i => (
-                       <div key={i} className={`flex-grow h-1 rounded-full transition-all ${i <= strength ? strengthColor : 'bg-slate-100'}`} />
-                     ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-6">
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full bg-slate-900 text-white h-16 rounded-full font-black text-[10px] tracking-[0.3em] uppercase hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-4 shadow-xl"
-                >
-                  {loading ? "INITIALIZING..." : <>CREATE ACCESS NODE <ArrowRight size={16} /></>}
-                </button>
-              </div>
-
-              <div className="pt-8 text-center border-t border-slate-50">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Already part of the network? <Link to="/login" className="text-soft-teal hover:underline ml-2">Login Here</Link>
-                 </p>
-              </div>
-            </form>
           </div>
-        </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-slate-900 text-white py-2.5 rounded-md text-sm font-semibold hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 mt-2"
+          >
+            {loading
+              ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              : "Create Account"
+            }
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Already have an account?{" "}
+          <Link to="/login" className="text-slate-800 font-semibold hover:underline">Sign in</Link>
+        </p>
       </div>
-      
-      <div className="text-center py-10">
-         <Link to="/" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">← RETURN TO SYSTEM GATEWAY</Link>
+
+      {/* Footer */}
+      <div className="mt-6">
+        <Link to="/" className="text-xs text-slate-400 hover:text-slate-600 transition">
+          ← Back to Home
+        </Link>
       </div>
     </div>
   );

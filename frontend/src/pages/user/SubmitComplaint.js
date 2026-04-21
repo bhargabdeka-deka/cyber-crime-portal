@@ -3,44 +3,36 @@ import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import UserLayout from "../../layouts/UserLayout";
 import analyzeComplaint from "../../utils/riskAnalyzer";
-import { 
-  ShieldCheck, 
-  AlertTriangle, 
-  Info, 
-  Paperclip, 
-  Plus, 
-  ChevronRight, 
-  Zap,
-  Activity,
-  CheckCircle,
-  Clock,
-  Search,
-  MapPin,
-  FileText
+import {
+  AlertTriangle, Info, Paperclip, CheckCircle, MapPin
 } from "lucide-react";
 
 const SCAM_TYPES = [
-  "UPI Fraud","Phishing","Job Scam","Lottery Scam",
-  "Romance Scam","Investment Scam","Identity Theft",
-  "Account Hacking","Cyber Harassment","Other"
+  "UPI Fraud", "Phishing", "Job Scam", "Lottery Scam",
+  "Romance Scam", "Investment Scam", "Identity Theft",
+  "Account Hacking", "Cyber Harassment", "Other"
 ];
 
 const priorityMeta = {
-  Critical: { color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100", icon: AlertTriangle },
-  High:     { color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100", icon: AlertTriangle },
-  Medium:   { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", icon: Info },
-  Low:      { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: CheckCircle },
+  Critical: { color: "text-red-700",    bg: "bg-red-50",    border: "border-red-200",    icon: AlertTriangle },
+  High:     { color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200", icon: AlertTriangle },
+  Medium:   { color: "text-blue-700",   bg: "bg-blue-50",   border: "border-blue-200",   icon: Info },
+  Low:      { color: "text-emerald-700",bg: "bg-emerald-50",border: "border-emerald-200",icon: CheckCircle },
 };
+
+const ALLOWED_MIME = ["image/png", "image/jpeg", "application/pdf"];
+const ALLOWED_EXT  = ".png, .jpg, .jpeg, .pdf";
 
 export default function SubmitComplaint() {
   const [formData, setFormData] = useState({
     title: "", description: "", scamType: "", scamTarget: "", location: "", evidence: null
   });
-  const [analysis, setAnalysis] = useState(null);
-  const [status, setStatus] = useState({ type: "", msg: "" });
-  const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState("");
+  const [analysis, setAnalysis]   = useState(null);
+  const [status, setStatus]       = useState({ type: "", msg: "" });
+  const [loading, setLoading]     = useState(false);
+  const [fileName, setFileName]   = useState("");
   const [scamIntel, setScamIntel] = useState(null);
+  const [errors, setErrors]       = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,13 +44,33 @@ export default function SubmitComplaint() {
   const handleChange = (e) => {
     if (e.target.name === "evidence") {
       const file = e.target.files[0];
-      setFormData({ ...formData, evidence: file });
+      if (file && !ALLOWED_MIME.includes(file.type)) {
+        setErrors(prev => ({ ...prev, evidence: `Invalid file type. Allowed: ${ALLOWED_EXT}` }));
+        e.target.value = ""; // reset input
+        return;
+      }
+      setErrors(prev => ({ ...prev, evidence: "" }));
+      setFormData({ ...formData, evidence: file || null });
       setFileName(file ? file.name : "");
-    } else setFormData({ ...formData, [e.target.name]: e.target.value });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+      if (e.target.value.trim()) setErrors(prev => ({ ...prev, [e.target.name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.title.trim())       newErrors.title       = "Title is required.";
+    if (!formData.description.trim()) newErrors.description = "Description is required.";
+    if (!formData.location.trim())    newErrors.location    = "Location is required.";
+    if (!formData.evidence)           newErrors.evidence    = "Evidence file is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;          // stop if validation fails
     setStatus({ type: "", msg: "" });
     setLoading(true);
     try {
@@ -79,10 +91,10 @@ export default function SubmitComplaint() {
         } catch {}
       }
 
-      setStatus({ type: "success", msg: "INCIDENT RECORDED SUCCESSFULLY" });
+      setStatus({ type: "success", msg: "Report submitted successfully. Redirecting..." });
       setTimeout(() => navigate("/my-complaints"), 3000);
     } catch (err) {
-      setStatus({ type: "error", msg: err.response?.data?.message || "SYSTEM OVERLOAD: PLEASE RETRY" });
+      setStatus({ type: "error", msg: err.response?.data?.message || "Submission failed. Please try again." });
     } finally { setLoading(false); }
   };
 
@@ -90,166 +102,165 @@ export default function SubmitComplaint() {
 
   return (
     <UserLayout>
-       <div className="max-w-3xl">
-          <div className="mb-12">
-            <div className="inline-flex items-center gap-2 bg-soft-blue px-4 py-1.5 rounded-full text-xs font-semibold text-soft-teal tracking-wide mb-4 border border-slate-100 shadow-sm">
-              <Plus size={14} /> New Incident Report
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold font-serif text-slate-900 tracking-tight leading-none">File Complaint</h1>
-            <p className="text-sm font-medium font-serif text-slate-500 tracking-wide mt-4">Secure log entry powered by AI diagnostics.</p>
+      <div className="max-w-2xl">
+
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-slate-900">File a Report</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Submit a scam or cyber crime report for review.</p>
+        </div>
+
+        {/* Status Banner */}
+        {status.msg && (
+          <div className={`mb-5 p-3 rounded-md border flex items-center gap-3 text-sm ${
+            status.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
+          }`}>
+            {status.type === "success" ? <CheckCircle size={15} /> : <AlertTriangle size={15} />}
+            {status.msg}
+          </div>
+        )}
+
+        {/* Scam Intel Result */}
+        {scamIntel && status.type === "success" && (
+          <div className="mb-5 p-4 bg-slate-900 text-white rounded-lg text-sm">
+            <p className="font-semibold text-slate-200 mb-1">Database Match</p>
+            <p className="text-slate-400 text-xs">
+              {scamIntel.reports > 0
+                ? `This target has ${scamIntel.reports} previous report(s) in our database.`
+                : "No prior reports found. Your report establishes a new record."}
+            </p>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Title <span className="text-red-500">*</span></label>
+            <input
+              name="title" type="text"
+              placeholder="e.g. UPI fraud during online purchase"
+              value={formData.title}
+              onChange={handleChange}
+              className={`w-full px-3 py-2.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition ${errors.title ? "border-red-400" : "border-slate-300"}`}
+            />
+            {errors.title && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertTriangle size={11}/>{errors.title}</p>}
           </div>
 
-          {status.msg && (
-            <div className={`p-6 rounded-[2.5rem] mb-10 flex items-center gap-4 border-2 animate-in fade-in slide-in-from-top-5 ${status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
-               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${status.type === 'success' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
-                  {status.type === 'success' ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
-               </div>
-               <span className="text-[10px] font-black uppercase tracking-widest">{status.msg}</span>
+          {/* Scam Type + Target */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Scam Type</label>
+              <select
+                name="scamType" value={formData.scamType} onChange={handleChange}
+                className="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+              >
+                <option value="">Auto-detect</option>
+                {SCAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Scam Target (ID / URL)</label>
+              <input
+                name="scamTarget" type="text"
+                placeholder="9876543210 or fake-site.com"
+                value={formData.scamTarget}
+                onChange={handleChange}
+                className="w-full px-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+              />
+            </div>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Location <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                name="location" type="text"
+                placeholder="Guwahati, Assam"
+                value={formData.location}
+                onChange={handleChange}
+                className={`w-full pl-9 pr-3 py-2.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition ${errors.location ? "border-red-400" : "border-slate-300"}`}
+              />
+            </div>
+            {errors.location && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertTriangle size={11}/>{errors.location}</p>}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Description <span className="text-red-500">*</span></label>
+            <textarea
+              name="description" rows={5}
+              placeholder="Describe what happened in detail..."
+              value={formData.description}
+              onChange={handleChange}
+              className={`w-full px-3 py-2.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition resize-none ${errors.description ? "border-red-400" : "border-slate-300"}`}
+            />
+            {errors.description && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertTriangle size={11}/>{errors.description}</p>}
+          </div>
+
+          {/* Risk Analysis Preview */}
+          {analysis && meta && (
+            <div className={`p-4 rounded-md border ${meta.bg} ${meta.border}`}>
+              <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${meta.color}`}>
+                Auto-detected Risk Analysis
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <p className="text-[10px] text-slate-500 mb-0.5">Type</p>
+                  <p className="text-xs font-semibold text-slate-800">{analysis.scamType}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 mb-0.5">Priority</p>
+                  <p className={`text-xs font-semibold ${meta.color}`}>{analysis.priority}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 mb-0.5">Risk Score</p>
+                  <p className={`text-sm font-bold ${meta.color}`}>{analysis.riskScore}</p>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Scam Intel Feedback */}
-          {scamIntel && status.type === "success" && (
-            <div className="bg-slate-900 text-white p-8 rounded-[3rem] mb-10 shadow-lg relative overflow-hidden">
-               <div className="relative z-10">
-                  <h4 className="text-sm font-black uppercase tracking-widest text-soft-teal mb-3">Threat Match Detected</h4>
-                  <p className="text-sm font-medium leading-relaxed opacity-80 italic">
-                    {scamIntel.reports > 0 ? `This target has ${scamIntel.reports} previous report(s) in our intelligence database.` : "This is a new pattern entry. Your report helps establish a new node."}
-                  </p>
-               </div>
-               <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-soft-teal/20 rounded-full blur-3xl" />
-            </div>
-          )}
+          {/* Evidence Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Evidence <span className="text-red-500">*</span>
+            </label>
+            <label className={`flex items-center gap-3 border border-dashed rounded-md p-4 cursor-pointer hover:border-slate-500 transition bg-white ${errors.evidence ? "border-red-400" : "border-slate-300"}`}>
+              <Paperclip size={18} className={`shrink-0 ${formData.evidence ? "text-emerald-500" : "text-slate-400"}`} />
+              <div className="text-sm text-slate-600">
+                {fileName
+                  ? <span className="text-emerald-700 font-medium">{fileName}</span>
+                  : "Click to attach a file"
+                }
+                <span className="block text-xs text-slate-400 mt-0.5">PNG, JPG, PDF — max 10MB</span>
+              </div>
+              <input
+                type="file" name="evidence" onChange={handleChange} className="hidden"
+                accept="image/png,image/jpeg,application/pdf"
+              />
+            </label>
+            {errors.evidence && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertTriangle size={11}/>{errors.evidence}</p>}
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-10">
-            <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 space-y-8">
-               {/* Title */}
-               <div>
-                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Identify Case</label>
-                  <input 
-                    name="title" 
-                    type="text" 
-                    placeholder="e.g. UPI fraud during online purchase" 
-                    value={formData.title} 
-                    onChange={handleChange} 
-                    required 
-                    className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 focus:shadow-md outline-none transition-all shadow-sm text-slate-800 placeholder:text-slate-500"
-                  />
-               </div>
-
-               <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Classification</label>
-                    <select 
-                      name="scamType" 
-                      value={formData.scamType} 
-                      onChange={handleChange}
-                      className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none cursor-pointer shadow-sm appearance-none text-slate-800"
-                    >
-                      <option value="">Auto-Detect</option>
-                      {SCAM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Subject Target (ID/URL)</label>
-                    <input 
-                      name="scamTarget" 
-                      type="text" 
-                      placeholder="9876543210 or fake-site.com" 
-                      value={formData.scamTarget} 
-                      onChange={handleChange} 
-                      className="w-full bg-white border border-transparent px-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
-                    />
-                  </div>
-               </div>
-
-               <div>
-                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Operational Location</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input 
-                      name="location" 
-                      type="text" 
-                      placeholder="Guwahati, Assam" 
-                      value={formData.location} 
-                      onChange={handleChange} 
-                      className="w-full bg-white border border-transparent pl-14 pr-8 py-4 rounded-full text-sm font-medium tracking-wide focus:border-soft-teal/30 outline-none shadow-sm text-slate-800 placeholder:text-slate-500"
-                    />
-                  </div>
-               </div>
-
-               <div>
-                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Incident Log Payload</label>
-                  <textarea 
-                    name="description" 
-                    placeholder="Describe the sequence of events in detail..." 
-                    value={formData.description} 
-                    onChange={handleChange} 
-                    required 
-                    rows={6}
-                    className="w-full bg-white border border-transparent px-8 py-6 rounded-[2.5rem] text-sm font-medium leading-relaxed text-slate-800 outline-none focus:border-soft-teal/30 shadow-sm transition-all placeholder:text-slate-500"
-                  />
-               </div>
-
-               {/* AI Intelligence Preview */}
-               {analysis && meta && (
-                 <div className={`${meta.bg} ${meta.border} border-2 rounded-[3rem] p-8 shadow-soft animate-in zoom-in-95`}>
-                    <div className="flex items-center gap-3 mb-6">
-                       <Zap className={meta.color} size={18} />
-                       <span className={`text-[10px] font-black uppercase tracking-widest ${meta.color}`}>AI Diagnostics Preview</span>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                       <div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Threat Type</div>
-                          <div className="text-[11px] font-black text-slate-800 uppercase italic leading-tight">{analysis.scamType}</div>
-                       </div>
-                       <div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Priority</div>
-                          <div className={`text-[11px] font-black uppercase flex items-center gap-1 ${meta.color}`}>
-                             <meta.icon size={12} /> {analysis.priority}
-                          </div>
-                       </div>
-                       <div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Impact</div>
-                          <div className="text-[11px] font-black text-slate-800 uppercase italic">HIGH_MATCH</div>
-                       </div>
-                       <div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Risk Factor</div>
-                          <div className={`text-2xl font-black italic tracking-tighter ${meta.color}`}>{analysis.riskScore}</div>
-                       </div>
-                    </div>
-                 </div>
-               )}
-
-               {/* Evidence Upload */}
-               <div>
-                  <label className="text-xs font-semibold text-slate-700 capitalize tracking-wide mb-3 block px-4">Supporting Evidence</label>
-                  <label className="flex items-center gap-5 bg-white border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] cursor-pointer hover:border-soft-teal transition-all group shadow-sm">
-                     <div className="w-14 h-14 bg-soft-blue rounded-2xl flex items-center justify-center text-soft-teal group-hover:bg-soft-teal group-hover:text-white transition-all shadow-sm">
-                        <Paperclip size={24} />
-                     </div>
-                     <div className="flex-grow">
-                        <div className="text-sm font-semibold text-slate-700 capitalize tracking-wide">{fileName || "Attach Incident Evidence"}</div>
-                        <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">PNG, JPG, PDF (MAX 10MB)</div>
-                     </div>
-                     <input type="file" name="evidence" onChange={handleChange} className="hidden" accept="image/*,.pdf,.doc,.docx" />
-                  </label>
-               </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-slate-900 h-20 rounded-full text-white text-xs font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:brightness-110 active:scale-95 transition-all shadow-xl disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>EXECUTE LOG ENTRY <ChevronRight size={20} /></>
-              )}
-            </button>
-          </form>
-       </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-slate-900 text-white py-3 rounded-md text-sm font-semibold hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+          >
+            {loading
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
+              : "Submit Report"
+            }
+          </button>
+        </form>
+      </div>
     </UserLayout>
   );
 }

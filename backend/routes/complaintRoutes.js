@@ -1,29 +1,27 @@
 const express = require("express");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
-const { validateComplaint, validateStatusUpdate, handleValidationErrors } = require("../validators/complaintValidator");
+const { validateComplaint, validateStatusUpdate, handleValidationErrors, evidenceRequired } = require("../validators/complaintValidator");
 const {
   createComplaint, getUserComplaints, getAllComplaints,
   updateComplaintStatus, getDashboardStats, getAnalytics
 } = require("../controllers/complaintController");
 const upload = require("../middleware/uploadMiddleware");
+const authorizeRoles = require("../middleware/authorizeRoles");
 const Complaint = require("../models/Complaint");
 
 const router = express.Router();
 
 // ── USER ─────────────────────────────────────────────────
-router.post("/", protect, upload.single("evidence"), validateComplaint, handleValidationErrors, createComplaint);
+router.post("/", protect, upload.single("evidence"), evidenceRequired, validateComplaint, handleValidationErrors, createComplaint);
 router.get("/my", protect, getUserComplaints);
 
 // ── ANONYMOUS REPORT (no login needed) ───────────────────
-router.post("/anonymous", upload.single("evidence"), async (req, res) => {
+router.post("/anonymous", upload.single("evidence"), evidenceRequired, validateComplaint, handleValidationErrors, async (req, res) => {
   try {
     const { title, description, scamType, scamTarget, location } = req.body;
-    if (!title || title.trim().length < 5) return res.status(400).json({ message: "Title must be at least 5 characters" });
-    if (!description || description.trim().length < 10) return res.status(400).json({ message: "Description must be at least 10 characters" });
 
     const analyzeComplaint = require("../utils/riskAnalyzer");
     const { upsertScamIntelligence } = require("../controllers/scamController");
-    const Scam = require("../models/Scam");
     const { crimeType, scamType: detectedScamType, riskScore, priority } = analyzeComplaint(title, description);
 
     // Use a system anonymous user ID (fixed ObjectId)
@@ -56,13 +54,13 @@ router.post("/anonymous", upload.single("evidence"), async (req, res) => {
 });
 
 // ── ADMIN ─────────────────────────────────────────────────
-router.get("/stats",     protect, adminOnly, getDashboardStats);
-router.get("/analytics", protect, adminOnly, getAnalytics);
-router.get("/",          protect, adminOnly, getAllComplaints);
-router.put("/:id/status", protect, adminOnly, validateStatusUpdate, handleValidationErrors, updateComplaintStatus);
+router.get("/stats",     protect, authorizeRoles("admin", "superadmin"), getDashboardStats);
+router.get("/analytics", protect, authorizeRoles("admin", "superadmin"), getAnalytics);
+router.get("/",          protect, authorizeRoles("admin", "superadmin"), getAllComplaints);
+router.put("/:id/status", protect, authorizeRoles("admin", "superadmin"), validateStatusUpdate, handleValidationErrors, updateComplaintStatus);
 
 // ── EXPORT CSV ────────────────────────────────────────────
-router.get("/export/csv", protect, adminOnly, async (req, res) => {
+router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
   try {
     const complaints = await Complaint.find().populate("user", "name email").sort({ createdAt: -1 });
     const header = "Case ID,User,Email,Title,Crime Type,Scam Type,Priority,Risk Score,Status,Location,Date\n";

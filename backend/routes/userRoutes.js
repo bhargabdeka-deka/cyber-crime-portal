@@ -5,8 +5,16 @@ const crypto     = require("crypto");
 const rateLimit  = require("express-rate-limit");
 const User       = require("../models/User");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
+const authorizeRoles = require("../middleware/authorizeRoles");
 const { sendEmailTo } = require("../utils/sendEmail");
-const { validateRegister, validateLogin, handleValidationErrors } = require("../validators/userValidator");
+const { 
+  validateRegister, 
+  validateLogin, 
+  validateProfile, 
+  validateForgotPassword,
+  validateResetPassword,
+  handleValidationErrors 
+} = require("../validators/userValidator");
 
 const router = express.Router();
 
@@ -37,8 +45,8 @@ router.post("/register", authLimiter, validateRegister, handleValidationErrors, 
     await new User({ name, email, password: hashedPassword }).save();
 
     res.status(201).json({ success: true, message: "User registered successfully" });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -49,6 +57,8 @@ router.post("/login", authLimiter, validateLogin, handleValidationErrors, async 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
 
+    if (user.isDisabled) return res.status(403).json({ success: false, message: "Account disabled" });
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ success: false, message: "Invalid credentials" });
 
@@ -58,16 +68,15 @@ router.post("/login", authLimiter, validateLogin, handleValidationErrors, async 
       success: true, message: "Login successful", token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role, phone: user.phone, location: user.location, bio: user.bio, avatar: user.avatar }
     });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
 // ================= FORGOT PASSWORD =================
-router.post("/forgot-password", resetLimiter, async (req, res) => {
+router.post("/forgot-password", resetLimiter, validateForgotPassword, handleValidationErrors, async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ success: false, message: "Email is required" });
 
     const user = await User.findOne({ email });
     // Always return success to prevent email enumeration
@@ -80,44 +89,35 @@ router.post("/forgot-password", resetLimiter, async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL || "https://cyber-crime-fronten.onrender.com"}/reset-password/${token}`;
 
-    await sendEmailTo(email, "CyberShield — [SECURE PROTOCOL] Reset Your Password",
-      `<div style="font-family:'Outfit','Montserrat','Poppins',sans-serif;max-width:600px;margin:0 auto;padding:40px;background-color:#E0F4FF;border-radius:48px;">
-        <div style="background-color:#ffffff;padding:50px;border-radius:40px;box-shadow:0 15px 50px rgba(0,0,0,0.05);border:1px solid #ffffff;text-align:center;">
-          <div style="margin-bottom:40px;">
-            <span style="font-size:28px;font-weight:900;letter-spacing:-0.05em;color:#0f172a;text-decoration:none;">CYBER<span style="color:#06B2B2;">SHIELD</span></span>
-            <div style="font-size:10px;font-weight:700;color:#06B2B2;letter-spacing:0.2em;margin-top:4px;text-transform:uppercase;">Network Intelligence</div>
+    await sendEmailTo(email, "CyberShield — Reset Your Password",
+      `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px;background:#f5f7fa;">
+        <div style="background:#ffffff;padding:40px;border-radius:8px;border:1px solid #e2e8f0;">
+          <div style="margin-bottom:24px;">
+            <span style="font-size:18px;font-weight:700;color:#1e293b;">CyberShield</span>
           </div>
-          
-          <h2 style="font-size:26px;font-weight:900;color:#0f172a;margin-bottom:20px;letter-spacing:-0.03em;">Reset Access Protocol</h2>
-          <p style="font-size:15px;color:#64748b;line-height:1.7;margin-bottom:40px;font-weight:500;">Hi ${user.name}, initialize the secure recovery protocol to restore your administrator node credentials. This transmission is encrypted and unique to your session.</p>
-          
-          <div style="margin-bottom:40px;">
-            <a href="${resetUrl}" style="display:inline-block;background-color:#0f172a;color:#ffffff;padding:22px 50px;border-radius:999px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;box-shadow:0 10px 30px rgba(15,23,42,0.2);">FINALIZE RESET</a>
+          <h2 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:12px;">Reset your password</h2>
+          <p style="font-size:14px;color:#64748b;line-height:1.6;margin-bottom:24px;">Hi ${user.name},<br/>We received a request to reset your CyberShield password. Click the button below to choose a new one.</p>
+          <div style="margin-bottom:24px;">
+            <a href="${resetUrl}" style="display:inline-block;background:#1e293b;color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Reset Password</a>
           </div>
-          
-          <p style="font-size:11px;color:#94a3b8;margin-top:40px;border-top:1px solid #f1f5f9;padding-top:30px;font-weight:500;line-height:1.6;">
-            Expiration: 60 Minutes<br/>
-            Node: CyberShield Primary Cluster<br/>
-            <span style="font-weight:700;color:#cbd5e1;margin-top:10px;display:block;">IF YOU DID NOT REQUEST THIS ACCESS, IGNORE THIS TRANSMISSION.</span>
+          <p style="font-size:12px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:20px;line-height:1.6;">
+            This link expires in 60 minutes. If you did not request a password reset, you can safely ignore this email.<br/>
+            &copy; 2026 CyberShield
           </p>
-        </div>
-        <div style="text-align:center;margin-top:30px;">
-          <p style="font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:0.15em;text-transform:uppercase;">&copy; 2026 CYBERSHIELD GLOBAL NETWORK</p>
         </div>
       </div>`
     );
 
     res.json({ success: true, message: "If that email exists, a reset link has been sent." });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
 // ================= RESET PASSWORD =================
-router.post("/reset-password/:token", async (req, res) => {
+router.post("/reset-password/:token", validateResetPassword, handleValidationErrors, async (req, res) => {
   try {
     const { password } = req.body;
-    if (!password || password.length < 6) return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
 
     const user = await User.findOne({ resetToken: req.params.token, resetTokenExpiry: { $gt: Date.now() } });
     if (!user) return res.status(400).json({ success: false, message: "Invalid or expired reset link" });
@@ -128,8 +128,8 @@ router.post("/reset-password/:token", async (req, res) => {
     await user.save();
 
     res.json({ success: true, message: "Password reset successfully. You can now log in." });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -142,26 +142,28 @@ router.post("/avatar", protect, require("../middleware/uploadMiddleware").single
     user.avatar = req.file.path || req.file.secure_url || req.file.url;
     await user.save();
     res.json({ success: true, avatar: user.avatar });
-  } catch {
-    res.status(500).json({ success: false, message: "Upload failed" });
+  } catch (error) {
+    next(error);
   }
 });
 
 // ================= UPDATE PROFILE =================
-router.put("/profile", protect, async (req, res) => {
+router.put("/profile", protect, validateProfile, handleValidationErrors, async (req, res) => {
   try {
     const { name, phone, location, bio } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
-    if (name)                user.name     = name.trim();
-    if (phone !== undefined) user.phone    = phone.trim();
-    if (location !== undefined) user.location = location.trim();
-    if (bio !== undefined)   user.bio      = bio.trim();
+
+    if (name !== undefined)     user.name     = name;
+    if (phone !== undefined)    user.phone    = phone;
+    if (location !== undefined) user.location = location;
+    if (bio !== undefined)      user.bio      = bio;
+
     await user.save();
     const updated = { id: user._id, name: user.name, email: user.email, role: user.role, phone: user.phone, location: user.location, bio: user.bio, avatar: user.avatar };
     res.json({ success: true, message: "Profile updated", user: updated });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -171,8 +173,8 @@ router.get("/profile", protect, async (req, res) => {
     const user = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpiry");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
     res.json({ success: true, user });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -181,34 +183,34 @@ router.get("/impact", protect, async (req, res) => {
   try {
     const { getUserImpactService } = require("../services/complaintService");
     const impact = await getUserImpactService(req.user.id);
-    res.json(impact);
-  } catch {
-    res.status(500).json({ message: "Server error" });
+    res.json({ success: true, ...impact });
+  } catch (error) {
+    next(error);
   }
 });
 
 // ================= ADMIN: LIST ALL USERS =================
-router.get("/", protect, adminOnly, async (req, res) => {
+router.get("/", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
   try {
     const { page = 1, limit = 20, search } = req.query;
     const filter = search ? { $or: [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }] } : {};
     const users = await User.find(filter).select("-password -resetToken -resetTokenExpiry").sort({ createdAt: -1 }).skip((page-1)*limit).limit(parseInt(limit));
     const total = await User.countDocuments(filter);
     res.json({ success: true, users, total, pages: Math.ceil(total / limit) });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 
 // ================= ADMIN: GET USER COMPLAINT COUNT =================
-router.get("/:id/stats", protect, adminOnly, async (req, res) => {
+router.get("/:id/stats", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
   try {
     const Complaint = require("../models/Complaint");
     const count = await Complaint.countDocuments({ user: req.params.id });
     const highRisk = await Complaint.countDocuments({ user: req.params.id, riskScore: { $gte: 80 } });
     res.json({ success: true, total: count, highRisk });
-  } catch {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 

@@ -2,47 +2,18 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
-import {
-  BarChart, Bar, Cell, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer
-} from "recharts";
-import { 
-  ShieldCheck, 
-  Clock, 
-  Search, 
-  CheckCircle, 
-  AlertTriangle, 
-  ChevronRight, 
-  Plus,
-  Zap,
-  Activity,
-  FileText,
-  User,
-  ArrowRight
-} from "lucide-react";
+import { Clock, Search, CheckCircle, Plus, FileText, ShieldCheck, TrendingUp } from "lucide-react";
 
 const statusConfig = {
-  Pending:      { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "Pending Review", icon: Clock },
-  Investigating:{ color: "text-blue-600",  bg: "bg-blue-50",  border: "border-blue-100",  label: "In Progress",    icon: Search },
-  Resolved:     { color: "text-emerald-600",bg: "bg-emerald-50", border: "border-emerald-100", label: "Resolved",       icon: CheckCircle },
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload?.length) {
-    return (
-      <div className="bg-white/90 backdrop-blur-md border border-white shadow-hover p-4 rounded-[1.5rem]">
-        <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
-        <p className="text-xl font-bold text-slate-900">{payload[0].value} Cases</p>
-      </div>
-    );
-  }
-  return null;
+  Pending:      { color: "text-amber-600",   bg: "bg-amber-50",   label: "Pending",     icon: Clock },
+  Investigating:{ color: "text-blue-600",    bg: "bg-blue-50",    label: "In Progress", icon: Search },
+  Resolved:     { color: "text-emerald-600", bg: "bg-emerald-50", label: "Resolved",    icon: CheckCircle },
 };
 
 export default function UserDashboard() {
   const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [impact, setImpact] = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [impact, setImpact]         = useState(null);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -61,33 +32,25 @@ export default function UserDashboard() {
   const investigating = complaints.filter(c => c.status === "Investigating").length;
   const resolved      = complaints.filter(c => c.status === "Resolved").length;
 
-  const chartData = [
-    { status: "Pending",       count: pending,       fill: "#f59e0b" },
-    { status: "Investigating", count: investigating, fill: "#3b82f6" },
-    { status: "Resolved",      count: resolved,      fill: "#10b981" },
-  ];
-
   const recent = [...complaints]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   const statCards = [
-    { label: "Reports Filed", value: total,   color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Resolved",      value: resolved, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Active",        value: pending + investigating, color: "text-soft-teal", bg: "bg-soft-blue/50" }
+    { label: "Total Reports",  value: total,                  color: "text-blue-600",    bg: "bg-blue-50" },
+    { label: "Resolved",       value: resolved,               color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "In Progress",    value: pending + investigating, color: "text-amber-600",   bg: "bg-amber-50" },
   ];
 
   if (loading) {
     return (
       <UserLayout>
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 border-4 border-slate-100 border-t-soft-teal rounded-full animate-spin" />
-            <p className="mt-6 text-xs font-semibold text-slate-500 tracking-wide">Syncing User Profile...</p>
-          </div>
+        <div className="min-h-[400px] flex items-center justify-center text-sm text-slate-400">
+          <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-500 rounded-full animate-spin mr-3" />
+          Loading your dashboard...
         </div>
       </UserLayout>
     );
@@ -95,162 +58,157 @@ export default function UserDashboard() {
 
   return (
     <UserLayout>
-      {/* 1. Header Greeting */}
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+
+      {/* Page Header */}
+      <div className="flex items-start justify-between mb-6">
         <div>
-           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-[11px] font-bold text-soft-teal tracking-wide mb-4 shadow-sm border border-white">
-              <Zap size={14} className="fill-soft-teal" /> Network Access Verified
-           </div>
-           <h1 className="text-3xl md:text-5xl font-bold font-brand text-slate-900 tracking-[-0.5px] leading-none">
-             {greeting}, <span className="text-soft-teal">{user?.name?.split(" ")[0]}</span>
-           </h1>
-           <p className="font-serif italic text-slate-600 text-lg md:text-xl font-medium tracking-tight mt-3">"Vigilance today means safety tomorrow."</p>
-           <p className="text-sm font-medium text-slate-600 tracking-wide mt-5">
-             {total === 0 ? "No active incidents reported in your sector." : `Managing ${total} intelligence reports.`}
-           </p>
+          <h1 className="text-xl font-bold text-slate-900">{greeting}, {user?.name?.split(" ")[0]}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {total === 0 ? "No reports filed yet." : `You have ${total} report${total > 1 ? "s" : ""} on record.`}
+          </p>
         </div>
-        <button onClick={() => navigate("/submit-complaint")} className="bg-soft-teal text-white px-8 py-4 rounded-full font-semibold text-sm tracking-wide hover:scale-105 transition-all shadow-lg flex items-center gap-3">
-           <Plus size={18} /> File New Report
+        <button
+          onClick={() => navigate("/submit-complaint")}
+          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition"
+        >
+          <Plus size={15} /> File Report
         </button>
       </div>
 
-      {/* 2. Impact Banner */}
+      {/* Impact Banner */}
       {impact && impact.estimatedProtected > 0 && (
-        <div className="bg-emerald-50 border-2 border-emerald-100 p-8 rounded-[3rem] mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-soft">
-           <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm border border-emerald-50">
-                 <ShieldCheck size={32} />
-              </div>
-              <div>
-                 <h4 className="text-lg font-bold text-slate-800 tracking-tight leading-none">Security Contribution</h4>
-                 <p className="text-sm font-medium text-emerald-600 mt-2">
-                    Estimated {impact.estimatedProtected} persons protected via your reports.
-                 </p>
-              </div>
-           </div>
-           <div className="hidden lg:block h-10 w-px bg-emerald-200" />
-           <p className="text-xs font-semibold text-slate-500 tracking-wide hidden lg:block">System integrity boosted</p>
+        <div className="mb-5 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-sm text-emerald-800">
+          <ShieldCheck size={18} className="shrink-0 text-emerald-600" />
+          <span>Your reports have helped protect an estimated <strong>{impact.estimatedProtected}</strong> people.</span>
         </div>
       )}
 
-      {/* 3. Stat Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-12">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {statCards.map(stat => (
-          <div key={stat.label} className={`${stat.bg} p-5 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-white transition-soft hover:shadow-soft flex flex-col justify-between`}>
-            <div className="text-xl md:text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
-            <div className="text-[10px] md:text-sm font-bold text-slate-500 uppercase tracking-widest mt-1 md:mt-2">{stat.label}</div>
+          <div key={stat.label} className="bg-white border border-slate-200 rounded-lg p-4">
+            <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className="text-xs text-slate-500 mt-1">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* 4. Multi-Section Grid */}
-      <div className="grid lg:grid-cols-2 gap-10">
-        {/* Status Analysis */}
-        <div className="bg-slate-50 p-10 rounded-[4rem] border border-slate-100 h-full">
-           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-10 flex items-center gap-2">
-              <Activity className="text-soft-teal" size={16} /> Status Breakdown
-           </h3>
-           
-           {total === 0 ? (
-             <div className="h-48 flex flex-col items-center justify-center text-center">
-                <FileText className="text-slate-200 mb-4" size={40} />
-                <p className="text-xs font-semibold text-slate-500 capitalize tracking-wide">No Intelligence Data</p>
-             </div>
-           ) : (
-             <div className="space-y-8">
-               {Object.entries(statusConfig).map(([key, cfg]) => {
-                 const count = complaints.filter(c => c.status === key).length;
-                 const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                 return (
-                   <div key={key}>
-                     <div className="flex justify-between items-end mb-3">
-                        <span className="text-sm font-bold text-slate-800 capitalize">{key}</span>
-                        <span className="text-sm font-semibold text-slate-600">{count} Units</span>
-                     </div>
-                     <div className="w-full bg-white h-4 rounded-full overflow-hidden p-1 shadow-inner border border-slate-100">
-                        <div className={`h-full rounded-full transition-all duration-1000 ${cfg.color.replace('text-', 'bg-')} shadow-sm`} style={{ width: `${pct}%` }} />
-                     </div>
-                   </div>
-                 );
-               })}
-             </div>
-           )}
+      {/* Two-column grid */}
+      <div className="grid lg:grid-cols-2 gap-5 mb-6">
+
+        {/* Status Breakdown */}
+        <div className="bg-white border border-slate-200 rounded-lg p-5">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4">Status Breakdown</h3>
+          {total === 0 ? (
+            <div className="py-8 flex flex-col items-center text-slate-400">
+              <FileText size={28} className="mb-2 opacity-30" />
+              <p className="text-sm">No reports yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {Object.entries(statusConfig).map(([key, cfg]) => {
+                const count = complaints.filter(c => c.status === key).length;
+                const pct   = total > 0 ? Math.round((count / total) * 100) : 0;
+                return (
+                  <div key={key}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-slate-700">{cfg.label}</span>
+                      <span className="text-slate-500">{count}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${cfg.color.replace("text-", "bg-")}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Recent Cases */}
-        <div className="bg-white p-10 rounded-[4rem] shadow-soft border border-slate-50 h-full flex flex-col">
-           <div className="flex items-center justify-between mb-10">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recent Activity</h3>
-              {total > 0 && (
-                <button onClick={() => navigate("/my-complaints")} className="text-xs font-bold text-soft-teal hover:underline tracking-wide">View History</button>
-              )}
-           </div>
-
-           {recent.length === 0 ? (
-             <div className="flex-grow flex flex-col items-center justify-center text-center gap-6">
-                <div className="w-20 h-20 bg-soft-blue rounded-[2rem] flex items-center justify-center text-soft-teal">
-                   <ShieldCheck size={40} />
-                </div>
-                <p className="text-sm font-bold text-slate-500 tracking-wide">Clean Status: Zero Reports</p>
-                <button onClick={() => navigate("/submit-complaint")} className="text-sm font-bold text-soft-teal hover:underline transition-all">File Your First Case</button>
-             </div>
-           ) : (
-             <div className="space-y-6">
-                {recent.map((c, i) => (
-                  <div key={c._id} className="flex items-center justify-between group cursor-pointer" onClick={() => navigate("/my-complaints")}>
-                     <div className="flex items-center gap-5">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${statusConfig[c.status]?.bg} ${statusConfig[c.status]?.border} ${statusConfig[c.status]?.color}`}>
-                           {(() => {
-                              const StatusIcon = statusConfig[c.status]?.icon || FileText;
-                              return <StatusIcon size={20} />;
-                           })()}
-                        </div>
-                        <div>
-                           <div className="text-sm font-bold text-slate-900 tracking-tight capitalize">{c.caseId}</div>
-                           <div className="text-xs font-semibold text-slate-500 capitalize mt-1">{c.crimeType}</div>
-                        </div>
-                     </div>
-                     <div className="flex items-center gap-4">
-                        <div className="text-xs font-semibold text-slate-500 hidden md:block">
-                           {new Date(c.createdAt).toLocaleDateString()}
-                        </div>
-                        <ChevronRight className="text-slate-300 group-hover:text-soft-teal transition-all" size={20} />
-                     </div>
+        {/* Recent Activity */}
+        <div className="bg-white border border-slate-200 rounded-lg p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-700">Recent Reports</h3>
+            {total > 0 && (
+              <button
+                onClick={() => navigate("/my-complaints")}
+                className="text-xs text-slate-500 hover:text-slate-800 transition"
+              >
+                View all →
+              </button>
+            )}
+          </div>
+          {recent.length === 0 ? (
+            <div className="py-8 flex flex-col items-center text-slate-400">
+              <FileText size={28} className="mb-2 opacity-30" />
+              <p className="text-sm">No reports filed.</p>
+              <button
+                onClick={() => navigate("/submit-complaint")}
+                className="mt-3 text-sm text-slate-600 hover:text-slate-900 font-medium transition"
+              >
+                File your first report →
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recent.map(c => {
+                const cfg = statusConfig[c.status] || statusConfig.Pending;
+                const Icon = cfg.icon;
+                return (
+                  <div
+                    key={c._id}
+                    onClick={() => navigate("/my-complaints")}
+                    className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50 -mx-2 px-2 rounded transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${cfg.bg}`}>
+                        <Icon size={14} className={cfg.color} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-mono text-slate-700">{c.caseId?.slice(0, 14)}...</div>
+                        <div className="text-[10px] text-slate-400">{c.crimeType}</div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-slate-400">{new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
-                ))}
-             </div>
-           )}
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
-      
-      {/* 5. Quick Actions Section */}
-      <section className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-10">
-         <div className="bg-slate-900 rounded-[2.5rem] p-6 md:p-10 flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 md:gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/check-scam")}>
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-soft-teal rounded-2xl md:rounded-3xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
-               <Search size={28} className="md:w-8 md:h-8" />
-            </div>
-            <div className="flex-grow">
-               <h4 className="text-lg md:text-xl font-bold text-white tracking-tight">Global Integrity Scan</h4>
-               <p className="text-xs md:text-sm font-medium text-slate-400 mt-2">Verify phone numbers, UPI IDs, or URLs against our database.</p>
-            </div>
-            <div className="hidden sm:block">
-               <ArrowRight className="text-slate-700 group-hover:text-soft-teal" size={24} />
-            </div>
-         </div>
-         
-         <div className="bg-soft-blue p-6 md:p-10 rounded-[2.5rem] border border-white flex flex-col sm:flex-row items-center text-center sm:text-left gap-6 md:gap-8 group cursor-pointer hover:shadow-xl transition-all" onClick={() => navigate("/trending")}>
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl md:rounded-3xl flex items-center justify-center text-soft-teal shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-               <Zap size={28} className="md:w-8 md:h-8" />
-            </div>
-            <div className="flex-grow">
-               <h4 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Threat Advisories</h4>
-               <p className="text-xs md:text-sm font-medium text-slate-500 mt-2">Browse recently detected patterns and public security alerts.</p>
-            </div>
-            <div className="hidden sm:block">
-               <ArrowRight className="text-slate-300 group-hover:text-soft-teal" size={24} />
-            </div>
-         </div>
-      </section>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          onClick={() => navigate("/check-scam")}
+          className="flex items-center gap-4 bg-slate-900 text-white p-5 rounded-lg hover:bg-slate-800 transition text-left"
+        >
+          <div className="w-10 h-10 bg-white/10 rounded-md flex items-center justify-center shrink-0">
+            <Search size={20} />
+          </div>
+          <div>
+            <div className="font-semibold text-sm">Check a Number or URL</div>
+            <div className="text-xs text-slate-400 mt-0.5">Verify against our scam database.</div>
+          </div>
+        </button>
+        <button
+          onClick={() => navigate("/trending")}
+          className="flex items-center gap-4 bg-white border border-slate-200 p-5 rounded-lg hover:bg-slate-50 transition text-left"
+        >
+          <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center text-slate-700 shrink-0">
+            <TrendingUp size={20} />
+          </div>
+          <div>
+            <div className="font-semibold text-sm text-slate-900">Trending Threats</div>
+            <div className="text-xs text-slate-500 mt-0.5">Browse recently detected scam patterns.</div>
+          </div>
+        </button>
+      </div>
+
     </UserLayout>
   );
 }

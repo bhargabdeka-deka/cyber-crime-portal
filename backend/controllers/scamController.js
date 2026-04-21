@@ -39,10 +39,9 @@ const riskToVerdict = (riskLevel, reports) => {
 const checkScam = async (req, res) => {
   try {
     const { value } = req.body;
-    if (!value || value.trim().length < 3)
-      return res.status(400).json({ message: "Please provide a valid phone, URL, or UPI ID." });
+    const v = value.toLowerCase();
 
-    const scam = await Scam.findOne({ value: value.trim().toLowerCase() });
+    const scam = await Scam.findOne({ value: v });
 
     if (!scam) {
       return res.json({
@@ -84,10 +83,9 @@ const checkScam = async (req, res) => {
 const checkScamGet = async (req, res) => {
   try {
     const value = req.query.query;
-    if (!value || value.trim().length < 3)
-      return res.status(400).json({ message: "Please provide a valid phone, URL, or UPI ID." });
+    const v = value.toLowerCase();
 
-    const scam = await Scam.findOne({ value: value.trim().toLowerCase() });
+    const scam = await Scam.findOne({ value: v });
 
     if (!scam) {
       return res.json({
@@ -134,19 +132,19 @@ const getActionAdvice = (category, riskLevel) => {
 };
 
 // ── GET /api/scam/activity — recent scam activity feed ───────────────────────
-const getActivity = async (req, res) => {
+const getActivity = async (req, res, next) => {
   try {
     const recent = await Scam.find()
       .sort({ lastReportedAt: -1 })
       .limit(8)
       .select("value type category reports riskLevel lastReportedAt");
-    res.json(recent);
-  } catch {
-    res.status(500).json({ message: "Server error" });
+    res.json({ success: true, data: recent });
+  } catch (error) {
+    next(error);
   }
 };
 // Public. Returns top reported scams + stats.
-const getTrending = async (req, res) => {
+const getTrending = async (req, res, next) => {
   try {
     const topTargets = await Scam.find()
       .sort({ reports: -1 })
@@ -167,12 +165,13 @@ const getTrending = async (req, res) => {
     const recentCount = await Scam.countDocuments({ lastReportedAt: { $gte: since } });
 
     res.json({
+      success: true,
       topTargets,
       topCategories: topCategories.map(c => ({ category: c._id, count: c.count, avgRisk: Math.round(c.avgRisk) })),
       stats: { totalScams, criticalCount, highCount, recentCount }
     });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 };
 

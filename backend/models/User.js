@@ -4,13 +4,18 @@ const userSchema = new mongoose.Schema({
   name:     { type: String, required: true },
   email:    { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role:     { type: String, enum: ["user", "admin"], default: "user" },
+  role:     { type: String, enum: ["user", "admin", "superadmin"], default: "user" },
 
   // ── Profile fields ──────────────────────────────────────────────────────
   phone:    { type: String, default: "" },
   location: { type: String, default: "" },
   bio:      { type: String, default: "" },
-  avatar:   { type: String, default: "" }, // initials color or future upload URL
+  avatar:   { type: String, default: "" },
+
+  // ── Status fields ────────────────────────────────────────────────────────
+  isDisabled: { type: Boolean, default: false },
+  disabledAt: { type: Date },
+  disabledBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
   // ── Password reset ──────────────────────────────────────────────────────
   resetToken:       { type: String },

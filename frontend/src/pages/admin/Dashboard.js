@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || user.role !== "admin") { navigate("/login"); return; }
+    if (!user || (user.role !== "admin" && user.role !== "superadmin")) { navigate("/login"); return; }
 
     API.get("/complaints/analytics")
       .then(res => setStats(res.data))

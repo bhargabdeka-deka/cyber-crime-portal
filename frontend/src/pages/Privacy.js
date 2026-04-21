@@ -1,109 +1,93 @@
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, ArrowLeft, ChevronRight, CheckCircle, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
+import Logo from "../components/Logo";
 import { useScrollDirection } from "../hooks/useScrollDirection";
 
 export default function Privacy() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const isVisible = useScrollDirection();
 
   return (
-    <div className="min-h-screen bg-[#E0F4FF] font-sans text-slate-800 pb-20">
-      {/* Identity Bar */}
-      <div className={`bg-slate-900 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-center gap-3 sticky top-0 z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-        <span>CyberShield Global Network</span>
-        <span className="opacity-30">·</span>
-        <span className="text-emerald-400 font-medium">Secure Session Active</span>
-      </div>
-      {/* Header Navigation */}
-      <header className={`px-4 md:px-6 py-4 md:py-6 sticky top-[37px] z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[200%]'}`}>
-        <nav className="max-w-6xl mx-auto bg-white/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 rounded-full flex items-center justify-between shadow-soft border border-white/50">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-sm border border-slate-50">
-              <img src="/logo1.jpeg" alt="Logo" className="w-full h-full object-cover scale-[1.05]" />
-            </div>
-            <span className="text-lg md:text-xl font-black tracking-[-0.04em] font-brand text-slate-900 flex items-center">
-              CYBER<span className="text-soft-teal ml-0.5">SHIELD</span>
-            </span>
-          </div>
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-soft-teal transition-all tracking-wide">
-           <ArrowLeft size={16} /> Go Back
+    <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-800 pb-20">
+
+      {/* Navbar */}
+      <header className={`h-14 bg-white border-b border-slate-200 flex items-center justify-between px-5 sticky top-0 z-50 transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <Logo size={30} fontSize={14} />
+        </div>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition"
+        >
+          <ArrowLeft size={15} /> Back
         </button>
-        </nav>
       </header>
 
-      <div className="max-w-4xl mx-auto mt-10 md:mt-20 px-4 md:px-6">
-         <div className="bg-white p-8 md:p-20 rounded-[2.5rem] md:rounded-[4rem] border border-white shadow-soft animate-in fade-in slide-in-from-bottom-10 duration-700">
-            <div className="mb-10 md:mb-16">
-               <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full text-xs font-semibold text-emerald-600 tracking-wide mb-4">
-                  <Lock size={14} /> Data Sovereignty
-               </div>
-               <h1 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight mb-6">Privacy Policy</h1>
-               <p className="text-sm font-medium text-slate-500 tracking-wide">Last entry revision: Jan 2026</p>
-            </div>
+      {/* Content */}
+      <div className="max-w-3xl mx-auto mt-10 px-5">
+        <div className="bg-white border border-slate-200 rounded-lg p-8 md:p-12">
 
-            <div className="space-y-12">
-               <section>
-                  <h3 className="text-xl font-bold tracking-tight mb-6 flex items-center gap-3">
-                     <div className="w-2 h-2 rounded-full bg-soft-teal" /> Collection Protocol
-                  </h3>
-                  <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-white text-sm font-medium leading-relaxed text-slate-600 space-y-4">
-                     <p>At CyberShield, we prioritize your digital safety without compromising your identity. We collect data solely to identify threat patterns and protect the network collective.</p>
-                     <ul className="space-y-3">
-                        <li className="flex items-start gap-3">
-                           <CheckCircle size={16} className="text-emerald-500 mt-0.5 shrink-0" />
-                           <span>Operational identifiers (Email, Username) for session management.</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <CheckCircle size={16} className="text-emerald-500 mt-0.5 shrink-0" />
-                           <span>Incident log data provided during report filing.</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <CheckCircle size={16} className="text-emerald-500 mt-0.5 shrink-0" />
-                           <span>Technical signals (IP Address) for security and anti-spam verification.</span>
-                        </li>
-                     </ul>
-                  </div>
-               </section>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Privacy Policy</h1>
+            <p className="text-sm text-slate-500">Last updated: January 2026</p>
+          </div>
 
-               <section>
-                  <h3 className="text-xl font-bold tracking-tight mb-6 flex items-center gap-3">
-                     <div className="w-2 h-2 rounded-full bg-soft-teal" /> AI Diagnostics & Usage
-                  </h3>
-                  <div className="text-sm font-medium leading-relaxed text-slate-600 space-y-6">
-                     <p>Your reports are processed by our automated risk analyzer. This component extracts keywords—such as phone numbers, URLs, and UPI IDs—to populate our global threat map.</p>
-                     <p>We do <span className="text-slate-900 underline font-semibold">NOT</span> sell individual user data to third-party advertisers. Data is exclusively utilized for intelligence sharing within the CyberShield network and authorized security partners.</p>
-                  </div>
-               </section>
+          <div className="space-y-8 text-sm text-slate-600 leading-relaxed">
 
-               <section>
-                  <h3 className="text-xl font-bold tracking-tight mb-6 flex items-center gap-3">
-                     <div className="w-2 h-2 rounded-full bg-soft-teal" /> Retention Ledger
-                  </h3>
-                  <div className="bg-soft-blue/30 p-8 rounded-[2.5rem] border border-white">
-                     <div className="grid md:grid-cols-2 gap-8">
-                        <div>
-                           <div className="text-xs font-semibold text-slate-500 tracking-wide mb-2">Private User Logs</div>
-                           <div className="text-sm font-bold text-slate-800">60 Months Archival</div>
-                        </div>
-                        <div>
-                           <div className="text-xs font-semibold text-slate-500 tracking-wide mb-2">Public Threat Data</div>
-                           <div className="text-sm font-bold text-slate-800">Permanent Decentralized Record</div>
-                        </div>
-                     </div>
-                  </div>
-               </section>
+            <section>
+              <h3 className="text-base font-semibold text-slate-800 mb-3">1. Data We Collect</h3>
+              <div className="bg-slate-50 border border-slate-100 rounded-md p-5 space-y-3">
+                <p>At CyberShield, we collect only the data necessary to provide and improve our services:</p>
+                <ul className="space-y-2">
+                  {[
+                    "Email address and name for account management.",
+                    "Report data (description, scam target, evidence) submitted by you.",
+                    "IP address for security and anti-spam verification.",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <CheckCircle size={14} className="text-emerald-500 mt-0.5 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
 
-               <section className="pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between gap-8">
-                  <div>
-                     <h4 className="text-base font-bold tracking-tight mb-2">Exert Your Rights</h4>
-                     <p className="text-sm font-medium text-slate-500 tracking-wide leading-relaxed">Contact DPO at privacy@cybershield.net for data deletion requests.</p>
-                  </div>
-                  <button onClick={() => navigate("/register")} className="bg-slate-900 text-white rounded-full px-8 py-4 text-sm font-semibold tracking-wide shadow-xl flex items-center gap-3 hover:scale-105 transition-all self-start">
-                     Join Network <ChevronRight size={16} />
-                  </button>
-               </section>
-            </div>
-         </div>
+            <section>
+              <h3 className="text-base font-semibold text-slate-800 mb-3">2. How We Use Your Data</h3>
+              <p>Your reports are processed by our automated risk analyzer to extract threat indicators (phone numbers, URLs, UPI IDs) and populate our public scam database.</p>
+              <p className="mt-3">We do <strong className="text-slate-900">NOT</strong> sell your personal data to third-party advertisers. Data is used exclusively for threat intelligence within the CyberShield platform and with authorized security partners.</p>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-slate-800 mb-3">3. Data Retention</h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="border border-slate-200 rounded-md p-4">
+                  <p className="text-xs text-slate-500 mb-1">Private User Records</p>
+                  <p className="font-semibold text-slate-800">60 months</p>
+                </div>
+                <div className="border border-slate-200 rounded-md p-4">
+                  <p className="text-xs text-slate-500 mb-1">Public Scam Data</p>
+                  <p className="font-semibold text-slate-800">Permanently stored</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="font-semibold text-slate-800 mb-1">Your Rights</h4>
+                <p className="text-sm text-slate-500">Contact us at <span className="text-slate-700 font-medium">privacy@cybershield.net</span> for data deletion or access requests.</p>
+              </div>
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-slate-900 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-slate-700 transition whitespace-nowrap"
+              >
+                Create Account →
+              </button>
+            </section>
+
+          </div>
+        </div>
       </div>
     </div>
   );
