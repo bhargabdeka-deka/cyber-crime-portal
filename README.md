@@ -56,7 +56,8 @@ CyberShield serves as a centralized hub for verifying suspicious phone numbers, 
 
 The application has undergone a comprehensive production-ready security audit, implementing the following defensive layers:
 
-- **Authentication & RBAC**: Strict Role-Based Access Control (RBAC) with instantaneous database-level status verification on every request.
+- **Authentication & RBAC**: Advanced Role-Based Access Control (RBAC) with instantaneous database-level status verification. Support for dynamic **Role Promotion** allowing Superadmins to elevate users to Admin status directly via the dashboard.
+- **Secure Data Portability**: JWT-protected CSV export functionality ensuring sensitive case data is only accessible to authorized administrators through secure download streams.
 - **Data Sanitization**: Global XSS and NoSQL injection protection using express-validator and mongo-sanitize.
 - **Security Headers**: Implementation of Helmet for secure HTTP response headers.
 - **Traffic Control**: Rate limiting on all authentication and reporting endpoints to prevent brute-force and DDoS attacks.
@@ -83,6 +84,7 @@ cyber-crime-portal/
     │   ├── components/  # Reusable UI components and layouts
     │   ├── hooks/       # Custom React logic hooks
     │   ├── pages/       # View components and dashboard modules
+    │   ├── routes/      # Protected routing and RBAC aliases
     │   ├── services/    # API abstraction layer
     │   └── utils/       # Formatting and logical helpers
     └── public/
@@ -123,24 +125,25 @@ CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 RESEND_API_KEY=your_resend_api_key
 ADMIN_EMAIL=your_admin_email_for_alerts
+REACT_APP_API_URL=http://localhost:5000
 ```
 
 ### 4. Running the Application
 ```bash
-# In backend directory
-npm run dev
+# Terminal 1 (Backend)
+cd backend && npm run dev
 
-# In frontend directory
-npm start
+# Terminal 2 (Frontend)
+cd frontend && npm start
 ```
 
 ## Administrative Configuration
 
-To initialize an administrator account:
-1. Register a standard user account through the web interface.
-2. Locate the user document in your MongoDB database.
-3. Change the `role` field from `"user"` to `"admin"`.
-4. The user will immediately gain access to the /admin routes upon their next login.
+The platform supports a tiered administrative system (**Admin** and **Superadmin**):
+
+1. **Initial Setup**: To create the first Superadmin, manually set `role: "superadmin"` for a user in the MongoDB `users` collection.
+2. **Promoting Users**: Superadmins can promote existing standard users to the **Admin** role directly through the "Users" management dashboard.
+3. **Automated Escalation**: When a user is promoted, they gain immediate access to `/admin` and `/superadmin` route aliases and management capabilities.
 
 ## Risk Analysis Logic
 
@@ -155,10 +158,16 @@ Scores are calculated based on keyword density in reports and the historical rep
 
 ## Deployment
 
-The application is configured for deployment on platforms like Render or Heroku.
+The application is optimized for deployment on **Render** (Monorepo setup).
 
 **Build Command**:
 `npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend`
+
+**Start Command**:
+`node backend/server.js`
+
+---
+Copyright (c) 2026 CyberShield Project. All rights reserved.& npm install --prefix backend`
 
 **Start Command**:
 `node backend/server.js`
