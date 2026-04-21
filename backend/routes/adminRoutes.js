@@ -12,13 +12,36 @@ router.post("/create-admin", protect, authorizeRoles("superadmin"), validateRegi
   try {
     const { name, email, password } = req.body;
 
-    // Check for duplicate email
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return res.status(400).json({ success: false, message: "User with this email already exists." });
+      // If already admin
+      if (existingUser.role === "admin") {
+        return res.status(400).json({
+          success: false,
+          message: "User is already an admin",
+        });
+      }
+
+      // If superadmin (do not allow changes)
+      if (existingUser.role === "superadmin") {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot modify superadmin",
+        });
+      }
+
+      // PROMOTE USER → ADMIN
+      existingUser.role = "admin";
+      await existingUser.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "User promoted to admin successfully",
+      });
     }
 
-    // Hash password (existing password hashing logic)
+    // Hash password (existing password hashing logic for NEW users)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

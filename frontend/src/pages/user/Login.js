@@ -22,8 +22,10 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       const role = res.data.user.role;
-      if (role === "admin" || role === "superadmin") {
-        navigate("/admin/dashboard");
+      if (role === "admin") {
+        navigate("/admin");
+      } else if (role === "superadmin") {
+        navigate("/superadmin");
       } else {
         navigate("/user-dashboard");
       }
@@ -98,8 +100,11 @@ export default function Login() {
               />
               <button
                 type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowPass(!showPass);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition z-10"
                 aria-label={showPass ? "Hide password" : "Show password"}
               >
                 {showPass ? <EyeOff size={15} /> : <Eye size={15} />}

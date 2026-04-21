@@ -6,7 +6,6 @@ import { Users, FileWarning, Activity } from "lucide-react";
 const AdminDashboard = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [stats, setStats] = useState({ users: 0, pending: 0 });
-  const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,7 +18,6 @@ const AdminDashboard = () => {
         ]);
 
         const allComplaints = complaintsRes.data.complaints || [];
-        setComplaints(allComplaints);
 
         setStats({
           users: usersRes.data.total ?? usersRes.data.users?.length ?? 0,

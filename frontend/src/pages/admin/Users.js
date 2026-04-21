@@ -186,8 +186,8 @@ export default function Users() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreateModal(false)} />
           <div className="bg-white w-full max-w-md rounded-lg p-6 relative z-10 shadow-xl border border-slate-200">
-            <h2 className="text-lg font-bold text-slate-900 mb-1">Create Admin</h2>
-            <p className="text-sm text-slate-500 mb-5">New admin will have access to complaints and users.</p>
+            <h2 className="text-lg font-bold text-slate-900 mb-1">Create or Promote Admin</h2>
+            <p className="text-sm text-slate-500 mb-5">Enter an email to create a new admin or promote an existing user to the Admin role.</p>
 
             {authError && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2 text-red-700 text-sm">

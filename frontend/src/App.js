@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -48,7 +48,9 @@ function App() {
           <Route path="/privacy"    element={<Privacy />} />
           <Route path="/terms"      element={<Terms />} />
 
-          {/* Admin */}
+          {/* Admin & Superadmin */}
+          <Route path="/admin"      element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/superadmin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
           <Route path="/dashboard"  element={<ProtectedRoute allowedRole="admin"><Dashboard /></ProtectedRoute>} />
           <Route path="/complaints" element={<ProtectedRoute allowedRole="admin"><Complaints /></ProtectedRoute>} />

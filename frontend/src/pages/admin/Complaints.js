@@ -84,6 +84,45 @@ export default function Complaints() {
     setPriority(""); setStatus(""); setSearch(""); setSort("-createdAt"); setPage(1);
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Please login again");
+        return;
+      }
+
+      // Hardcoded production URL for Render as requested
+      const response = await fetch(
+        "https://cyber-crime-portal-2.onrender.com/api/complaints/export/csv",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Unauthorized or failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "complaints.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Export failed");
+    }
+  };
+
   return (
     <Layout>
 
@@ -107,12 +146,12 @@ export default function Complaints() {
           <h1 className="text-xl font-bold text-slate-900">Complaints</h1>
           <p className="text-sm text-slate-500 mt-0.5">{totalCount} total records</p>
         </div>
-        <a
-          href={`${process.env.REACT_APP_API_URL || ""}/api/complaints/export/csv`}
+        <button
+          onClick={handleExportCSV}
           className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition"
         >
           <Download size={15} /> Export CSV
-        </a>
+        </button>
       </div>
 
       {/* Filters */}
