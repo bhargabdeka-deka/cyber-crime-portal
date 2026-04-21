@@ -5,20 +5,25 @@ import { Users, FileWarning, Activity } from "lucide-react";
 
 const AdminDashboard = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const [stats,   setStats]   = useState({ users: 0, pending: 0 });
+  const [stats, setStats] = useState({ users: 0, pending: 0 });
+  const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const [usersRes, statsRes] = await Promise.all([
+        const [usersRes, complaintsRes] = await Promise.all([
           API.get("/users"),
-          API.get("/complaints/stats"),
+          API.get("/complaints?limit=1000"), // Fetch large batch for accurate count
         ]);
+
+        const allComplaints = complaintsRes.data.complaints || [];
+        setComplaints(allComplaints);
+
         setStats({
-          users:   usersRes.data.total ?? usersRes.data.users?.length ?? 0,
-          pending: statsRes.data?.Pending ?? statsRes.data?.pending ?? 0,
+          users: usersRes.data.total ?? usersRes.data.users?.length ?? 0,
+          pending: allComplaints.filter(c => c.status?.toLowerCase() === "pending").length,
         });
         setError(null);
       } catch (err) {
@@ -28,12 +33,12 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
   const displayValue = (val) => {
-    if (loading) return "—";
-    if (error)   return "—";
+    if (loading) return "...";
+    if (error) return "—";
     return val;
   };
 

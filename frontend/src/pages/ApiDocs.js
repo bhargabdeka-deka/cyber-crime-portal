@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, FileCode, ArrowLeft, ChevronRight, Globe, Lock, Terminal, Zap } from "lucide-react";
+import { FileCode, ArrowLeft, ChevronRight, Globe, Lock, Terminal, Zap } from "lucide-react";
 import { useScrollDirection } from "../hooks/useScrollDirection";
 import Footer from "../components/Footer";
 import Logo from "../components/Logo";
