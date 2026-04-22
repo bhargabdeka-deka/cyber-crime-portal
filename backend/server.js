@@ -1,17 +1,17 @@
 require("dotenv").config();
 
 const express = require("express");
-const cors    = require("cors");
-const path    = require("path");
-const helmet  = require("helmet");
+const cors = require("cors");
+const path = require("path");
+const helmet = require("helmet");
 const connectDB = require("./config/db");
 
-const userRoutes      = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
-const scamRoutes      = require("./routes/scamRoutes");
-const adminRoutes     = require("./routes/adminRoutes");
-const errorHandler    = require("./middleware/errorMiddleware");
-const morgan          = require("morgan");
+const scamRoutes = require("./routes/scamRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const errorHandler = require("./middleware/errorMiddleware");
+const morgan = require("morgan");
 
 const app = express();
 
@@ -38,30 +38,37 @@ const limiter = rateLimit({
 app.use("/api/", limiter);
 
 // ================= CORS =================
+// ================= CORS =================
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL, // Vercel URL from env
   "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "https://cyber-crime-fronten.onrender.com"
+  "http://127.0.0.1:3000"
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
-    
-    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
-    if (isLocal || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.warn(`Blocked by CORS: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
+
+    const isLocal =
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1");
+
+    if (isLocal || allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    console.warn(`❌ Blocked by CORS: ${origin}`);
+    return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+
+// Handle preflight requests
 app.options("*", cors());
+
 
 // ================= Body Parsing =================
 app.use(express.json());
@@ -87,10 +94,10 @@ app.use((err, req, res, next) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ================= API Routes =================
-app.use("/api/users",      userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/complaints", complaintRoutes);
-app.use("/api/scam",       scamRoutes);
-app.use("/api/admin",      adminRoutes);
+app.use("/api/scam", scamRoutes);
+app.use("/api/admin", adminRoutes);
 
 // ================= Serve React Frontend (Production) =================
 // Render runs from repo root, so path is relative to backend folder
