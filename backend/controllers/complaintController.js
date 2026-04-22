@@ -44,8 +44,42 @@ const getAllComplaints = async (req, res, next) => {
 // ================= UPDATE STATUS =================
 const updateComplaintStatus = async (req, res, next) => {
   try {
-    const complaint = await updateComplaintStatusService(req.params.id, req.body.status);
-    res.status(200).json({ success: true, message: "Status updated", complaint });
+    const { id } = req.params;
+    const { status: newStatus } = req.body;
+
+    const Complaint = require("../models/Complaint");
+    const complaintToUpdate = await Complaint.findById(id);
+
+    if (!complaintToUpdate) {
+      return res.status(404).json({ success: false, message: "Complaint not found" });
+    }
+
+    const currentStatus = complaintToUpdate.status;
+
+    // 🔒 1. STATUS FLOW RULE (STRICT)
+    const allowedTransitions = {
+      Pending: ["Investigating"],
+      Investigating: ["Resolved"],
+      Resolved: []
+    };
+
+    if (currentStatus === newStatus) {
+      return res.status(400).json({ success: false, message: "Complaint is already in this status" });
+    }
+
+    if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(newStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid transition from ${currentStatus} to ${newStatus}`
+      });
+    }
+
+    const updatedComplaint = await updateComplaintStatusService(id, newStatus);
+    res.status(200).json({ 
+      success: true, 
+      message: "Status updated successfully", 
+      complaint: updatedComplaint 
+    });
   } catch (error) {
     next(error);
   }

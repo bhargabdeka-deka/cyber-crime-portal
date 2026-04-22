@@ -67,14 +67,21 @@ export default function Complaints() {
   useEffect(() => { fetchComplaints(); }, [fetchComplaints]);
 
   const handleStatusChange = async (id, newStatus) => {
+    const confirmAction = window.confirm(
+      `Are you sure you want to update the status to "${newStatus}"? \n\nThis action is irreversible and cannot be changed back.`
+    );
+
+    if (!confirmAction) return;
+
     setUpdating(id);
     try {
       await API.put(`/complaints/${id}/status`, { status: newStatus });
-      showToast(`Status updated to "${newStatus}".`);
+      showToast("Status updated successfully.");
       fetchComplaints();
       if (selected?._id === id) setSelected(prev => ({ ...prev, status: newStatus }));
-    } catch {
-      showToast("Failed to update status.", "error");
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Failed to update status.";
+      showToast(errorMsg, "error");
     } finally {
       setUpdating(null);
     }
@@ -249,11 +256,19 @@ export default function Complaints() {
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <select
                         value={c.status}
-                        disabled={updating === c._id}
+                        disabled={updating === c._id || c.status === "Resolved"}
                         onChange={e => handleStatusChange(c._id, e.target.value)}
                         className={`text-xs border rounded px-2 py-1 focus:outline-none cursor-pointer ${statusConfig[c.status]?.className || "bg-white border-slate-200"}`}
                       >
-                        {STEPS.map(s => <option key={s} value={s}>{s}</option>)}
+                        {STEPS.map(s => {
+                          // Disable if target is behind or equal to current
+                          const isDisabled = STEPS.indexOf(s) <= STEPS.indexOf(c.status);
+                          return (
+                            <option key={s} value={s} disabled={isDisabled}>
+                              {s}
+                            </option>
+                          );
+                        })}
                       </select>
                     </td>
                     <td className="px-4 py-3">
@@ -355,15 +370,19 @@ export default function Complaints() {
                 <div className="flex gap-2">
                   {STEPS.map(step => {
                     const active = selected.status === step;
+                    const isPrev = STEPS.indexOf(step) <= STEPS.indexOf(selected.status);
+                    
                     return (
                       <button
                         key={step}
                         onClick={() => handleStatusChange(selected._id, step)}
-                        disabled={active || updating === selected._id}
+                        disabled={isPrev || updating === selected._id}
                         className={`flex-1 py-2 rounded-md text-xs font-semibold transition border ${
                           active
                             ? "bg-slate-900 text-white border-slate-900"
-                            : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
+                            : isPrev 
+                              ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
+                              : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
                         }`}
                       >
                         {step}
