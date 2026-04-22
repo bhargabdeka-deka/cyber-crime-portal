@@ -4,7 +4,7 @@ import API from "../services/api";
 import { Users, FileWarning, Activity } from "lucide-react";
 
 const AdminDashboard = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
 
   const [stats, setStats] = useState({ users: 0, pending: 0 });
   const [loading, setLoading] = useState(true);

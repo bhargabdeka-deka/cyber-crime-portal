@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import {
-  User, MapPin, Camera, LogOut, Save,
+  MapPin, Camera, LogOut, Save,
   CheckCircle, AlertTriangle
 } from "lucide-react";
 
 export default function Profile() {
   const navigate   = useNavigate();
-  const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+  const [storedUser] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
 
   const [form, setForm] = useState({
     name:     storedUser?.name     || "",
@@ -34,7 +34,7 @@ export default function Profile() {
     }).catch(() => {}).finally(() => setFetching(false));
 
     API.get("/complaints/my").then(res => setComplaints(res.data)).catch(() => {});
-  }, []);
+  }, [storedUser]);
 
   if (!storedUser || Object.keys(storedUser).length === 0) {
     return (

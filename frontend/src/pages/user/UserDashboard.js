@@ -15,7 +15,7 @@ export default function UserDashboard() {
   const [loading, setLoading]       = useState(true);
   const [impact, setImpact]         = useState(null);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
 
   useEffect(() => {
     if (!user) return;
