@@ -70,40 +70,40 @@ app.use(express.urlencoded({ extended: true }));
 app.use(mongoSanitize());
 app.use(hpp());
 
+// ================= Static File Serving (Public) =================
+// Serve frontend static build BEFORE any routes/middleware that might block it
+const frontendBuild = path.join(__dirname, "..", "frontend", "build");
+app.use(express.static(frontendBuild));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // ================= API Routes =================
-// Health check for deployment validation
+// Health check
 app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date() }));
 
+// Register routes
 app.use("/api/users", userRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/scam", scamRoutes);
 app.use("/api/admin", adminRoutes);
 
-// ================= Static Upload Folder =================
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ================= Wildcard & Frontend Routing =================
+app.get("*", (req, res) => {
+  // 1. JSON 404 for unknown API endpoints
+  if (req.url.startsWith("/api/")) {
+    return res.status(404).json({ success: false, message: "API endpoint not found" });
+  }
 
-// ================= Serve React Frontend (Production) =================
-if (process.env.NODE_ENV === "production") {
-  const frontendBuild = path.join(__dirname, "..", "frontend", "build");
-  app.use(express.static(frontendBuild));
+  // 2. Serve React's index.html for all other routes (SPA support)
+  const indexPath = path.join(frontendBuild, "index.html");
+  const fs = require("fs");
   
-  app.get("*", (req, res) => {
-    // If it's an API route that wasn't found, don't serve HTML
-    if (req.url.startsWith("/api/")) {
-      return res.status(404).json({ success: false, message: "API endpoint not found" });
-    }
-    
-    const indexPath = path.join(frontendBuild, "index.html");
-    const fs = require("fs");
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(200).json({ success: true, message: "API is active. Frontend build missing." });
-    }
-  });
-} else {
-  app.get("/", (req, res) => res.json({ success: true, message: "Backend API running 🚀" }));
-}
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    // If build doesn't exist, show simple API running message
+    res.json({ success: true, message: "CyberShield API is active. Frontend build not found." });
+  }
+});
 
 // ================= Error Handler =================
 app.use(errorHandler);
