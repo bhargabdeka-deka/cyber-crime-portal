@@ -78,7 +78,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ================= API Routes =================
 // Health check
-app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date() }));
+app.get("/api/health", (req, res) => res.json({ success: true }));
 
 // Register routes
 app.use("/api/users", userRoutes);

@@ -10,7 +10,7 @@ const BASE = rawBase.endsWith("/") ? rawBase.slice(0, -1) : rawBase;
 
 const API = axios.create({
   baseURL: `${BASE}/api`,
-  timeout: 15000,
+  timeout: 30000, // Increased for Render cold starts
 });
 
 // Attach JWT token automatically on every request
@@ -20,10 +20,19 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// Global response error handler
+// Global response error handler with retry logic
 API.interceptors.response.use(
   (res) => res,
-  (err) => {
+  async (err) => {
+    const originalRequest = err.config;
+
+    // Retry once if request timed out or network error (common on cold starts)
+    if ((err.code === "ECONNABORTED" || !err.response) && !originalRequest._retry) {
+      originalRequest._retry = true;
+      console.warn("⚠️ Connection issue. Retrying request...");
+      return API(originalRequest);
+    }
+
     // Auto-logout on expired / invalid token
     if (err.response?.status === 401) {
       console.warn("Unauthorized! Clearing session...");
