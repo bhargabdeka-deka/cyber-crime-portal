@@ -102,8 +102,8 @@ router.get("/:id", protect, async (req, res, next) => {
   try {
     const complaint = await Complaint.findById(req.params.id);
     if (!complaint) return res.status(404).json({ message: "Complaint not found" });
-    if (complaint.user.toString() !== req.user.id)
-      return res.status(403).json({ message: "Not authorized" });
+    if (complaint.user.toString() !== req.user.id && req.user.role !== "admin" && req.user.role !== "superadmin")
+      return res.status(403).json({ message: "Not authorized to view this report" });
     res.json(complaint);
   } catch (error) {
     next(error);
