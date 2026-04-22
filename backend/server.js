@@ -37,6 +37,9 @@ const limiter = rateLimit({
 // Apply rate limiting to all API routes
 app.use("/api/", limiter);
 
+const mongoSanitize = require("express-mongo-sanitize");
+const hpp = require("hpp");
+
 // ================= Body Parsing =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,32 +47,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(mongoSanitize());
 app.use(hpp());
 
-// ================= CORS (Must be AFTER body parsing) =================
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://cybershield-green-two.vercel.app",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000"
-].filter(Boolean);
-
+// ================= DEBUG CORS (Allows all origins for preflight fix) =================
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (Postman/Mobile)
-    if (!origin) return callback(null, true);
-
-    const isAllowed = 
-      allowedOrigins.includes(origin) || 
-      origin.includes("localhost") || 
-      origin.includes("127.0.0.1") || 
-      origin.endsWith(".vercel.app");
-
-    if (isAllowed) {
-      return callback(null, true);
-    } else {
-      console.warn(`🛑 CORS Blocked: ${origin}`);
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: true, // Dynamically allow any origin (perfect for debugging)
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
