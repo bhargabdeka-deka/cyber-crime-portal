@@ -55,19 +55,38 @@ router.post("/register", authLimiter, validateRegister, handleValidationErrors, 
 router.post("/login", authLimiter, validateLogin, handleValidationErrors, async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
+    console.log("Login attempt:", email);
 
-    if (user.isDisabled) return res.status(403).json({ success: false, message: "Account disabled" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log("Login failed: User not found");
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    if (user.isDisabled) {
+      console.log("Login failed: Account disabled");
+      return res.status(403).json({ success: false, message: "Account disabled" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ success: false, message: "Invalid credentials" });
+    console.log("Password match:", isMatch);
+
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.status(200).json({
-      success: true, message: "Login successful", token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role, phone: user.phone, location: user.location, bio: user.bio, avatar: user.avatar }
+      success: true,
+      message: "Login successful",
+      token,
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      }
     });
   } catch (error) {
     next(error);
