@@ -89,9 +89,9 @@ router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename=complaints_${Date.now()}.csv`);
 
-    // Add UTF-8 BOM for Excel compatibility
-    res.write("\ufeff");
-    res.send(header + rows);
+    // Add UTF-8 BOM for Excel compatibility (CRITICAL)
+    const BOM = "\uFEFF";
+    res.status(200).send(BOM + header + rows);
   } catch (error) {
     next(error);
   }
