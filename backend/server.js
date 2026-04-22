@@ -96,16 +96,35 @@ app.get("*", (req, res) => {
 // ================= Error Handler =================
 app.use(errorHandler);
 
-// ================= Start Server =================
-const PORT = process.env.PORT || 5000;
+// ================= Global Error Handlers =================
+process.on("uncaughtException", (err) => {
+  console.error("❌ UNCAUGHT EXCEPTION:", err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
 
-connectDB()
-  .then(() => {
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("❌ UNHANDLED REJECTION at:", promise, "reason:", reason);
+  process.exit(1);
+});
+
+// ================= Start Server =================
+const startServer = async () => {
+  try {
+    // 1. Connect to Database
+    await connectDB();
+    console.log("✅ MongoDB Connected Successfully");
+
+    // 2. Start Express App
+    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`🚀 Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+      console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     });
-  })
-  .catch((err) => {
-    console.error("❌ Database connection failed:", err.message);
+  } catch (error) {
+    console.error("❌ Critical Startup Error:", error.message);
     process.exit(1);
-  });
+  }
+};
+
+startServer();
