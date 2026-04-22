@@ -8,7 +8,7 @@ const { validateRegister, handleValidationErrors } = require("../validators/user
 const router = express.Router();
 
 // ================= CREATE ADMIN (SUPERADMIN ONLY) =================
-router.post("/create-admin", protect, authorizeRoles("superadmin"), validateRegister, handleValidationErrors, async (req, res) => {
+router.post("/create-admin", protect, authorizeRoles("superadmin"), validateRegister, handleValidationErrors, async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -65,14 +65,14 @@ router.post("/create-admin", protect, authorizeRoles("superadmin"), validateRegi
         role: newAdmin.role,
       },
     });
-  } catch (error) {
-    console.error("Create Admin Error:", error);
-    res.status(500).json({ success: false, message: "Server error while creating admin." });
-  }
+    } catch (error) {
+      next(error);
+    }
 });
 
 // ================= DISABLE USER (SOFT DELETE) =================
-router.put("/disable-user/:id", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.put("/disable-user/:id", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
+  console.log(`[ADMIN] Disable user request for ID: ${req.params.id} by Admin: ${req.user.id}`);
   try {
     const userToDisable = await User.findById(req.params.id);
 
@@ -110,14 +110,13 @@ router.put("/disable-user/:id", protect, authorizeRoles("admin", "superadmin"), 
       success: true,
       message: `User ${userToDisable.name} has been disabled.`,
     });
-  } catch (error) {
-    console.error("Disable User Error:", error);
-    res.status(500).json({ success: false, message: "Server error while disabling user." });
-  }
+    } catch (error) {
+      next(error);
+    }
 });
 
 // ================= ENABLE USER (SOFT DELETE REVERSAL) =================
-router.put("/enable-user/:id", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.put("/enable-user/:id", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
   try {
     const userToEnable = await User.findById(req.params.id);
 
@@ -140,22 +139,20 @@ router.put("/enable-user/:id", protect, authorizeRoles("admin", "superadmin"), a
       success: true,
       message: `User ${userToEnable.name} has been enabled.`,
     });
-  } catch (error) {
-    console.error("Enable User Error:", error);
-    res.status(500).json({ success: false, message: "Server error while enabling user." });
-  }
+    } catch (error) {
+      next(error);
+    }
 });
 
 // ================= GET USERS LIST (ADMIN/SUPERADMIN ONLY) =================
-router.get("/users", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.get("/users", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
   try {
     // Include _id so the frontend can call disable/enable by ID
     const users = await User.find({}).select("name email role isDisabled");
     res.status(200).json({ success: true, data: users });
-  } catch (error) {
-    console.error("Get Users List Error:", error);
-    res.status(500).json({ success: false, message: "Server error while fetching users." });
-  }
+    } catch (error) {
+      next(error);
+    }
 });
 
 module.exports = router;

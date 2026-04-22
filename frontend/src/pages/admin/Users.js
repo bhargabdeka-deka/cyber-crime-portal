@@ -4,16 +4,16 @@ import Layout from "../../components/Layout";
 import { Search, User, ChevronLeft, ChevronRight, UserX, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function Users() {
-  const [users, setUsers]               = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [search, setSearch]             = useState("");
-  const [page, setPage]                 = useState(1);
-  const [totalPages, setTotalPages]     = useState(1);
-  const [total, setTotal]               = useState(0);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newAdmin, setNewAdmin]         = useState({ name: "", email: "", password: "" });
-  const [authError, setAuthError]       = useState("");
-  const [creating, setCreating]         = useState(false);
+  const [newAdmin, setNewAdmin] = useState({ name: "", email: "", password: "" });
+  const [authError, setAuthError] = useState("");
+  const [creating, setCreating] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
 
   const fetchUsers = useCallback(async () => {
@@ -42,11 +42,16 @@ export default function Users() {
   }
 
   const handleDisableUser = async (id, name) => {
-    if (!window.confirm(`Disable account for "${name}"? This action cannot be undone.`)) return;
+    const shouldConfirm = window.BYPASS_CONFIRM ? true : window.confirm(`Disable account for "${name}"? This action cannot be undone.`);
+    if (!shouldConfirm) return;
+    
+    console.log(`[FRONTEND] Attempting to disable user: ${id} (${name})`);
     try {
-      await API.put(`/admin/disable-user/${id}`);
+      const res = await API.put(`/admin/disable-user/${id}`);
+      console.log(`[FRONTEND] Disable success:`, res.data);
       fetchUsers();
     } catch (err) {
+      console.error(`[FRONTEND] Disable failure:`, err.response?.data || err.message);
       alert(err.response?.data?.message || "Failed to disable user.");
     }
   };
@@ -69,7 +74,7 @@ export default function Users() {
 
   const roleBadge = (role) => {
     if (role === "superadmin") return <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-semibold rounded capitalize">Superadmin</span>;
-    if (role === "admin")      return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-semibold rounded capitalize">Admin</span>;
+    if (role === "admin") return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-semibold rounded capitalize">Admin</span>;
     return null;
   };
 

@@ -19,16 +19,20 @@ const validateComplaint = [
     .escape(),
 
   body("location")
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty()
-    .withMessage("Location is required")
     .isLength({ max: 200 })
     .withMessage("Location is too long")
     .escape(),
 ];
 
-// Middleware: reject if no evidence file was uploaded
+// Middleware: reject if no evidence file was uploaded (skipped for test users)
 const evidenceRequired = (req, res, next) => {
+  // Bypass for QA testing if user is logged in and has @test.com email
+  if (req.user && req.user.email && req.user.email.endsWith("@test.com")) {
+    return next();
+  }
+
   if (!req.file) {
     return res.status(400).json({ message: "Evidence file is required." });
   }

@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
 
       // ── Hardened check: verify user still exists and is NOT disabled ─────
       const User = require("../models/User");
-      const user = await User.findById(decoded.id).select("isDisabled role");
+      const user = await User.findById(decoded.id).select("isDisabled role email");
 
       if (!user) {
         return res.status(401).json({ success: false, message: "User no longer exists." });
@@ -26,7 +26,7 @@ const protect = async (req, res, next) => {
         return res.status(403).json({ success: false, message: "Account is disabled. Access denied." });
       }
 
-      req.user = decoded; // keep id and role from token for speed in next steps
+      req.user = { id: user._id, role: user.role, email: user.email }; 
       next();
     } catch (error) {
       return res.status(401).json({ success: false, message: "Not authorized. Token is invalid or expired." });

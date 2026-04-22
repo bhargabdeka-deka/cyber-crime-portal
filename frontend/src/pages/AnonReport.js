@@ -51,6 +51,13 @@ export default function AnonReport() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.title.trim().length < 5) {
+      return setStatus({ type: "error", msg: "Title must be at least 5 characters." });
+    }
+    if (form.description.trim().length < 10) {
+      return setStatus({ type: "error", msg: "Description must be at least 10 characters." });
+    }
+
     setLoading(true); setStatus({ type: "", msg: "" });
     try {
       const data = new FormData();

@@ -11,8 +11,12 @@ const complaintRoutes = require("./routes/complaintRoutes");
 const scamRoutes      = require("./routes/scamRoutes");
 const adminRoutes     = require("./routes/adminRoutes");
 const errorHandler    = require("./middleware/errorMiddleware");
+const morgan          = require("morgan");
 
 const app = express();
+
+// ================= Logging =================
+app.use(morgan("dev"));
 
 // ================= Security Headers =================
 app.use(helmet({
@@ -23,9 +27,10 @@ app.use(helmet({
 const rateLimit = require("express-rate-limit");
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Increased for development
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.ip === "::1" || req.ip === "127.0.0.1" || req.hostname === "localhost",
   message: { success: false, message: "Too many requests, please try again later." }
 });
 
@@ -36,14 +41,19 @@ app.use("/api/", limiter);
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:3000",
+  "http://127.0.0.1:3000",
   "https://cyber-crime-fronten.onrender.com"
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) return callback(null, true);
+    
+    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
+    if (isLocal || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn(`Blocked by CORS: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },

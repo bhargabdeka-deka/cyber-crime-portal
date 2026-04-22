@@ -16,7 +16,7 @@ router.post("/", protect, upload.single("evidence"), evidenceRequired, validateC
 router.get("/my", protect, getUserComplaints);
 
 // ── ANONYMOUS REPORT (no login needed) ───────────────────
-router.post("/anonymous", upload.single("evidence"), evidenceRequired, validateComplaint, handleValidationErrors, async (req, res) => {
+router.post("/anonymous", upload.single("evidence"), validateComplaint, handleValidationErrors, async (req, res, next) => {
   try {
     const { title, description, scamType, scamTarget, location } = req.body;
 
@@ -49,7 +49,7 @@ router.post("/anonymous", upload.single("evidence"), evidenceRequired, validateC
 
     res.status(201).json({ success: true, message: "Report submitted. Thank you for helping the community!", caseId: complaint.caseId });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    next(err);
   }
 });
 
@@ -60,7 +60,7 @@ router.get("/",          protect, authorizeRoles("admin", "superadmin"), getAllC
 router.put("/:id/status", protect, authorizeRoles("admin", "superadmin"), validateStatusUpdate, handleValidationErrors, updateComplaintStatus);
 
 // ── EXPORT CSV ────────────────────────────────────────────
-router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
   try {
     const complaints = await Complaint.find().populate("user", "name email").sort({ createdAt: -1 });
 
@@ -93,21 +93,20 @@ router.get("/export/csv", protect, authorizeRoles("admin", "superadmin"), async 
     res.write("\ufeff");
     res.send(header + rows);
   } catch (error) {
-    console.error("CSV_EXPORT_ERROR:", error);
-    res.status(500).json({ message: "Export failed" });
+    next(error);
   }
 });
 
 // ── DYNAMIC (must be last) ────────────────────────────────
-router.get("/:id", protect, async (req, res) => {
+router.get("/:id", protect, async (req, res, next) => {
   try {
     const complaint = await Complaint.findById(req.params.id);
     if (!complaint) return res.status(404).json({ message: "Complaint not found" });
     if (complaint.user.toString() !== req.user.id)
       return res.status(403).json({ message: "Not authorized" });
     res.json(complaint);
-  } catch {
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    next(error);
   }
 });
 

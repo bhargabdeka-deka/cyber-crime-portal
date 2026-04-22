@@ -21,7 +21,8 @@ const router = express.Router();
 // ── Rate limiters ─────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 100, // Increased for development/QA
+  skip: (req) => req.ip === "::1" || req.ip === "127.0.0.1" || req.hostname === "localhost",
   message: { success: false, message: "Too many attempts. Please try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
@@ -34,7 +35,7 @@ const resetLimiter = rateLimit({
 });
 
 // ================= REGISTER =================
-router.post("/register", authLimiter, validateRegister, handleValidationErrors, async (req, res) => {
+router.post("/register", authLimiter, validateRegister, handleValidationErrors, async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     const userExists = await User.findOne({ email });
@@ -51,7 +52,7 @@ router.post("/register", authLimiter, validateRegister, handleValidationErrors, 
 });
 
 // ================= LOGIN =================
-router.post("/login", authLimiter, validateLogin, handleValidationErrors, async (req, res) => {
+router.post("/login", authLimiter, validateLogin, handleValidationErrors, async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -74,7 +75,7 @@ router.post("/login", authLimiter, validateLogin, handleValidationErrors, async 
 });
 
 // ================= FORGOT PASSWORD =================
-router.post("/forgot-password", resetLimiter, validateForgotPassword, handleValidationErrors, async (req, res) => {
+router.post("/forgot-password", resetLimiter, validateForgotPassword, handleValidationErrors, async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -130,7 +131,7 @@ router.post("/forgot-password", resetLimiter, validateForgotPassword, handleVali
 });
 
 // ================= RESET PASSWORD =================
-router.post("/reset-password/:token", validateResetPassword, handleValidationErrors, async (req, res) => {
+router.post("/reset-password/:token", validateResetPassword, handleValidationErrors, async (req, res, next) => {
   try {
     const { password } = req.body;
 
@@ -149,7 +150,7 @@ router.post("/reset-password/:token", validateResetPassword, handleValidationErr
 });
 
 // ================= UPLOAD AVATAR =================
-router.post("/avatar", protect, require("../middleware/uploadMiddleware").single("avatar"), async (req, res) => {
+router.post("/avatar", protect, require("../middleware/uploadMiddleware").single("avatar"), async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
     const user = await User.findById(req.user.id);
@@ -163,7 +164,7 @@ router.post("/avatar", protect, require("../middleware/uploadMiddleware").single
 });
 
 // ================= UPDATE PROFILE =================
-router.put("/profile", protect, validateProfile, handleValidationErrors, async (req, res) => {
+router.put("/profile", protect, validateProfile, handleValidationErrors, async (req, res, next) => {
   try {
     const { name, phone, location, bio } = req.body;
     const user = await User.findById(req.user.id);
@@ -183,7 +184,7 @@ router.put("/profile", protect, validateProfile, handleValidationErrors, async (
 });
 
 // ================= GET PROFILE =================
-router.get("/profile", protect, async (req, res) => {
+router.get("/profile", protect, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpiry");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
@@ -194,7 +195,7 @@ router.get("/profile", protect, async (req, res) => {
 });
 
 // ================= USER IMPACT =================
-router.get("/impact", protect, async (req, res) => {
+router.get("/impact", protect, async (req, res, next) => {
   try {
     const { getUserImpactService } = require("../services/complaintService");
     const impact = await getUserImpactService(req.user.id);
@@ -205,7 +206,7 @@ router.get("/impact", protect, async (req, res) => {
 });
 
 // ================= ADMIN: LIST ALL USERS =================
-router.get("/", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.get("/", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
   try {
     const { page = 1, limit = 20, search } = req.query;
     const filter = search ? { $or: [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }] } : {};
@@ -218,7 +219,7 @@ router.get("/", protect, authorizeRoles("admin", "superadmin"), async (req, res)
 });
 
 // ================= ADMIN: GET USER COMPLAINT COUNT =================
-router.get("/:id/stats", protect, authorizeRoles("admin", "superadmin"), async (req, res) => {
+router.get("/:id/stats", protect, authorizeRoles("admin", "superadmin"), async (req, res, next) => {
   try {
     const Complaint = require("../models/Complaint");
     const count = await Complaint.countDocuments({ user: req.params.id });

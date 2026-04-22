@@ -5,10 +5,10 @@ import axios from "axios";
 // 2. REACT_APP_API_URL set on Render/Vercel dashboard (production)
 // 3. Fallback to same origin (if frontend + backend served together)
 // ─────────────────────────────────────────────────────────────────────────────
-const BASE = process.env.REACT_APP_API_URL || "";
+const BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const API = axios.create({
-  baseURL: BASE ? `${BASE}/api` : "/api",
+  baseURL: `${BASE}/api`,
   timeout: 15000,
 });
 
