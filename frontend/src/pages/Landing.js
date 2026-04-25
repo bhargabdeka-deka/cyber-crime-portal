@@ -53,7 +53,7 @@ export default function Landing() {
         </div>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-500">
-          <button onClick={() => navigate("/report")}    className="hover:text-slate-900 transition-colors">Report</button>
+          <button onClick={() => navigate("/submit-complaint")}    className="hover:text-slate-900 transition-colors">Report</button>
           <button onClick={() => navigate("/trending")}  className="hover:text-slate-900 transition-colors">Trends</button>
           <button onClick={() => navigate("/api-docs")}  className="hover:text-slate-900 transition-colors">Docs</button>
         </div>
@@ -93,7 +93,7 @@ export default function Landing() {
               <button onClick={() => setMobileMenuOpen(false)} className="text-slate-400 hover:text-slate-900"><X size={20} /></button>
             </div>
             <nav className="space-y-4 mb-10">
-              <button onClick={() => { navigate("/report"); setMobileMenuOpen(false); }} className="w-full text-left text-sm font-medium text-slate-600 hover:text-slate-900 block">File a Report</button>
+              <button onClick={() => { navigate("/submit-complaint"); setMobileMenuOpen(false); }} className="w-full text-left text-sm font-medium text-slate-600 hover:text-slate-900 block">File a Report</button>
               <button onClick={() => { navigate("/trending"); setMobileMenuOpen(false); }} className="w-full text-left text-sm font-medium text-slate-600 hover:text-slate-900 block">Scam Trends</button>
               <button onClick={() => { navigate("/api-docs"); setMobileMenuOpen(false); }} className="w-full text-left text-sm font-medium text-slate-600 hover:text-slate-900 block">API Documentation</button>
             </nav>
@@ -237,7 +237,7 @@ export default function Landing() {
         <section className="max-w-5xl mx-auto px-6 pb-20">
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { title: "Report Threat", icon: ShieldCheck,  bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-800", desc: "File an incident report for any cyber fraud.", route: "/report" },
+              { title: "Report Threat", icon: ShieldCheck,  bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-800", desc: "File an incident report for any cyber fraud.", route: "/submit-complaint" },
               { title: "View Alerts",   icon: AlertTriangle, bg: "bg-amber-50",   border: "border-amber-200",   text: "text-amber-800",   desc: "Browse the latest trending scam patterns.",  route: "/trending" },
               { title: "Verify IDs",    icon: CheckCircle,   bg: "bg-blue-50",    border: "border-blue-200",    text: "text-blue-800",    desc: "Check phone numbers, links, and UPI IDs.",   route: "/check-scam" },
             ].map((item, i) => (

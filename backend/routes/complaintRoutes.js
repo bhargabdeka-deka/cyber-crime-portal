@@ -15,43 +15,7 @@ const router = express.Router();
 router.post("/", protect, upload.single("evidence"), evidenceRequired, validateComplaint, handleValidationErrors, createComplaint);
 router.get("/my", protect, getUserComplaints);
 
-// ── ANONYMOUS REPORT (no login needed) ───────────────────
-router.post("/anonymous", upload.single("evidence"), validateComplaint, handleValidationErrors, async (req, res, next) => {
-  try {
-    const { title, description, scamType, scamTarget, location } = req.body;
 
-    const analyzeComplaint = require("../utils/riskAnalyzer");
-    const { upsertScamIntelligence } = require("../controllers/scamController");
-    const { crimeType, scamType: detectedScamType, riskScore, priority } = analyzeComplaint(title, description);
-
-    // Use a system anonymous user ID (fixed ObjectId)
-    const mongoose = require("mongoose");
-    const ANON_ID = new mongoose.Types.ObjectId("000000000000000000000001");
-
-    const complaint = new Complaint({
-      caseId: "ANON-" + Date.now(),
-      user: ANON_ID,
-      title: title.trim(),
-      description: description.trim(),
-      crimeType,
-      scamType: scamType || detectedScamType,
-      scamTarget: scamTarget || "",
-      location: location || "",
-      riskScore,
-      priority,
-      evidence: req.file ? (req.file.path || req.file.secure_url || req.file.url) : null
-    });
-    await complaint.save();
-
-    if (scamTarget) {
-      upsertScamIntelligence({ value: scamTarget, category: scamType || detectedScamType, description: description.slice(0,200), riskScore, caseId: complaint.caseId, location: location || "" }).catch(() => {});
-    }
-
-    res.status(201).json({ success: true, message: "Report submitted. Thank you for helping the community!", caseId: complaint.caseId });
-  } catch (err) {
-    next(err);
-  }
-});
 
 // ── ADMIN ─────────────────────────────────────────────────
 router.get("/stats",     protect, authorizeRoles("admin", "superadmin"), getDashboardStats);

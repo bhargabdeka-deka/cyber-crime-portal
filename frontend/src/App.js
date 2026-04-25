@@ -18,7 +18,7 @@ const MyComplaints    = lazy(() => import("./pages/user/MyComplaints"));
 const Profile         = lazy(() => import("./pages/user/Profile"));
 const ScamChecker     = lazy(() => import("./pages/ScamChecker"));
 const Trending        = lazy(() => import("./pages/Trending"));
-const AnonReport      = lazy(() => import("./pages/AnonReport"));
+
 const ApiDocs         = lazy(() => import("./pages/ApiDocs"));
 const Privacy         = lazy(() => import("./pages/Privacy"));
 const Terms           = lazy(() => import("./pages/Terms"));
@@ -43,7 +43,7 @@ function App() {
           <Route path="/check-scam"     element={<ScamChecker />} />
           <Route path="/check/:value" element={<ScamChecker />} />
           <Route path="/trending"   element={<Trending />} />
-          <Route path="/report"     element={<AnonReport />} />
+
           <Route path="/api-docs"   element={<ApiDocs />} />
           <Route path="/privacy"    element={<Privacy />} />
           <Route path="/terms"      element={<Terms />} />
