@@ -39,7 +39,7 @@ export default function Dashboard() {
     if (!user || (user.role !== "admin" && user.role !== "superadmin")) { navigate("/login"); return; }
 
     API.get("/complaints/analytics")
-      .then(res => setStats(res.data))
+      .then(res => setStats(res.data.analytics || res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [navigate]);

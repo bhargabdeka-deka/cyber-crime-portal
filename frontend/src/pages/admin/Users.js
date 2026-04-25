@@ -121,16 +121,17 @@ export default function Users() {
             <p className="text-sm">No users found.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500">User</th>
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden md:table-cell">Email</th>
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500">Role</th>
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500">Actions</th>
-              </tr>
-            </thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50 text-left">
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">User</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden md:table-cell">Email</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Role</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 text-right">Actions</th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-slate-100">
               {(Array.isArray(users) ? users : []).map(u => (
                 <tr key={u._id} className="hover:bg-slate-50 transition">
@@ -155,22 +156,23 @@ export default function Users() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
-                    {!u.isDisabled && u.role === "user" ? (
-                      <button
-                        onClick={() => handleDisableUser(u._id, u.name)}
-                        className="text-xs text-red-600 hover:text-red-800 font-medium transition"
-                      >
-                        Disable
-                      </button>
-                    ) : (
-                      <span className="text-xs text-slate-300">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <td className="px-4 py-3 text-right">
+                      {!u.isDisabled && u.role === "user" ? (
+                        <button
+                          onClick={() => handleDisableUser(u._id, u.name)}
+                          className="text-xs text-red-600 hover:text-red-800 font-medium transition"
+                        >
+                          Disable
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

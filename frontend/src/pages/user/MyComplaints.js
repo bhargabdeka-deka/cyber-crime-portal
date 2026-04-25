@@ -45,17 +45,12 @@ export default function MyComplaints() {
 
   useEffect(() => {
     API.get("/complaints/my")
-      .then(res => setComplaints(res.data))
+      .then(res => setComplaints(res.data.complaints || res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const openDetails = async (id) => {
-    try {
-      const res = await API.get(`/complaints/${id}`);
-      setSelected(res.data);
-    } catch {}
-  };
+
 
   const complaintsSafe = Array.isArray(complaints) ? complaints : [];
   const filtered = filter === "All" ? complaintsSafe : complaintsSafe.filter(c => c.status === filter);
@@ -134,7 +129,7 @@ export default function MyComplaints() {
             return (
               <div
                 key={c._id}
-                onClick={() => openDetails(c._id)}
+                onClick={() => setSelected(c)}
                 className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition cursor-pointer group"
               >
                 <div className="flex items-start justify-between gap-4">

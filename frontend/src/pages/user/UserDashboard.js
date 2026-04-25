@@ -20,7 +20,7 @@ export default function UserDashboard() {
   useEffect(() => {
     if (!user) return;
     API.get("/complaints/my")
-      .then(res => setComplaints(res.data))
+      .then(res => setComplaints(res.data.complaints || res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
     API.get("/users/impact")
