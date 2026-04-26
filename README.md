@@ -19,6 +19,34 @@ This project was built with a focus on security, scalability, and ease of admini
 
 ---
 
+## Project Structure
+
+```text
+cyber-crime-portal/
+├── backend/
+│   ├── config/             # Database & environment configuration
+│   ├── controllers/        # Request handlers & logic
+│   ├── middleware/         # Auth, Role, & Upload guards
+│   ├── models/             # Mongoose schemas (User, Complaint, Scam)
+│   ├── routes/             # API endpoint definitions
+│   ├── services/           # Business logic & 3rd party integrations
+│   ├── utils/              # Helper functions (Email, Cloudinary)
+│   ├── validators/         # Request validation logic
+│   └── server.js           # Entry point
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── layouts/        # Page wrappers (Admin/User/Public)
+│   │   ├── pages/          # Main views & dashboard logic
+│   │   ├── services/       # Axios API client setup
+│   │   ├── utils/          # Formatting & helper utilities
+│   │   └── App.js          # Routing & global providers
+│   └── index.html          # Entry HTML
+└── README.md
+```
+
+---
+
 ## Core Systems & Logic
 
 ### 1. Risk Scoring Engine
