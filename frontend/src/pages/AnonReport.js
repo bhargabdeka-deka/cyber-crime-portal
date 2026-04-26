@@ -73,7 +73,7 @@ export default function AnonReport() {
   const meta = analysis ? (priorityMeta[analysis.priority] || priorityMeta.Low) : null;
 
   const pageContent = (
-    <div className="max-w-2xl mx-auto py-10 min-h-screen">
+    <div className="max-w-2xl mx-auto px-4 py-10 min-h-screen">
 
       {done ? (
         /* Success State */

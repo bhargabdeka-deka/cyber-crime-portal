@@ -81,7 +81,7 @@ export default function Users() {
   return (
     <Layout>
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Users</h1>
           <p className="text-sm text-slate-500 mt-0.5">{total} registered accounts</p>
@@ -128,6 +128,7 @@ export default function Users() {
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">User</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden md:table-cell">Email</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">Role</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden sm:table-cell">Trust</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500 text-right">Actions</th>
                 </tr>
@@ -140,11 +141,19 @@ export default function Users() {
                       <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0">
                         {initials(u.name)}
                       </div>
-                      <span className="font-medium text-slate-800">{u.name}</span>
+                      <span className="font-medium text-slate-800 truncate max-w-[120px]">{u.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{u.email}</td>
                   <td className="px-4 py-3">{roleBadge(u.role) || <span className="text-slate-400 text-xs capitalize">{u.role}</span>}</td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
+                    <span className={`text-xs font-semibold ${
+                      (u.trustScore ?? 50) >= 50 ? "text-emerald-600" :
+                      (u.trustScore ?? 50) >= 20 ? "text-amber-600" : "text-red-600"
+                    }`}>
+                      {u.trustScore ?? 50}/100
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     {u.isDisabled ? (
                       <span className="flex items-center gap-1 text-red-600 text-xs font-medium">
@@ -156,20 +165,20 @@ export default function Users() {
                       </span>
                     )}
                   </td>
-                    <td className="px-4 py-3 text-right">
-                      {!u.isDisabled && u.role === "user" ? (
-                        <button
-                          onClick={() => handleDisableUser(u._id, u.name)}
-                          className="text-xs text-red-600 hover:text-red-800 font-medium transition"
-                        >
-                          Disable
-                        </button>
-                      ) : (
-                        <span className="text-xs text-slate-300">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                  <td className="px-4 py-3 text-right">
+                    {!u.isDisabled && u.role === "user" ? (
+                      <button
+                        onClick={() => handleDisableUser(u._id, u.name)}
+                        className="text-xs text-red-600 hover:text-red-800 font-medium transition"
+                      >
+                        Disable
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-300">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
               </tbody>
             </table>
           </div>

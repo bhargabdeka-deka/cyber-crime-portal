@@ -15,9 +15,10 @@ const buildImageUrl = (path) => {
 };
 
 const statusConfig = {
-  Pending:       { label: "Pending",     className: "text-amber-700 bg-amber-50 border-amber-200",   icon: Clock },
-  Investigating: { label: "In Progress", className: "text-blue-700 bg-blue-50 border-blue-200",      icon: Search },
+  Pending:       { label: "Pending",     className: "text-amber-700 bg-amber-50 border-amber-200",     icon: Clock },
+  Investigating: { label: "In Progress", className: "text-blue-700 bg-blue-50 border-blue-200",        icon: Search },
   Resolved:      { label: "Resolved",    className: "text-emerald-700 bg-emerald-50 border-emerald-200", icon: CheckCircle },
+  Rejected:      { label: "Rejected",    className: "text-red-700 bg-red-50 border-red-200",            icon: AlertTriangle },
 };
 
 const priorityConfig = {
@@ -148,7 +149,7 @@ export default function Complaints() {
       )}
 
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Complaints</h1>
           <p className="text-sm text-slate-500 mt-0.5">{totalCount} total records</p>
@@ -176,7 +177,7 @@ export default function Complaints() {
         <select
           value={priorityFilter}
           onChange={e => { setPage(1); setPriority(e.target.value); }}
-          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition min-w-[120px]"
         >
           <option value="">All Priorities</option>
           {["Critical", "High", "Medium", "Low"].map(p => <option key={p} value={p}>{p}</option>)}
@@ -184,15 +185,15 @@ export default function Complaints() {
         <select
           value={statusFilter}
           onChange={e => { setPage(1); setStatus(e.target.value); }}
-          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition min-w-[130px]"
         >
           <option value="">All Statuses</option>
-          {["Pending", "Investigating", "Resolved"].map(s => <option key={s} value={s}>{s}</option>)}
+          {["Pending", "Investigating", "Resolved", "Rejected"].map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <select
           value={sort}
           onChange={e => { setPage(1); setSort(e.target.value); }}
-          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition"
+          className="text-sm border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition min-w-[100px]"
         >
           <option value="-createdAt">Newest</option>
           <option value="createdAt">Oldest</option>
@@ -367,20 +368,19 @@ export default function Complaints() {
               {/* Status Stepper */}
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Update Status</p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {STEPS.map(step => {
                     const active = selected.status === step;
                     const isPrev = STEPS.indexOf(step) <= STEPS.indexOf(selected.status);
-                    
                     return (
                       <button
                         key={step}
                         onClick={() => handleStatusChange(selected._id, step)}
                         disabled={isPrev || updating === selected._id}
-                        className={`flex-1 py-2 rounded-md text-xs font-semibold transition border ${
+                        className={`flex-1 min-w-[80px] py-2 rounded-md text-xs font-semibold transition border ${
                           active
                             ? "bg-slate-900 text-white border-slate-900"
-                            : isPrev 
+                            : isPrev
                               ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
                               : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
                         }`}

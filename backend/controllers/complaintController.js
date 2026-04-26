@@ -6,16 +6,74 @@ const {
   getDashboardStatsService,
   getAnalyticsService
 } = require("../services/complaintService");
+const User = require("../models/User");
+const Complaint = require("../models/Complaint");
 
 // ================= CREATE =================
 const createComplaint = async (req, res, next) => {
   try {
     const { title, description, scamType, scamTarget, location } = req.body;
+
+    // ── PART 2: Trust Validation ──────────────────────────────────────
+    const user = await User.findById(req.user.id);
+
+    if (user.isDisabled) {
+      return res.status(403).json({ success: false, message: "Your account has been disabled due to repeated violations." });
+    }
+
+    if (user.trustScore < 20) {
+      return res.status(403).json({ success: false, message: "Your trust score is too low to submit reports. Please contact support." });
+    }
+
+    // ── PART 2: Cooldown (1 report per 60 seconds) ────────────────────
+    if (user.lastReportDate) {
+      const diff = Date.now() - new Date(user.lastReportDate).getTime();
+      if (diff < 60000) {
+        const remaining = Math.ceil((60000 - diff) / 1000);
+        return res.status(429).json({ success: false, message: `Please wait ${remaining} second(s) before submitting another report.` });
+      }
+    }
+
+    // ── PART 5: Duplicate report prevention ──────────────────────────
+    if (scamTarget && scamTarget.trim()) {
+      const existing = await Complaint.findOne({
+        user: req.user.id,
+        scamTarget: scamTarget.trim()
+      });
+      if (existing) {
+        return res.status(400).json({ success: false, message: "You have already reported this target." });
+      }
+    }
+
+    // ── PART 6: Max 3 reports per day ──────────────────────────────
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const todayCount = await Complaint.countDocuments({
+      user: req.user.id,
+      createdAt: { $gte: startOfDay }
+    });
+    if (todayCount >= 3) {
+      return res.status(429).json({ success: false, message: "You have reached the maximum of 3 reports per day. Please try again tomorrow." });
+    }
+
+    // ── PART 7: Evidence validation (description ≥ 20 chars) ─────────────
+    if (!description || description.trim().length < 20) {
+      return res.status(400).json({ success: false, message: "Description must be at least 20 characters long." });
+    }
+
+    // ── Save the complaint ─────────────────────────────────────────
     const complaint = await createComplaintService(
       req.user.id, title, description, req.file,
       { scamType, scamTarget, location }
     );
-    res.status(201).json({ success: true, complaint });
+
+    // ── Update user activity fields after successful report ──────────────
+    // NOTE: trustScore is NOT increased on submission — only on admin approval
+    user.reportCount += 1;
+    user.lastReportDate = new Date();
+    await user.save();
+
+    res.status(201).json({ success: true, complaint, user });
   } catch (error) {
     next(error);
   }
@@ -47,7 +105,6 @@ const updateComplaintStatus = async (req, res, next) => {
     const { id } = req.params;
     const { status: newStatus } = req.body;
 
-    const Complaint = require("../models/Complaint");
     const complaintToUpdate = await Complaint.findById(id);
 
     if (!complaintToUpdate) {
@@ -56,11 +113,11 @@ const updateComplaintStatus = async (req, res, next) => {
 
     const currentStatus = complaintToUpdate.status;
 
-    // 🔒 1. STATUS FLOW RULE (STRICT)
+    // 🔒 1. STATUS FLOW RULE (STRICT) — Rejected added as valid transition
     const allowedTransitions = {
-      Pending: ["Investigating"],
-      Investigating: ["Resolved"],
-      Resolved: []
+      Pending:      ["Investigating", "Rejected"],
+      Investigating: ["Resolved", "Rejected"],
+      Resolved:     []
     };
 
     if (currentStatus === newStatus) {
@@ -72,6 +129,39 @@ const updateComplaintStatus = async (req, res, next) => {
         success: false,
         message: `Invalid transition from ${currentStatus} to ${newStatus}`
       });
+    }
+
+    // ── Trust score updates based on admin decision ───────────────────────
+    if (newStatus === "Rejected") {
+      // PENALTY: fake/invalid report → trustScore -= 15
+      const reportUser = await User.findById(complaintToUpdate.user);
+      if (reportUser) {
+        // Part 4: safe number normalization — guard against NaN/undefined
+        reportUser.trustScore = Number(reportUser.trustScore) || 0;
+        reportUser.trustScore = Math.max(0, reportUser.trustScore - 15);
+        if (reportUser.trustScore <= 10) {
+          reportUser.isDisabled = true;
+          reportUser.disabledAt = new Date();
+        }
+        reportUser.isTrusted = reportUser.trustScore >= 30;
+        await reportUser.save();
+        // Part 6: non-sensitive debug log
+        console.log(`[TrustSystem] PENALTY applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isDisabled: ${reportUser.isDisabled}`);
+      }
+    }
+
+    if (newStatus === "Resolved") {
+      // REWARD: valid report confirmed by admin → trustScore += 5
+      const reportUser = await User.findById(complaintToUpdate.user);
+      if (reportUser) {
+        // Part 4: safe number normalization — guard against NaN/undefined
+        reportUser.trustScore = Number(reportUser.trustScore) || 0;
+        reportUser.trustScore = Math.min(100, reportUser.trustScore + 5);
+        reportUser.isTrusted = reportUser.trustScore >= 30;
+        await reportUser.save();
+        // Part 6: non-sensitive debug log
+        console.log(`[TrustSystem] REWARD applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isTrusted: ${reportUser.isTrusted}`);
+      }
     }
 
     const updatedComplaint = await updateComplaintStatusService(id, newStatus);

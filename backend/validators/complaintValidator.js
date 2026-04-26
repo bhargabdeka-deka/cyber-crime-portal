@@ -14,8 +14,8 @@ const validateComplaint = [
     .trim()
     .notEmpty()
     .withMessage("Description is required")
-    .isLength({ min: 10, max: 1000 })
-    .withMessage("Description must be between 10 and 1000 characters")
+    .isLength({ min: 20, max: 1000 })
+    .withMessage("Description must be at least 20 characters long")
     .escape(),
 
   body("location")
@@ -44,7 +44,7 @@ const validateStatusUpdate = [
   body("status")
     .notEmpty()
     .withMessage("Status is required")
-    .isIn(["Pending", "Investigating", "Resolved"])
+    .isIn(["Pending", "Investigating", "Resolved", "Rejected"])
     .withMessage("Invalid status value")
 ];
 

@@ -181,9 +181,9 @@ export default function MyComplaints() {
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <div>
-                <h2 className="font-semibold text-slate-900">{selected.title}</h2>
-                <p className="text-xs font-mono text-slate-400 mt-0.5">{selected.caseId}</p>
+              <div className="min-w-0">
+                <h2 className="font-semibold text-slate-900 truncate">{selected.title}</h2>
+                <p className="text-xs font-mono text-slate-400 mt-0.5 truncate">{selected.caseId}</p>
               </div>
               <button onClick={() => setSelected(null)} className="p-2 rounded-md text-slate-400 hover:bg-slate-100 transition">
                 <X size={18} />
@@ -210,14 +210,14 @@ export default function MyComplaints() {
               {/* Progress Stepper */}
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Status Progress</p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {STEPS.map((step, i) => {
                     const stepIdx = STEPS.indexOf(selected.status);
                     const done = i <= stepIdx;
                     return (
                       <div
                         key={step}
-                        className={`flex-1 py-2 rounded-md text-xs font-medium text-center border transition ${
+                        className={`flex-1 min-w-[70px] py-2 rounded-md text-xs font-medium text-center border transition ${
                           done
                             ? "bg-slate-900 text-white border-slate-900"
                             : "bg-white text-slate-400 border-slate-200"
@@ -231,7 +231,7 @@ export default function MyComplaints() {
               </div>
 
               {/* Details grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Crime Type</p>
                   <p className="text-sm text-slate-800">{selected.crimeType}</p>

@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema({
   bio:      { type: String, default: "" },
   avatar:   { type: String, default: "" },
 
+  // ── Trust / Anti-Fake-Report fields ────────────────────────────────────────
+  trustScore:     { type: Number, default: 50 },   // user=50, admin=80, superadmin=100
+  reportCount:    { type: Number, default: 0 },
+  lastReportDate: { type: Date },
+  isTrusted:      { type: Boolean, default: false },
+
   // ── Status fields ────────────────────────────────────────────────────────
   isDisabled: { type: Boolean, default: false },
   disabledAt: { type: Date },
@@ -22,6 +28,17 @@ const userSchema = new mongoose.Schema({
   resetTokenExpiry: { type: Date },
 
   createdAt: { type: Date, default: Date.now }
+});
+
+// ── Role-based trustScore default on first save ────────────────────────────
+userSchema.pre("save", function (next) {
+  if (this.isNew) {
+    if (this.role === "superadmin") this.trustScore = 100;
+    else if (this.role === "admin") this.trustScore = 80;
+    else this.trustScore = 50;
+    this.isTrusted = this.trustScore >= 30;
+  }
+  next();
 });
 
 module.exports = mongoose.model("User", userSchema);

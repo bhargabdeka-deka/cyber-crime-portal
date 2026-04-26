@@ -60,11 +60,59 @@ The system enforces strict RBAC across three levels:
 - **Registered User**: File detailed complaints, track case status, and view personal impact dashboard.
 - **Admin/Superadmin**: Full case lifecycle management, user auditing, and data export.
 
-### 3. Security Implementation
+### 3. Trust-Based Anti-Abuse System *(Updated)*
+
+A production-grade trust scoring mechanism prevents fake and spam reports. Every registered user has a `trustScore` (0–100) that reflects reporting quality.
+
+#### Trust Score Rules
+
+| Event | Score Change | Effect |
+|---|---|---|
+| Submit a report | No change | Only activity fields updated |
+| Admin marks report **Resolved** | **+5** (capped at 100) | `isTrusted = score ≥ 30` |
+| Admin marks report **Rejected** | **−15** (floored at 0) | `isDisabled = true` if score ≤ 10 |
+
+#### Default Trust Scores by Role
+| Role | Default Score |
+|---|---|
+| User | 50 |
+| Admin | 80 |
+| Superadmin | 100 |
+
+#### Submission Guards (all enforced server-side)
+1. **Account disabled** → 403 blocked
+2. **Trust score < 20** → 403 blocked
+3. **Cooldown** → 1 report per 60 seconds (429)
+4. **Duplicate target** → Same user + same `scamTarget` blocked (400)
+5. **Daily limit** → Max 3 reports per day (429)
+6. **Description length** → Minimum 20 characters (400)
+
+#### Safety Hardening
+- `Number(trustScore) || 0` normalization prevents NaN arithmetic on corrupt documents
+- `if (reportUser)` null-guards prevent crashes when user document is missing
+- Duplicate status update check prevents double reward/penalty on concurrent admin actions
+- Non-sensitive `[TrustSystem]` console logs trace every trust change in server output
+
+### 4. Security Implementation
 - **Data Sanitization**: `mongo-sanitize` and `hpp` protect against NoSQL injection and parameter pollution.
 - **Rate Limiting**: Applied to all authentication and reporting endpoints to prevent brute-force attacks.
 - **Centralized Error Handling**: Ensures that sensitive stack traces are never exposed in production.
 - **Secure File Storage**: Evidence is uploaded to Cloudinary with strict MIME-type validation.
+
+---
+
+## Mobile Responsiveness *(Updated)*
+
+All pages are fully responsive across mobile, tablet, and desktop breakpoints:
+
+| Page | Mobile Behaviour |
+|---|---|
+| `UserLayout` | Collapsible sidebar on desktop; slide-in drawer with backdrop on mobile (`< lg`) |
+| `SubmitComplaint` | Single-column form, full-width inputs, trust-score banner visible |
+| `MyComplaints` | Card list stacks vertically; modal grid switches to 1-col on `< sm`; stepper wraps |
+| `AnonReport` | `px-4` side padding prevents edge-to-edge content on narrow phones |
+| `Admin / Complaints` | Table has `overflow-x-auto`; filter bar wraps with `min-w` on selects; modal stepper wraps |
+| `Admin / Users` | Header wraps on mobile; email column hidden below `md`; trust score column hidden below `sm` |
 
 ---
 
@@ -117,7 +165,7 @@ The system enforces strict RBAC across three levels:
    ```bash
    # In backend/
    npm run dev
-   
+
    # In frontend/
    npm run dev
    ```
@@ -148,6 +196,24 @@ For security reasons, there is no public signup for administrative roles. To cre
 3. Update the user document's role to `superadmin`.
 
 Once a superadmin is established, they can promote other users to the `admin` role directly through the dashboard.
+
+---
+
+## Changelog
+
+### v2.1.0 — Trust System & Mobile Responsiveness (April 2026)
+- **[Backend]** Removed passive `trustScore += 2` on report submission
+- **[Backend]** Added `+5` trust reward when admin marks a report as **Resolved**
+- **[Backend]** Verified and hardened `-15` penalty when admin marks a report as **Rejected**
+- **[Backend]** Added `Number(trustScore) || 0` normalization to prevent NaN on corrupt documents
+- **[Backend]** Added `[TrustSystem]` console logs for non-sensitive audit trail
+- **[Backend]** Duplicate check uses `scamTarget` field matching schema exactly
+- **[Backend]** `createComplaint` now returns `user` object in 201 response
+- **[Frontend]** `SubmitComplaint.js` syncs returned `user` into `localStorage` on success
+- **[Frontend]** `Admin/Complaints` — header wraps on mobile, filter selects have `min-w`, `Rejected` added to status filter and `statusConfig`
+- **[Frontend]** `Admin/Users` — header wraps on mobile, `Trust` column added (hidden on `< sm`), name truncates safely
+- **[Frontend]** `MyComplaints` — modal title truncates, details grid is `1-col` on mobile, stepper wraps
+- **[Frontend]** `AnonReport` — added `px-4` padding for mobile edge safety
 
 ---
 

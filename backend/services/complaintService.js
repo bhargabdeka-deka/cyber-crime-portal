@@ -89,7 +89,7 @@ const updateComplaintStatusService = async (id, status) => {
 
   // Email user when status changes
   if (oldStatus !== status && complaint.user?.email) {
-    const statusEmoji = { Pending:"⏳", Investigating:"🔍", Resolved:"✅" };
+    const statusEmoji = { Pending:"⏳", Investigating:"🔍", Resolved:"✅", Rejected:"❌" };
     sendEmailTo(
       complaint.user.email,
       `CyberShield: Your complaint ${complaint.caseId} is now ${status}`,

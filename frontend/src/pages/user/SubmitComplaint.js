@@ -35,6 +35,12 @@ export default function SubmitComplaint() {
   const [errors, setErrors]       = useState({});
   const navigate = useNavigate();
 
+  // ── Trust score guard (Part 8) ───────────────────────────────────
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userTrustScore = storedUser?.trustScore ?? 50;
+  const userIsDisabled = storedUser?.isDisabled ?? false;
+  const isBlocked = userIsDisabled || userTrustScore < 20;
+
   useEffect(() => {
     if (formData.title || formData.description) {
       setAnalysis(analyzeComplaint(formData.title, formData.description));
@@ -90,7 +96,12 @@ export default function SubmitComplaint() {
       data.append("location",    formData.location);
       if (formData.evidence) data.append("evidence", formData.evidence);
 
-      await API.post("/complaints", data, { headers: { "Content-Type": "multipart/form-data" } });
+      const response = await API.post("/complaints", data, { headers: { "Content-Type": "multipart/form-data" } });
+
+      // ── Part 6: Sync updated user (trustScore etc.) into localStorage ──────
+      if (response?.data?.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+      }
 
       if (formData.scamTarget) {
         try {
@@ -111,6 +122,24 @@ export default function SubmitComplaint() {
   return (
     <UserLayout>
       <div className="max-w-2xl">
+
+        {/* Trust Score Blocked Banner */}
+        {isBlocked && (
+          <div className="mb-5 p-4 rounded-md border bg-red-50 border-red-200 text-red-800 text-sm flex items-start gap-3">
+            <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-500" />
+            <div>
+              <p className="font-semibold mb-0.5">
+                {userIsDisabled ? "Account Disabled" : "Reporting Restricted"}
+              </p>
+              <p className="text-xs text-red-700">
+                {userIsDisabled
+                  ? "Your account has been disabled due to repeated policy violations. Please contact support."
+                  : `Your trust score (${userTrustScore}/100) is too low to submit reports. Maintain good reporting practices to restore access.`
+                }
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Page Header */}
         <div className="mb-6">
@@ -259,12 +288,14 @@ export default function SubmitComplaint() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || isBlocked}
             className="w-full bg-slate-900 text-white py-3 rounded-md text-sm font-semibold hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
           >
             {loading
               ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
-              : "Submit Report"
+              : isBlocked
+                ? <><AlertTriangle size={15} /> Reporting Disabled</>
+                : "Submit Report"
             }
           </button>
         </form>
