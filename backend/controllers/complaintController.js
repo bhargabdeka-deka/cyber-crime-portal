@@ -157,10 +157,14 @@ const updateComplaintStatus = async (req, res, next) => {
         // Part 4: safe number normalization — guard against NaN/undefined
         reportUser.trustScore = Number(reportUser.trustScore) || 0;
         reportUser.trustScore = Math.min(100, reportUser.trustScore + 5);
+        // ✅ FIX: auto re-enable — if trust recovers above threshold, lift the disable flag
+        if (reportUser.trustScore > 10) {
+          reportUser.isDisabled = false;
+        }
         reportUser.isTrusted = reportUser.trustScore >= 30;
         await reportUser.save();
         // Part 6: non-sensitive debug log
-        console.log(`[TrustSystem] REWARD applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isTrusted: ${reportUser.isTrusted}`);
+        console.log(`[TrustSystem] REWARD applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isDisabled: ${reportUser.isDisabled}, isTrusted: ${reportUser.isTrusted}`);
       }
     }
 
