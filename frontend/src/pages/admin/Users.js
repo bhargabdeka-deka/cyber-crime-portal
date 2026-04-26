@@ -135,33 +135,51 @@ export default function Users() {
               </thead>
             <tbody className="divide-y divide-slate-100">
               {(Array.isArray(users) ? users : []).map(u => (
-                <tr key={u._id} className="hover:bg-slate-50 transition">
+                <tr
+                  key={u._id}
+                  className={`transition ${
+                    u.isDisabled
+                      ? "bg-red-50 opacity-75"
+                      : "hover:bg-slate-50"
+                  }`}
+                >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        u.isDisabled
+                          ? "bg-red-100 text-red-400"
+                          : "bg-slate-200 text-slate-700"
+                      }`}>
                         {initials(u.name)}
                       </div>
-                      <span className="font-medium text-slate-800 truncate max-w-[120px]">{u.name}</span>
+                      <span className={`font-medium truncate max-w-[120px] ${
+                        u.isDisabled ? "text-slate-400 line-through" : "text-slate-800"
+                      }`}>
+                        {u.name}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{u.email}</td>
+                  <td className={`px-4 py-3 hidden md:table-cell ${u.isDisabled ? "text-slate-400" : "text-slate-500"}`}>
+                    {u.email}
+                  </td>
                   <td className="px-4 py-3">{roleBadge(u.role) || <span className="text-slate-400 text-xs capitalize">{u.role}</span>}</td>
                   <td className="px-4 py-3 hidden sm:table-cell">
                     <span className={`text-xs font-semibold ${
-                      (u.trustScore ?? 50) >= 50 ? "text-emerald-600" :
-                      (u.trustScore ?? 50) >= 20 ? "text-amber-600" : "text-red-600"
+                      u.isDisabled                      ? "text-slate-400" :
+                      (u.trustScore ?? 50) >= 50        ? "text-emerald-600" :
+                      (u.trustScore ?? 50) >= 20        ? "text-amber-600"   : "text-red-600"
                     }`}>
                       {u.trustScore ?? 50}/100
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     {u.isDisabled ? (
-                      <span className="flex items-center gap-1 text-red-600 text-xs font-medium">
-                        <UserX size={12} /> Disabled
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600 border border-red-200">
+                        <UserX size={11} /> Disabled
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
-                        <CheckCircle size={12} /> Active
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle size={11} /> Active
                       </span>
                     )}
                   </td>
@@ -174,6 +192,13 @@ export default function Users() {
                       >
                         Disable
                       </button>
+                    ) : u.isDisabled ? (
+                      <span
+                        title="User is already disabled"
+                        className="text-xs px-2 py-0.5 rounded bg-red-50 text-red-400 border border-red-100 cursor-not-allowed select-none"
+                      >
+                        Disabled
+                      </span>
                     ) : (
                       <span className="text-xs text-slate-300">—</span>
                     )}
@@ -182,6 +207,7 @@ export default function Users() {
               ))}
               </tbody>
             </table>
+
           </div>
         )}
       </div>
