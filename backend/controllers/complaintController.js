@@ -175,6 +175,7 @@ const updateComplaintStatus = async (req, res, next) => {
       // REWARD: valid report confirmed by admin → trustScore += 5
       const reportUser = await User.findById(complaintToUpdate.user);
       if (reportUser) {
+        console.log("Updating trust for:", complaintToUpdate.user);
         // Part 4: safe number normalization — guard against NaN/undefined
         reportUser.trustScore = Number(reportUser.trustScore) || 0;
         reportUser.trustScore = Math.min(100, reportUser.trustScore + 5);
@@ -184,10 +185,12 @@ const updateComplaintStatus = async (req, res, next) => {
         }
         reportUser.isTrusted = reportUser.trustScore >= 30;
         await reportUser.save();
+        console.log("New trust:", reportUser.trustScore);
         // Part 6: non-sensitive debug log
         console.log(`[TrustSystem] REWARD applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isDisabled: ${reportUser.isDisabled}, isTrusted: ${reportUser.isTrusted}`);
       }
     }
+
 
     const updatedComplaint = await updateComplaintStatusService(id, newStatus);
     res.status(200).json({ 
