@@ -1,136 +1,128 @@
-# CyberShield — Cyber Crime Reporting & Scam Detection
+# 🛡️ CyberShield
 
-CyberShield is a full-stack MERN (MongoDB, Express, React, Node.js) platform designed to centralize cyber crime reporting and provide real-time scam identifier verification. The system allows users to verify suspicious phone numbers, UPI IDs, and URLs against a community-sourced database, while providing a secure channel for victims to file and track structured complaints.
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](https://cybershield-green-two.vercel.app)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![React](https://img.shields.io/badge/Frontend-React_19-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 
-**Live Application:** [https://cybershield-green-two.vercel.app](https://cybershield-green-two.vercel.app)
+**CyberShield** is a comprehensive, production-grade cybersecurity intelligence and reporting platform. It empowers citizens to report cyber crimes and verify suspicious identifiers (phone numbers, UPI IDs, URLs) in real-time using a community-driven trust ecosystem.
 
----
-
-## Technical Overview
-
-This project was built with a focus on security, scalability, and ease of administration. It implements a layered security architecture to protect user data and ensure the integrity of reported identifiers.
-
-### Core Architecture
-- **Frontend**: React 19 (Vite) with Context API for state management and Tailwind CSS for styling.
-- **Backend**: Node.js and Express.js REST API.
-- **Database**: MongoDB Atlas with Mongoose for schema modeling.
-- **Security**: JWT-based authentication with Role-Based Access Control (RBAC), data sanitization, and rate limiting.
-- **Integrations**: Cloudinary for evidence storage and Resend for email notifications.
+[**Live Demo**](https://cybershield-green-two.vercel.app) | [**Report a Bug**](https://github.com/bhargabdeka-deka/cyber-crime-portal/issues)
 
 ---
 
-## Project Structure
+## 🚀 Key Features
+
+- **🔍 Real-Time Scam Detection**: Instantly verify suspicious numbers or links against a database of confirmed threats.
+- **🛡️ Trust-Based Reporting**: A sophisticated `trustScore` system that rewards high-quality reports and penalizes spam.
+- **📊 Impact Dashboard**: Registered users can track their contribution to community safety with personalized impact stats.
+- **⚖️ Admin Enforcement**: Comprehensive case management system for authorities to investigate, resolve, or reject reports.
+- **📱 Fully Responsive**: A seamless experience across mobile, tablet, and desktop devices.
+- **🔐 Enterprise Security**: JWT-based authentication, RBAC, secure evidence storage via Cloudinary, and automated email notifications.
+
+---
+
+## 🏗️ Project Structure
 
 ```text
 cyber-crime-portal/
-├── backend/
-│   ├── config/             # Database & environment configuration
-│   ├── controllers/        # Request handlers & logic
-│   ├── middleware/         # Auth, Role, & Upload guards
-│   ├── models/             # Mongoose schemas (User, Complaint, Scam)
-│   ├── routes/             # API endpoint definitions
-│   ├── services/           # Business logic & 3rd party integrations
-│   ├── utils/              # Helper functions (Email, Cloudinary)
-│   ├── validators/         # Request validation logic
-│   └── server.js           # Entry point
-├── frontend/
+├── backend/                # Node.js + Express API
+│   ├── config/             # DB & Env configuration
+│   ├── controllers/        # Logical request handlers
+│   ├── middleware/         # JWT, RBAC, & File Upload guards
+│   ├── models/             # Mongoose Schemas (User, Complaint, Scam)
+│   ├── routes/             # API Endpoint definitions
+│   ├── services/           # Abstraction layer for DB & 3rd party logic
+│   ├── utils/              # Email (Resend), Cloudinary, & Math helpers
+│   ├── validators/         # Joi/Express-validator logic
+│   └── server.js           # Server entry point
+├── frontend/               # React 19 + Vite
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── layouts/        # Page wrappers (Admin/User/Public)
-│   │   ├── pages/          # Main views & dashboard logic
-│   │   ├── services/       # Axios API client setup
-│   │   ├── utils/          # Formatting & helper utilities
-│   │   └── App.js          # Routing & global providers
-│   └── index.html          # Entry HTML
-└── README.md
+│   │   ├── components/     # Atomic UI components
+│   │   ├── layouts/        # Sidebar & Header wrappers
+│   │   ├── pages/          # Feature views (Dashboards, Forms, Search)
+│   │   ├── services/       # Axios API client & Interceptors
+│   │   └── App.js          # Router & Global state
+│   └── index.html          # HTML Entry
+└── README.md               # Documentation
 ```
 
 ---
 
-## Core Systems & Logic
+## ⚙️ Core Logic & Security
 
-### 1. Risk Scoring Engine
-The platform uses a weighted keyword and reputation-based algorithm to score reported identifiers.
-- **0–34**: Low Risk (Single reports or unconfirmed flags)
-- **35–54**: Medium Risk (Multiple indicators or recurring reports)
-- **55–100**: High/Critical Risk (Confirmed financial fraud or identity theft)
+### 💎 The Trust Algorithm
+To maintain data integrity, CyberShield implements a "Skin in the Game" trust model:
+- **Baseline**: New users start with a trust score of 50.
+- **Positive Reinforcement**: Admin resolving a report → **+5 Trust Points**.
+- **Negative Reinforcement**: Admin rejecting a fake/spam report → **−15 Trust Points**.
+- **Safety Threshold**: If a user drops below **10**, their account is automatically **Disabled**.
+- **Recovery**: If an account is disabled, filing valid reports (which are then resolved) will auto-enable the account once the score climbs back above 10.
 
-### 2. Multi-Tier Access Control (RBAC)
-The system enforces strict RBAC across three levels:
-- **Public**: Search identifiers and submit anonymous scam reports.
-- **Registered User**: File detailed complaints, track case status, and view personal impact dashboard.
-- **Admin**: Manage cases, verify reports, and disable standard users.
-- **Superadmin**: Full system control, including the ability to disable/enable other Admin accounts.
-
-### 3. Trust-Based Anti-Abuse System
-A production-grade trust scoring mechanism prevents fake and spam reports. Every registered user has a `trustScore` (0–100) that reflects reporting quality.
-
-#### Trust Score Rules
-| Event | Score Change | Effect |
-|---|---|---|
-| Admin marks report **Resolved** | **+5** (capped at 100) | Auto re-enables user if score > 10 |
-| Admin marks report **Rejected** | **−15** (floored at 0) | `isDisabled = true` if score ≤ 10 |
-
-#### Submission Guards (Server-Side)
-1. **Trust score < 20** → 403 Blocked.
-2. **Cooldown** → 1 report per 60 seconds.
-3. **Daily limit** → Max 3 reports per day.
-4. **Description quality** → Min 20 chars, min 5 words, and spam/garbage pattern detection.
+### 🛡️ Submission Guards
+- **Cooldown**: 60-second limit between report submissions to prevent bot flooding.
+- **Daily Quota**: Maximum of 3 reports per user per day.
+- **Content Quality**: Server-side checks for minimum word count (5+) and regex-based spam/garbage pattern detection.
 
 ---
 
-## Recent Improvements & Final Quality Checks
+## 🛠️ Tech Stack
 
-### Backend Hardening
-- **Auto Re-enable Logic**: Users are now automatically re-enabled if their trust score recovers above 10 following a "Resolved" report.
-- **3-Layer Validation**: Implemented strict description checks including minimum length, word count, and regex-based spam/garbage detection.
-- **Null Guards**: Added defensive checks for user documents to prevent server crashes on stale sessions.
-- **Consistent API Responses**: Standardized all error responses to follow the `{ success: false, message: "..." }` format.
-
-### Frontend & UX
-- **Live Trust Sync**: The User Dashboard now fetches the latest trust score and status from the backend on mount, ensuring real-time accuracy.
-- **Admin Table UX**: 
-    - Disabled users are visually highlighted in red-tinted rows.
-    - Status updates are locked for complaints from disabled users to prevent redundant processing.
-    - Added pill badges for "Active" and "Disabled" statuses for instant visual scanning.
-- **Full Device Responsiveness**: 
-    - Tables are wrapped in horizontal scroll containers to prevent layout breakage on mobile.
-    - Modals and forms are optimized for single-column views on narrow screens.
-    - Navigation uses a slide-in drawer on mobile and a fixed sidebar on desktop.
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19, Tailwind CSS, Lucide Icons, Axios |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB Atlas, Mongoose |
+| **Storage** | Cloudinary (Evidence Images) |
+| **Email** | Resend API |
+| **Auth** | JWT (JSON Web Tokens), Bcrypt.js |
 
 ---
 
-## Local Development
+## 📥 Getting Started
 
-1. **Clone the repository:**
+### Prerequisites
+- Node.js (v18+)
+- MongoDB Atlas Account
+- Cloudinary & Resend API Keys
+
+### Installation
+
+1. **Clone & Install**
    ```bash
    git clone https://github.com/bhargabdeka-deka/cyber-crime-portal.git
    cd cyber-crime-portal
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   # Backend
    cd backend && npm install
-   
-   # Frontend
    cd ../frontend && npm install
    ```
 
-3. **Run the application:**
-   ```bash
-   # Backend
-   npm run dev
+2. **Environment Setup**
+   Create a `.env` file in the `backend/` directory:
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_uri
+   JWT_SECRET=your_secret
+   CLOUDINARY_URL=your_cloudinary_url
+   RESEND_API_KEY=your_resend_key
+   ```
 
-   # Frontend
-   npm run dev
+3. **Run Development Servers**
+   ```bash
+   # From root
+   cd backend && npm run dev
+   # From root (separate terminal)
+   cd frontend && npm run dev
    ```
 
 ---
 
-## Changelog (Final Version)
-- **v2.2.0**: Implemented symmetric disable/enable cycle based on trust recovery.
-- **v2.1.5**: Added 3-layer report quality validation (word count + spam detection).
-- **v2.1.0**: Enhanced Admin Dashboard with visual highlights for disabled accounts.
-- **v2.0.5**: Optimized all layouts for 100% mobile responsiveness (no cropping).
-- **v2.0.0**: Initial production-ready trust system deployment.
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 👤 Contact
+
+**Bhargab Deka** - [@bhargabdeka](https://github.com/bhargabdeka-deka)  
+**Project Link:** [https://github.com/bhargabdeka-deka/cyber-crime-portal](https://github.com/bhargabdeka-deka/cyber-crime-portal)
