@@ -39,7 +39,10 @@ const riskToVerdict = (riskLevel, reports) => {
 const checkScam = async (req, res) => {
   try {
     const { value } = req.body;
-    const v = value.toLowerCase();
+    if (!value || !value.trim()) {
+      return res.status(400).json({ success: false, message: "Please provide a value to check." });
+    }
+    const v = value.trim().toLowerCase();
 
     const scam = await Scam.findOne({ value: v });
 
@@ -75,7 +78,7 @@ const checkScam = async (req, res) => {
       relatedCaseIds: scam.relatedCaseIds
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -83,7 +86,10 @@ const checkScam = async (req, res) => {
 const checkScamGet = async (req, res) => {
   try {
     const value = req.query.query;
-    const v = value.toLowerCase();
+    if (!value || !value.trim()) {
+      return res.status(400).json({ success: false, message: "Please provide a query parameter." });
+    }
+    const v = value.trim().toLowerCase();
 
     const scam = await Scam.findOne({ value: v });
 
@@ -109,7 +115,7 @@ const checkScamGet = async (req, res) => {
       actionAdvice: getActionAdvice(scam.category, scam.riskLevel)
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 

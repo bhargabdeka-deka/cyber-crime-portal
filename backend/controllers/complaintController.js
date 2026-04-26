@@ -17,6 +17,10 @@ const createComplaint = async (req, res, next) => {
     // ── PART 2: Trust Validation ──────────────────────────────────────
     const user = await User.findById(req.user.id);
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User account not found." });
+    }
+
     if (user.isDisabled) {
       return res.status(403).json({ success: false, message: "Your account has been disabled due to repeated violations." });
     }
