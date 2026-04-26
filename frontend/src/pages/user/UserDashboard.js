@@ -15,7 +15,22 @@ export default function UserDashboard() {
   const [loading, setLoading]       = useState(true);
   const [impact, setImpact]         = useState(null);
   const navigate = useNavigate();
-  const [user] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
+
+  // Seed from localStorage immediately so nothing flashes empty,
+  // then overwrite with fresh data from the server on mount.
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
+
+  // ── Fetch latest user data (trustScore may have changed since last login) ──
+  useEffect(() => {
+    API.get("/users/profile")
+      .then(res => {
+        if (res?.data?.user) {
+          setUser(res.data.user);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        }
+      })
+      .catch(() => {}); // silently fall back to localStorage value on error
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -27,6 +42,7 @@ export default function UserDashboard() {
       .then(res => setImpact(res.data))
       .catch(() => {});
   }, [user]);
+
 
   if (!user || Object.keys(user).length === 0) {
     return (
