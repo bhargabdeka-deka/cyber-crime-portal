@@ -166,7 +166,8 @@ export default function Users() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {!u.isDisabled && u.role === "user" ? (
+                    {!u.isDisabled && u.role !== "superadmin" &&
+                      (currentUser?.role === "superadmin" || u.role === "user") ? (
                       <button
                         onClick={() => handleDisableUser(u._id, u.name)}
                         className="text-xs text-red-600 hover:text-red-800 font-medium transition"
