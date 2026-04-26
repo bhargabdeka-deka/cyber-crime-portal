@@ -236,47 +236,73 @@ export default function Complaints() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(Array.isArray(complaints) ? complaints : []).map(c => (
-                  <tr key={c._id} className="hover:bg-slate-50 transition cursor-pointer" onClick={() => setSelected(c)}>
-                    <td className="px-4 py-3">
-                      <div className="text-xs font-mono text-slate-700">{c.caseId?.slice(0, 12)}...</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{new Date(c.createdAt).toLocaleDateString()}</div>
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 font-medium">{c.user?.name || "Anonymous"}</td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">{c.crimeType}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${priorityConfig[c.priority] || "text-slate-500 bg-slate-50 border-slate-200"}`}>
-                        {c.priority}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`font-semibold text-sm ${c.riskScore >= 80 ? "text-red-600" : "text-slate-700"}`}>
-                        {c.riskScore}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                      <select
-                        value={c.status}
-                        disabled={updating === c._id || c.status === "Resolved"}
-                        onChange={e => handleStatusChange(c._id, e.target.value)}
-                        className={`text-xs border rounded px-2 py-1 focus:outline-none cursor-pointer ${statusConfig[c.status]?.className || "bg-white border-slate-200"}`}
-                      >
-                        {STEPS.map(s => {
-                          // Disable if target is behind or equal to current
-                          const isDisabled = STEPS.indexOf(s) <= STEPS.indexOf(c.status);
-                          return (
-                            <option key={s} value={s} disabled={isDisabled}>
-                              {s}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button className="text-xs text-slate-400 hover:text-slate-700 transition">View →</button>
-                    </td>
-                  </tr>
-                ))}
+                {(Array.isArray(complaints) ? complaints : []).map(c => {
+                  const reporterDisabled = !!c.user?.isDisabled;
+                  return (
+                    <tr
+                      key={c._id}
+                      onClick={() => setSelected(c)}
+                      className={`transition cursor-pointer ${
+                        reporterDisabled
+                          ? "bg-red-50 opacity-80"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="text-xs font-mono text-slate-700">{c.caseId?.slice(0, 12)}...</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{new Date(c.createdAt).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-medium text-sm ${ reporterDisabled ? "text-slate-400" : "text-slate-700" }`}>
+                          {c.user?.name || "Anonymous"}
+                        </span>
+                        {reporterDisabled && (
+                          <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-500 border border-red-200">
+                            Disabled
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 text-xs">{c.crimeType}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${priorityConfig[c.priority] || "text-slate-500 bg-slate-50 border-slate-200"}`}>
+                          {c.priority}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-semibold text-sm ${c.riskScore >= 80 ? "text-red-600" : "text-slate-700"}`}>
+                          {c.riskScore}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                        {reporterDisabled ? (
+                          <span
+                            title="Reporter account is disabled — status locked"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-red-50 text-red-400 border border-red-100 cursor-not-allowed select-none"
+                          >
+                            🔒 Locked
+                          </span>
+                        ) : (
+                          <select
+                            value={c.status}
+                            disabled={updating === c._id || c.status === "Resolved"}
+                            onChange={e => handleStatusChange(c._id, e.target.value)}
+                            className={`text-xs border rounded px-2 py-1 focus:outline-none cursor-pointer ${statusConfig[c.status]?.className || "bg-white border-slate-200"}`}
+                          >
+                            {STEPS.map(s => {
+                              const isDisabled = STEPS.indexOf(s) <= STEPS.indexOf(c.status);
+                              return (
+                                <option key={s} value={s} disabled={isDisabled}>{s}</option>
+                              );
+                            })}
+                          </select>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button className="text-xs text-slate-400 hover:text-slate-700 transition">View →</button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -327,7 +353,14 @@ export default function Complaints() {
               {/* Reporter */}
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Reporter</p>
-                <p className="text-sm text-slate-800 font-medium">{selected.user?.name || "Anonymous"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-slate-800 font-medium">{selected.user?.name || "Anonymous"}</p>
+                  {selected.user?.isDisabled && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-600 border border-red-200">
+                      Account Disabled
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-slate-400">{selected.user?.email || "No Email"}</p>
               </div>
 
@@ -368,28 +401,34 @@ export default function Complaints() {
               {/* Status Stepper */}
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Update Status</p>
-                <div className="flex flex-wrap gap-2">
-                  {STEPS.map(step => {
-                    const active = selected.status === step;
-                    const isPrev = STEPS.indexOf(step) <= STEPS.indexOf(selected.status);
-                    return (
-                      <button
-                        key={step}
-                        onClick={() => handleStatusChange(selected._id, step)}
-                        disabled={isPrev || updating === selected._id}
-                        className={`flex-1 min-w-[80px] py-2 rounded-md text-xs font-semibold transition border ${
-                          active
-                            ? "bg-slate-900 text-white border-slate-900"
-                            : isPrev
-                              ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
-                              : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
-                        }`}
-                      >
-                        {step}
-                      </button>
-                    );
-                  })}
-                </div>
+                {selected.user?.isDisabled ? (
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-red-50 border border-red-200 text-xs text-red-600">
+                    🔒 Status updates are locked — reporter account is disabled.
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {STEPS.map(step => {
+                      const active = selected.status === step;
+                      const isPrev = STEPS.indexOf(step) <= STEPS.indexOf(selected.status);
+                      return (
+                        <button
+                          key={step}
+                          onClick={() => handleStatusChange(selected._id, step)}
+                          disabled={isPrev || updating === selected._id}
+                          className={`flex-1 min-w-[80px] py-2 rounded-md text-xs font-semibold transition border ${
+                            active
+                              ? "bg-slate-900 text-white border-slate-900"
+                              : isPrev
+                                ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
+                                : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
+                          }`}
+                        >
+                          {step}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Evidence */}

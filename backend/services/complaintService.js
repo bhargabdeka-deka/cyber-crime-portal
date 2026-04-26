@@ -70,7 +70,7 @@ const getAllComplaintsService = async (queryParams) => {
 
   const skip = (page - 1) * limit;
   const complaints = await Complaint.find(filter)
-    .populate("user", "name email")
+    .populate("user", "name email isDisabled")
     .sort(sort).skip(skip).limit(limit);
   const total = await Complaint.countDocuments(filter);
 
@@ -80,7 +80,8 @@ const getAllComplaintsService = async (queryParams) => {
 // ================= UPDATE STATUS =================
 const updateComplaintStatusService = async (id, status) => {
   if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid ID format");
-  const complaint = await Complaint.findById(id).populate("user", "name email");
+  const complaint = await Complaint.findById(id).populate("user", "name email isDisabled");
+
   if (!complaint) throw new Error("Complaint not found");
 
   const oldStatus = complaint.status;
