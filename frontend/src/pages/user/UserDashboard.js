@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import UserLayout from "../../layouts/UserLayout";
 import { useNavigate } from "react-router-dom";
-import { Clock, Search, CheckCircle, Plus, FileText, ShieldCheck, TrendingUp } from "lucide-react";
+import { Clock, Search, CheckCircle, Plus, FileText, ShieldCheck, TrendingUp, AlertTriangle, Shield } from "lucide-react";
 
 const statusConfig = {
   Pending:      { color: "text-amber-600",   bg: "bg-amber-50",   label: "Pending",     icon: Clock },
@@ -51,10 +51,21 @@ export default function UserDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
+  const trustScore    = user?.trustScore ?? 50;
+  const isDisabled    = user?.isDisabled ?? false;
+  const canReport     = !isDisabled && trustScore >= 20;
+
+  const trustTier = trustScore >= 70
+    ? { label: "Trusted",    color: "text-emerald-600", bg: "bg-emerald-50", bar: "bg-emerald-500" }
+    : trustScore >= 30
+    ? { label: "Normal",     color: "text-amber-600",   bg: "bg-amber-50",   bar: "bg-amber-400" }
+    : { label: "Restricted", color: "text-red-600",     bg: "bg-red-50",     bar: "bg-red-500" };
+
   const statCards = [
     { label: "Total Reports",  value: total,                  color: "text-blue-600",    bg: "bg-blue-50" },
     { label: "Resolved",       value: resolved,               color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "In Progress",    value: pending + investigating, color: "text-amber-600",   bg: "bg-amber-50" },
+    { label: "Trust Score",    value: `${trustScore}/100`,    color: trustTier.color,    bg: trustTier.bg  },
   ];
 
   if (loading) {
@@ -96,13 +107,56 @@ export default function UserDashboard() {
       )}
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
         {statCards.map(stat => (
           <div key={stat.label} className="bg-white border border-slate-200 rounded-lg p-4">
             <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
             <div className="text-xs text-slate-500 mt-1">{stat.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Trust Status Panel */}
+      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Shield size={16} className={trustTier.color} />
+            <h3 className="text-sm font-semibold text-slate-700">Trust Status</h3>
+          </div>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+            trustScore >= 70 ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+            trustScore >= 30 ? "bg-amber-50 text-amber-700 border-amber-200" :
+                               "bg-red-50 text-red-700 border-red-200"
+          }`}>
+            {trustTier.label} User
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-full bg-slate-100 rounded-full h-2 mb-3 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${trustTier.bar}`}
+            style={{ width: `${trustScore}%` }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
+          <span>0 — Restricted</span>
+          <span className={`font-semibold ${trustTier.color}`}>{trustScore} / 100</span>
+          <span>100 — Trusted</span>
+        </div>
+
+        {/* Reporting eligibility */}
+        <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-md border ${
+          canReport
+            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+            : "bg-red-50 border-red-200 text-red-700"
+        }`}>
+          {canReport
+            ? <><CheckCircle size={13} /> Reporting enabled — you can submit reports</>  
+            : <><AlertTriangle size={13} /> {isDisabled ? "Account disabled — contact support" : "Reporting restricted — trust score below 20"}</>
+          }
+        </div>
       </div>
 
       {/* Two-column grid */}
