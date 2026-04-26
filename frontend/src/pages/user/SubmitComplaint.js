@@ -71,16 +71,22 @@ export default function SubmitComplaint() {
     const newErrors = {};
     if (!formData.title.trim())       newErrors.title       = "Title is required.";
     if (!formData.description.trim()) newErrors.description = "Description is required.";
+    else if (formData.description.trim().split(/\s+/).length < 5) {
+      newErrors.description = "Please write at least 5 words describing what happened.";
+    } else if (/(.)\1{4,}/.test(formData.description.trim())) {
+      newErrors.description = "Description contains repeated characters. Please write a meaningful description.";
+    }
     if (!formData.location.trim())    newErrors.location    = "Location is required.";
-    
+
     // Evidence optional for test users to facilitate automated E2E tests
     if (!formData.evidence && !isTestUser) {
       newErrors.evidence = "Evidence file is required.";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

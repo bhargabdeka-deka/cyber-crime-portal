@@ -56,10 +56,27 @@ const createComplaint = async (req, res, next) => {
       return res.status(429).json({ success: false, message: "You have reached the maximum of 3 reports per day. Please try again tomorrow." });
     }
 
-    // ── PART 7: Evidence validation (description ≥ 20 chars) ─────────────
+    // ── Description quality validation ───────────────────────────────────
     if (!description || description.trim().length < 20) {
-      return res.status(400).json({ success: false, message: "Description must be at least 20 characters long." });
+      return res.status(400).json({ success: false, message: "Description must be at least 20 meaningful characters." });
     }
+
+    // Spam / garbage text detection
+    const invalidPatterns = [
+      /(.)\1{4,}/,                              // repeated chars: "aaaaaa"
+      /^([a-zA-Z]{1,3}\s)+[a-zA-Z]{1,3}$/,    // all random short words: "adf kj rty"
+    ];
+    const isSpam = invalidPatterns.some(p => p.test(description.trim()));
+    if (isSpam) {
+      return res.status(400).json({ success: false, message: "Invalid or meaningless description detected. Please describe what happened clearly." });
+    }
+
+    // Minimum word count
+    const wordCount = description.trim().split(/\s+/).length;
+    if (wordCount < 5) {
+      return res.status(400).json({ success: false, message: "Please provide more detail — minimum 5 words required." });
+    }
+
 
     // ── Save the complaint ─────────────────────────────────────────
     const complaint = await createComplaintService(
