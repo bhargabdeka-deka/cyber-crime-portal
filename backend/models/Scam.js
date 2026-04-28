@@ -18,10 +18,12 @@ const scamSchema = new mongoose.Schema(
     reports: { type: Number, default: 1 },           // total report count
     riskLevel: {
       type: String,
-      enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
-      default: "LOW"
+      enum: ["Low", "Medium", "High", "Critical"],
+      default: "Low"
     },
-    avgRiskScore:    { type: Number, default: 0 },
+    riskScore:    { type: Number, default: 0 },
+    riskReasons:  [{ type: String }],
+    avgRiskScore: { type: Number, default: 0 },
     lastReportedAt:  { type: Date, default: Date.now },
     locations:       [{ type: String }],             // cities/states reported from
     relatedCaseIds:  [{ type: String }]              // caseIds that reference this target
@@ -31,10 +33,10 @@ const scamSchema = new mongoose.Schema(
 
 // Auto-compute riskLevel from reports count
 scamSchema.methods.computeRiskLevel = function () {
-  if (this.reports >= 10)     return "CRITICAL";
-  if (this.reports >= 5)      return "HIGH";
-  if (this.reports >= 2)      return "MEDIUM";
-  return "LOW";
+  if (this.reports >= 10)     return "Critical";
+  if (this.reports >= 5)      return "High";
+  if (this.reports >= 2)      return "Medium";
+  return "Low";
 };
 
 module.exports = mongoose.model("Scam", scamSchema);

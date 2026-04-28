@@ -20,7 +20,7 @@ export default function Profile() {
   const [loading, setLoading]       = useState(false);
   const [fetching, setFetching]     = useState(true);
   const [status, setStatus]         = useState({ type: "", msg: "" });
-  const [complaints, setComplaints] = useState([]);
+  const [profileData, setProfileData] = useState(null);
   const [avatar, setAvatar]         = useState(storedUser?.avatar || "");
   const [uploading, setUploading]   = useState(false);
   const fileInputRef = useRef(null);
@@ -29,11 +29,10 @@ export default function Profile() {
     if (!storedUser) return;
     API.get("/users/profile").then(res => {
       const u = res.data.user;
+      setProfileData(res.data);
       setForm({ name: u.name || "", phone: u.phone || "", location: u.location || "", bio: u.bio || "" });
       setAvatar(u.avatar || "");
     }).catch(() => {}).finally(() => setFetching(false));
-
-    API.get("/complaints/my").then(res => setComplaints(res.data)).catch(() => {});
   }, [storedUser]);
 
   if (!storedUser || Object.keys(storedUser).length === 0) {
@@ -127,7 +126,7 @@ export default function Profile() {
 
           {/* Left: Avatar Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-slate-200 rounded-lg p-6 text-center sticky top-6">
+            <div className="bg-white border border-slate-200 rounded-lg p-6 text-center lg:sticky lg:top-6">
 
               {/* Avatar */}
               <div
@@ -154,12 +153,45 @@ export default function Profile() {
               {/* Stats */}
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-sm border border-slate-100 rounded-md px-3 py-2">
-                  <span className="text-slate-500">Reports</span>
-                  <span className="font-semibold text-slate-800">{complaints?.length || 0}</span>
+                   <span className="text-slate-500">Trust Score</span>
+                   <span className={`font-bold ${profileData?.user?.trustScore >= 30 ? "text-emerald-600" : "text-red-600"}`}>
+                     {profileData?.user?.trustScore || 0}/100
+                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm border border-slate-100 rounded-md px-3 py-2">
-                  <span className="text-slate-500">Status</span>
-                  <span className="text-emerald-600 font-semibold text-xs">Verified</span>
+                  <span className="text-slate-500">Reputation</span>
+                  <span className={`font-semibold text-xs ${profileData?.user?.trustScore >= 70 ? "text-emerald-600" : "text-amber-600"}`}>
+                    {profileData?.user?.trustScore >= 70 ? "Trusted User" : profileData?.user?.trustScore >= 30 ? "Normal User" : "Restricted"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Reputation Overview Card */}
+            <div className="bg-white border border-slate-200 rounded-lg p-6 mt-5">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">Reputation Overview</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs py-1 border-b border-slate-50">
+                  <span className="text-slate-500">Reports Submitted</span>
+                  <span className="font-medium text-slate-800">{profileData?.stats?.totalReports || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs py-1 border-b border-slate-50">
+                  <span className="text-slate-500">Approved Reports</span>
+                  <span className="font-medium text-emerald-600">{profileData?.stats?.approvedReports || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs py-1 border-b border-slate-50">
+                  <span className="text-slate-500">Rejected Reports</span>
+                  <span className="font-medium text-red-600">{profileData?.stats?.rejectedReports || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs py-1 border-b border-slate-50">
+                  <span className="text-slate-500">Approval Rate</span>
+                  <span className="font-medium text-slate-800">{profileData?.stats?.approvalRate || 0}%</span>
+                </div>
+                <div className="flex justify-between text-xs py-1">
+                  <span className="text-slate-500">Account Status</span>
+                  <span className={`font-medium ${profileData?.user?.isDisabled ? "text-red-600" : "text-emerald-600"}`}>
+                    {profileData?.user?.isDisabled ? "Disabled" : "Active"}
+                  </span>
                 </div>
               </div>
             </div>

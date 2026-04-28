@@ -135,18 +135,36 @@ export default function ScamChecker() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: "Reports",    value: result.reports },
-              { label: "Risk Score", value: result.avgRiskScore || "—" },
-              { label: "Severity",   value: result.riskLevel || "Safe" },
+              { label: "Risk Score", value: `${result.riskScore || result.avgRiskScore || 0}/100` },
+              { label: "Severity",   value: result.riskLevel || "Low", color: 
+                result.riskLevel === "Critical" ? "text-red-600" : 
+                result.riskLevel === "High" ? "text-orange-600" : 
+                result.riskLevel === "Medium" ? "text-amber-600" : "text-emerald-600" 
+              },
             ].map(s => (
               <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center">
-                <div className={`text-xl font-bold ${vc.color}`}>{s.value}</div>
+                <div className={`text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
+
+          {/* Risk Reasons */}
+          {result.riskReasons && result.riskReasons.length > 0 && (
+            <div className="mt-4 p-4 bg-white/50 border border-white/20 rounded-md">
+              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">Why this score?</h4>
+              <ul className="space-y-1.5">
+                {result.riskReasons.map((reason, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                    <span className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 shrink-0" /> {reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Action Advice */}
           {result.actionAdvice && (
@@ -192,7 +210,11 @@ export default function ScamChecker() {
                   <div className="text-xs text-slate-400 capitalize">{a.category}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-xs font-semibold ${a.riskLevel === "CRITICAL" ? "text-red-600" : "text-amber-600"}`}>
+                  <span className={`text-xs font-semibold ${
+                    a.riskLevel?.toUpperCase() === "CRITICAL" ? "text-red-600" : 
+                    a.riskLevel?.toUpperCase() === "HIGH" ? "text-orange-600" : 
+                    "text-amber-600"
+                  }`}>
                     {a.riskLevel}
                   </span>
                   <ChevronRight size={15} className="text-slate-300 group-hover:text-slate-600 transition" />

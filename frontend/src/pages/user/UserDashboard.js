@@ -175,6 +175,32 @@ export default function UserDashboard() {
         </div>
       </div>
 
+      {/* Trust Activity History */}
+      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-6">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4">Trust Activity</h3>
+        {!user.trustHistory || user.trustHistory.length === 0 ? (
+          <p className="text-xs text-slate-400 py-2 text-center">No trust activity recorded yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {[...user.trustHistory].reverse().slice(0, 5).map((entry, idx) => (
+              <div key={idx} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
+                    entry.change > 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                  }`}>
+                    {entry.change > 0 ? `+${entry.change}` : entry.change}
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-slate-700">{entry.reason}</div>
+                    <div className="text-[10px] text-slate-400">{new Date(entry.date).toLocaleDateString()}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Two-column grid */}
       <div className="grid lg:grid-cols-2 gap-5 mb-6">
 

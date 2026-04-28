@@ -1,24 +1,45 @@
-# 🛡️ CyberShield
+# 🛡️ CyberShield: Cybersecurity Intelligence Platform
 
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](https://cybershield-green-two.vercel.app)
 [![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
 [![React](https://img.shields.io/badge/Frontend-React_19-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 
-**CyberShield** is a comprehensive, production-grade cybersecurity intelligence and reporting platform. It empowers citizens to report cyber crimes and verify suspicious identifiers (phone numbers, UPI IDs, URLs) in real-time using a community-driven trust ecosystem.
-
-[**Live Demo**](https://cybershield-green-two.vercel.app) | [**Report a Bug**](https://github.com/bhargabdeka-deka/cyber-crime-portal/issues)
+**CyberShield** is a comprehensive, production-grade cybersecurity intelligence and reporting platform. It empowers citizens to report cyber crimes and verify suspicious identifiers (phone numbers, UPI IDs, URLs) in real-time using a community-driven trust ecosystem and an advanced risk-scoring engine.
 
 ---
 
 ## 🚀 Key Features
 
-- **🔍 Real-Time Scam Detection**: Instantly verify suspicious numbers or links against a database of confirmed threats.
-- **🛡️ Trust-Based Reporting**: A sophisticated `trustScore` system that rewards high-quality reports and penalizes spam.
-- **📊 Impact Dashboard**: Registered users can track their contribution to community safety with personalized impact stats.
-- **⚖️ Admin Enforcement**: Comprehensive case management system for authorities to investigate, resolve, or reject reports.
-- **📱 Fully Responsive**: A seamless experience across mobile, tablet, and desktop devices.
-- **🔐 Enterprise Security**: JWT-based authentication, RBAC, secure evidence storage via Cloudinary, and automated email notifications.
+### 👤 For Citizens (Users)
+- **🔍 Advanced Scam Checker**: Instantly verify suspicious numbers or links with detailed risk scores and specific threat reasons.
+- **🛡️ Reputation Center**: A dedicated profile dashboard showing your contribution, approval rate, and detailed trust activity logs.
+- **📈 Trust History**: Complete transparency into why your trust score changed (Rewards for valid reports, Penalties for spam).
+- **📊 Impact Tracking**: Track your contribution to community safety with personalized impact statistics.
+- **📱 Fully Responsive**: A seamless, high-end experience across mobile, tablet, and desktop devices.
+
+### ⚖️ For Authorities (Admins)
+- **📋 Intelligent Case Management**: Filter and investigate reports based on risk level and reporter trust.
+- **🛠️ Dynamic Status Workflow**: Advanced status transitions (Pending → Investigating → Resolved/Rejected) with automated reputation updates.
+- **🔒 Security Enforcement**: Ability to lock malicious accounts and protect the integrity of the data ecosystem.
+
+---
+
+## ⚙️ Core Logic & Intelligence
+
+### 💎 The Trust Algorithm
+To maintain data integrity, CyberShield implements a "Skin in the Game" trust model:
+- **Baseline**: New users start with a trust score of 50.
+- **Positive Reinforcement**: Admin resolving a report → **+5 Trust Points**.
+- **Negative Reinforcement**: Admin rejecting a fake/spam report → **−15 Trust Points**.
+- **Safety Threshold**: If a user drops below **10**, their account is automatically **Disabled**.
+
+### 🧠 Scam Reputation Engine
+Whenever a report is resolved, the system recalculates the target's threat level using:
+- **Report Volume**: Frequency of reports over time.
+- **Reporter Trust**: Bonuses for reports from "Trusted" community members.
+- **Keyword Severity**: High-risk pattern matching for keywords like *OTP, KYC, Bank, UPI, etc.*
+- **Surge Detection**: Identifies rapid spikes in activity (e.g., >3 reports in 7 days).
 
 ---
 
@@ -28,41 +49,21 @@
 cyber-crime-portal/
 ├── backend/                # Node.js + Express API
 │   ├── config/             # DB & Env configuration
-│   ├── controllers/        # Logical request handlers
+│   ├── controllers/        # Logic handlers (Trust Algorithm, Scam Engine)
 │   ├── middleware/         # JWT, RBAC, & File Upload guards
 │   ├── models/             # Mongoose Schemas (User, Complaint, Scam)
 │   ├── routes/             # API Endpoint definitions
-│   ├── services/           # Abstraction layer for DB & 3rd party logic
-│   ├── utils/              # Email (Resend), Cloudinary, & Math helpers
-│   ├── validators/         # Joi/Express-validator logic
-│   └── server.js           # Server entry point
-├── frontend/               # React 19 + Vite
+│   ├── services/           # DB & 3rd party logic abstraction
+│   └── validators/         # Joi/Express-validator logic
+├── frontend/               # React 19 + Vite + Tailwind
 │   ├── src/
 │   │   ├── components/     # Atomic UI components
-│   │   ├── layouts/        # Sidebar & Header wrappers
-│   │   ├── pages/          # Feature views (Dashboards, Forms, Search)
-│   │   ├── services/       # Axios API client & Interceptors
-│   │   └── App.js          # Router & Global state
+│   │   ├── layouts/        # Dashboard & Navigation wrappers
+│   │   ├── pages/          # Feature views (ScamChecker, Profile, Dashboards)
+│   │   └── services/       # Axios API client & Interceptors
 │   └── index.html          # HTML Entry
 └── README.md               # Documentation
 ```
-
----
-
-## ⚙️ Core Logic & Security
-
-### 💎 The Trust Algorithm
-To maintain data integrity, CyberShield implements a "Skin in the Game" trust model:
-- **Baseline**: New users start with a trust score of 50.
-- **Positive Reinforcement**: Admin resolving a report → **+5 Trust Points**.
-- **Negative Reinforcement**: Admin rejecting a fake/spam report → **−15 Trust Points**.
-- **Safety Threshold**: If a user drops below **10**, their account is automatically **Disabled**.
-- **Recovery**: If an account is disabled, filing valid reports (which are then resolved) will auto-enable the account once the score climbs back above 10.
-
-### 🛡️ Submission Guards
-- **Cooldown**: 60-second limit between report submissions to prevent bot flooding.
-- **Daily Quota**: Maximum of 3 reports per user per day.
-- **Content Quality**: Server-side checks for minimum word count (5+) and regex-based spam/garbage pattern detection.
 
 ---
 
@@ -108,9 +109,9 @@ To maintain data integrity, CyberShield implements a "Skin in the Game" trust mo
 
 3. **Run Development Servers**
    ```bash
-   # From root
+   # Terminal 1
    cd backend && npm run dev
-   # From root (separate terminal)
+   # Terminal 2
    cd frontend && npm run dev
    ```
 

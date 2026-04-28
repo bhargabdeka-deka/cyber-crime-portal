@@ -27,7 +27,22 @@ const userSchema = new mongoose.Schema({
   resetToken:       { type: String },
   resetTokenExpiry: { type: Date },
 
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+
+  trustHistory: [
+    {
+      change: Number, // +5 or -15
+      reason: String, // "Report Approved" / "Report Rejected"
+      complaintId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Complaint"
+      },
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
 });
 
 // ── Role-based trustScore default on first save ────────────────────────────

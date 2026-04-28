@@ -165,6 +165,14 @@ const updateComplaintStatus = async (req, res, next) => {
           reportUser.disabledAt = new Date();
         }
         reportUser.isTrusted = reportUser.trustScore >= 30;
+        
+        // ── PART 1: Trust History ─────────────────────────────────────────
+        reportUser.trustHistory.push({
+          change: -15,
+          reason: "Report Rejected",
+          complaintId: complaintToUpdate._id
+        });
+
         await reportUser.save();
         // Part 6: non-sensitive debug log
         console.log(`[TrustSystem] PENALTY applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isDisabled: ${reportUser.isDisabled}`);
@@ -184,7 +192,21 @@ const updateComplaintStatus = async (req, res, next) => {
           reportUser.isDisabled = false;
         }
         reportUser.isTrusted = reportUser.trustScore >= 30;
+
+        // ── PART 1: Trust History ─────────────────────────────────────────
+        reportUser.trustHistory.push({
+          change: +5,
+          reason: "Report Approved",
+          complaintId: complaintToUpdate._id
+        });
+
         await reportUser.save();
+
+        // ── PART 3: Scam Reputation Engine Update ─────────────────────────
+        if (complaintToUpdate.scamTarget) {
+          const { updateScamReputation } = require("./scamController");
+          updateScamReputation(complaintToUpdate.scamTarget).catch(err => console.error("Scam reputation update failed:", err));
+        }
         console.log("New trust:", reportUser.trustScore);
         // Part 6: non-sensitive debug log
         console.log(`[TrustSystem] REWARD applied — user: ${reportUser._id}, trustScore: ${reportUser.trustScore}, isDisabled: ${reportUser.isDisabled}, isTrusted: ${reportUser.isTrusted}`);

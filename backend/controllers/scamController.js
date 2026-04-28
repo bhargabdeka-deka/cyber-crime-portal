@@ -19,18 +19,72 @@ const computeRiskLevel = (reports, lastReportedAt) => {
   const recencyBoost = daysSince < 7 ? 2 : daysSince < 30 ? 1 : 0;
   const effective = reports + recencyBoost;
 
-  if (effective >= 10) return "CRITICAL";
-  if (effective >= 5)  return "HIGH";
-  if (effective >= 2)  return "MEDIUM";
-  return "LOW";
+  if (effective >= 10) return "Critical";
+  if (effective >= 5)  return "High";
+  if (effective >= 2)  return "Medium";
+  return "Low";
 };
+
+// ── Part 3: Scam Reputation Engine ───────────────────────────────────────────
+const calculateRiskScore = async (scamTarget) => {
+  const Complaint = require("../models/Complaint");
+  const User = require("../models/User");
+
+  const reports = await Complaint.find({ scamTarget: { $regex: scamTarget, $options: "i" } }).populate("user", "isTrusted");
+  
+  const reportCount = reports.length;
+  const trustedReports = reports.filter(r => r.user?.isTrusted).length;
+  
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const recentReports = reports.filter(r => new Date(r.createdAt) >= since).length;
+
+  const keywords = ["OTP", "KYC", "Bank", "Lottery", "Refund", "UPI", "Verification"];
+  const reasons = [];
+  let keywordScore = 0;
+
+  const combinedText = reports.map(r => r.description + " " + r.title).join(" ").toUpperCase();
+  keywords.forEach(word => {
+    if (combinedText.includes(word.toUpperCase())) {
+      keywordScore += 8;
+      reasons.push(`${word} scam keywords detected`);
+    }
+  });
+
+  if (reportCount > 0) reasons.push(`${reportCount} total reports`);
+  if (trustedReports > 0) reasons.push(`${trustedReports} reports from trusted users`);
+  if (recentReports > 3) reasons.push("Recent surge in reports (last 7 days)");
+
+  // Formula
+  let score = (reportCount * 5) + (trustedReports * 10) + keywordScore;
+  if (recentReports > 3) score += 10;
+
+  const finalScore = Math.min(100, Math.max(0, score));
+  
+  let level = "Low";
+  if (finalScore > 75) level = "Critical";
+  else if (finalScore > 50) level = "High";
+  else if (finalScore > 25) level = "Medium";
+
+  return { riskScore: finalScore, riskLevel: level, riskReasons: reasons };
+};
+
+const updateScamReputation = async (scamTarget) => {
+  if (!scamTarget) return;
+  const { riskScore, riskLevel, riskReasons } = await calculateRiskScore(scamTarget);
+  await Scam.findOneAndUpdate(
+    { value: scamTarget.toLowerCase() },
+    { riskScore, riskLevel, riskReasons },
+    { upsert: false }
+  );
+};
+
 
 // ── Risk level → frontend verdict ────────────────────────────────────────────
 const riskToVerdict = (riskLevel, reports) => {
   if (reports === 0)          return { verdict: "safe",      label: "No Reports Found",  color: "#10b981" };
-  if (riskLevel === "CRITICAL") return { verdict: "dangerous", label: "Highly Dangerous",  color: "#ef4444" };
-  if (riskLevel === "HIGH")     return { verdict: "warning",   label: "Suspicious",        color: "#f59e0b" };
-  if (riskLevel === "MEDIUM")   return { verdict: "caution",   label: "Reported",          color: "#f59e0b" };
+  if (riskLevel === "Critical") return { verdict: "dangerous", label: "Highly Dangerous",  color: "#ef4444" };
+  if (riskLevel === "High")     return { verdict: "warning",   label: "Suspicious",        color: "#f59e0b" };
+  if (riskLevel === "Medium")   return { verdict: "caution",   label: "Reported",          color: "#f59e0b" };
   return                               { verdict: "caution",   label: "Reported Once",     color: "#f59e0b" };
 };
 
@@ -215,4 +269,4 @@ const upsertScamIntelligence = async ({ value, category, description, riskScore,
   }
 };
 
-module.exports = { checkScam, checkScamGet, getTrending, getActivity, upsertScamIntelligence };
+module.exports = { checkScam, checkScamGet, getTrending, getActivity, upsertScamIntelligence, updateScamReputation };

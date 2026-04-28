@@ -207,7 +207,20 @@ router.get("/profile", protect, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password -resetToken -resetTokenExpiry");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
-    res.json({ success: true, user });
+
+    const Complaint = require("../models/Complaint");
+    const totalReports = await Complaint.countDocuments({ user: req.user.id });
+    const approvedReports = await Complaint.countDocuments({ user: req.user.id, status: "Resolved" });
+    const rejectedReports = await Complaint.countDocuments({ user: req.user.id, status: "Rejected" });
+    
+    const stats = {
+      totalReports,
+      approvedReports,
+      rejectedReports,
+      approvalRate: totalReports > 0 ? Math.round((approvedReports / totalReports) * 100) : 0
+    };
+
+    res.json({ success: true, user, stats });
   } catch (error) {
     next(error);
   }

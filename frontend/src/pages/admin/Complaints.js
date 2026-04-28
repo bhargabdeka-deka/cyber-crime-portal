@@ -28,7 +28,12 @@ const priorityConfig = {
   Low:      "text-slate-600 bg-slate-50 border-slate-200",
 };
 
-const STEPS = ["Pending", "Investigating", "Resolved"];
+const statusOptions = {
+  Pending:       ["Pending", "Investigating", "Rejected"],
+  Investigating: ["Investigating", "Resolved", "Rejected"],
+  Resolved:      ["Resolved"],
+  Rejected:      ["Rejected"]
+};
 
 export default function Complaints() {
   const [complaints, setComplaints] = useState([]);
@@ -284,16 +289,13 @@ export default function Complaints() {
                         ) : (
                           <select
                             value={c.status}
-                            disabled={updating === c._id || c.status === "Resolved"}
+                            disabled={updating === c._id || c.status === "Resolved" || c.status === "Rejected"}
                             onChange={e => handleStatusChange(c._id, e.target.value)}
                             className={`text-xs border rounded px-2 py-1 focus:outline-none cursor-pointer ${statusConfig[c.status]?.className || "bg-white border-slate-200"}`}
                           >
-                            {STEPS.map(s => {
-                              const isDisabled = STEPS.indexOf(s) <= STEPS.indexOf(c.status);
-                              return (
-                                <option key={s} value={s} disabled={isDisabled}>{s}</option>
-                              );
-                            })}
+                            {(statusOptions[c.status] || [c.status]).map(s => (
+                              <option key={s} value={s} disabled={s === c.status}>{s}</option>
+                            ))}
                           </select>
                         )}
                       </td>
@@ -407,20 +409,17 @@ export default function Complaints() {
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {STEPS.map(step => {
+                    {(statusOptions[selected.status] || [selected.status]).map(step => {
                       const active = selected.status === step;
-                      const isPrev = STEPS.indexOf(step) <= STEPS.indexOf(selected.status);
                       return (
                         <button
                           key={step}
                           onClick={() => handleStatusChange(selected._id, step)}
-                          disabled={isPrev || updating === selected._id}
+                          disabled={active || updating === selected._id}
                           className={`flex-1 min-w-[80px] py-2 rounded-md text-xs font-semibold transition border ${
                             active
                               ? "bg-slate-900 text-white border-slate-900"
-                              : isPrev
-                                ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
-                                : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
+                              : "bg-white text-slate-600 border-slate-300 hover:border-slate-500"
                           }`}
                         >
                           {step}
