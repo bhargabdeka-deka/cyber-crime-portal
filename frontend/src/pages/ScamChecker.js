@@ -4,7 +4,7 @@ import API from "../services/api";
 import UserLayout from "../layouts/UserLayout";
 import Footer from "../components/Footer";
 import { useScrollDirection } from "../hooks/useScrollDirection";
-import { Search, AlertTriangle, CheckCircle, Share2, ChevronRight } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle, Share2, ChevronRight, Info } from "lucide-react";
 import Logo from "../components/Logo";
 
 const verdictConfig = {
@@ -141,9 +141,10 @@ export default function ScamChecker() {
               { label: "Risk Score", value: `${result.riskScore || result.avgRiskScore || 0}/100` },
               { label: "Confidence", value: result.confidenceLevel || "Medium" },
               { label: "Severity",   value: result.riskLevel || "Low", color: 
-                result.riskLevel === "Critical" ? "text-red-600" : 
-                result.riskLevel === "High" ? "text-orange-600" : 
-                result.riskLevel === "Medium" ? "text-amber-600" : "text-emerald-600" 
+                result.riskLevel?.toUpperCase() === "CRITICAL" ? "text-red-600" : 
+                result.riskLevel?.toUpperCase() === "HIGH" ? "text-orange-600" : 
+                result.riskLevel?.toUpperCase() === "MEDIUM" ? "text-amber-600" : 
+                result.riskLevel?.toUpperCase() === "MILD" ? "text-yellow-600" : "text-emerald-600" 
               },
             ].map(s => (
               <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center">
@@ -153,14 +154,25 @@ export default function ScamChecker() {
             ))}
           </div>
 
-          {/* Premium Intelligence: Community Verified Badge */}
-          {result.communityVerified && (
-            <div className="mt-4 flex justify-center">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200 uppercase tracking-wider">
-                <CheckCircle size={12} /> Trusted Community Verified
-              </div>
-            </div>
-          )}
+          {/* Premium Intelligence: Community Verification Badge */}
+          <div className="mt-4 flex justify-center">
+            {(() => {
+              const conf = result.confidenceLevel || "Low";
+              let badge = { label: "Limited Verification", icon: Info, color: "bg-slate-100 text-slate-700 border-slate-200" };
+              
+              if (conf === "High") {
+                badge = { label: "Trusted Community Verified", icon: CheckCircle, color: "bg-emerald-100 text-emerald-700 border-emerald-200" };
+              } else if (conf === "Medium") {
+                badge = { label: "Community Flagged", icon: AlertTriangle, color: "bg-orange-100 text-orange-700 border-orange-200" };
+              }
+
+              return (
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.color} text-[10px] font-bold border uppercase tracking-wider`}>
+                  <badge.icon size={12} /> {badge.label}
+                </div>
+              );
+            })()}
+          </div>
 
           {/* Why this score?: Reason Breakdown */}
           {result.reasonBreakdown && result.reasonBreakdown.length > 0 && (
@@ -200,6 +212,32 @@ export default function ScamChecker() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Premium CTA Box */}
+          {result.reports > 0 && (
+            <div className="mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Logo size={80} />
+              </div>
+              <div className="relative z-10">
+                <h4 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                  <span className="text-emerald-400">🛡</span> Help protect others
+                </h4>
+                <p className="text-slate-400 text-sm mb-5 max-w-md">
+                  Create a CyberShield account and report this scam to strengthen our scam intelligence network and prevent others from being victims.
+                </p>
+                <button
+                  onClick={() => {
+                    if (isLoggedIn) navigate(`/submit-complaint?target=${encodeURIComponent(result.value)}`);
+                    else navigate("/register");
+                  }}
+                  className="bg-white text-slate-900 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-emerald-50 transition shadow-lg"
+                >
+                  {isLoggedIn ? "Report This Scam" : "Create Account & Report"}
+                </button>
               </div>
             </div>
           )}

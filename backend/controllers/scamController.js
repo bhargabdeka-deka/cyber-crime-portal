@@ -246,7 +246,12 @@ const getActionAdvice = (category, riskLevel) => {
     "Account Hacking": ["Share OTP or 2FA codes", "Click 'verify account' links", "Give remote access to your device"],
     "Cyber Harassment":["Engage or respond to threats", "Share personal information", "Pay any demanded amount"],
   };
-  const doThis = ["Block this number/contact immediately", "Report to cybercrime.gov.in", "Warn your contacts about this scam"];
+  const doThis = [
+    "Block this number/contact immediately",
+    "Report to cybercrime.gov.in",
+    "Create a CyberShield account to report this scam and strengthen community protection",
+    "Warn your contacts about this scam"
+  ];
   return { avoid: avoid[category] || ["Share personal information", "Send money", "Click unknown links"], doThis };
 };
 

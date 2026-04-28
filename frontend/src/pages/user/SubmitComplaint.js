@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import API from "../../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import UserLayout from "../../layouts/UserLayout";
 import analyzeComplaint from "../../utils/riskAnalyzer";
 import {
@@ -24,8 +24,11 @@ const ALLOWED_MIME = ["image/png", "image/jpeg", "application/pdf"];
 const ALLOWED_EXT  = ".png, .jpg, .jpeg, .pdf";
 
 export default function SubmitComplaint() {
+  const [searchParams] = useSearchParams();
+  const targetParam    = searchParams.get("target") || "";
+
   const [formData, setFormData] = useState({
-    title: "", description: "", scamType: "", scamTarget: "", location: "", evidence: null
+    title: "", description: "", scamType: "", scamTarget: targetParam, location: "", evidence: null
   });
   const [analysis, setAnalysis]   = useState(null);
   const [status, setStatus]       = useState({ type: "", msg: "" });
