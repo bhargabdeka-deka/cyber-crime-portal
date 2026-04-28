@@ -116,137 +116,149 @@ export default function ScamChecker() {
       {/* Result Card */}
       {result && vc && (
         <div className={`${vc.bg} border ${vc.border} rounded-lg p-6 mb-6`}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
-            <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-md bg-white flex items-center justify-center ${vc.color} border ${vc.border}`}>
-                <vc.icon size={20} />
-              </div>
-              <div>
-                <h3 className={`font-bold text-base ${vc.color}`}>{vc.title}</h3>
-                <p className="text-sm text-slate-600">{vc.sub}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 text-xs font-medium border border-slate-200 bg-white px-3 py-2 rounded-md hover:bg-slate-50 transition text-slate-700"
-            >
-              {copied ? <><CheckCircle size={13} /> Copied</> : <><Share2 size={13} /> Share</>}
-            </button>
-          </div>
+          {(() => {
+            const score = result.riskScore || result.avgRiskScore || 0;
+            const confidence = result.confidenceLevel || (score >= 75 ? "High" : score >= 40 ? "Medium" : "Low");
+            
+            const fallbackReasons = (result.reasonBreakdown && result.reasonBreakdown.length > 0)
+              ? result.reasonBreakdown
+              : [
+                  `${result.reports || 0} community reports found`,
+                  score >= 75
+                    ? "High-risk scam patterns detected"
+                    : score >= 40
+                    ? "Moderate scam indicators detected"
+                    : "Limited scam indicators detected",
+                  result.category
+                    ? `${result.category} category detected`
+                    : "Severity influenced by complaint patterns"
+                ];
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(() => {
-              const score = result.riskScore || result.avgRiskScore || 0;
-              
-              // PART 1 & 3: Severity & Confidence Alignment
-              let severity = "Low";
-              let severityColor = "text-emerald-600";
-              if (score >= 75)      { severity = "Critical"; severityColor = "text-red-600"; }
-              else if (score >= 50) { severity = "High";     severityColor = "text-orange-600"; }
-              else if (score >= 25) { severity = "Medium";   severityColor = "text-amber-600"; }
-
-              const confidence = result.confidenceLevel || (score >= 75 ? "High" : score >= 40 ? "Medium" : "Low");
-
-              return [
-                { label: "Reports",    value: result.reports },
-                { label: "Risk Score", value: `${score}/100` },
-                { label: "Confidence", value: confidence },
-                { label: "Severity",   value: severity, color: severityColor },
-              ].map(s => (
-                <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center shadow-sm">
-                  <div className={`text-lg sm:text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5 font-medium uppercase tracking-wider">{s.label}</div>
+            return (
+              <>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-md bg-white flex items-center justify-center ${vc.color} border ${vc.border}`}>
+                      <vc.icon size={20} />
+                    </div>
+                    <div>
+                      <h3 className={`font-bold text-base ${vc.color}`}>{vc.title}</h3>
+                      {/* PART 2 & 5: Community Trust Badge */}
+                      {(result.reports >= 3 || score >= 60) ? (
+                        <div className="inline-flex items-center gap-1.5 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
+                           <CheckCircle size={10} /> Community Verified Threat
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-600">{vc.sub}</p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-2 text-xs font-medium border border-slate-200 bg-white px-3 py-2 rounded-md hover:bg-slate-50 transition text-slate-700"
+                  >
+                    {copied ? <><CheckCircle size={13} /> Copied</> : <><Share2 size={13} /> Share</>}
+                  </button>
                 </div>
-              ));
-            })()}
-          </div>
 
-          {/* PART 5: Community Trust Badge */}
-          {(result.reports >= 3 || result.communityVerified) && (
-            <div className="mt-4 flex justify-center">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200 uppercase tracking-wider animate-pulse">
-                <CheckCircle size={12} /> Community Verified Threat
-              </div>
-            </div>
-          )}
+                {/* Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {(() => {
+                    // PART 3: Severity Alignment
+                    let severity = "Low";
+                    let severityColor = "text-emerald-600";
+                    if (score >= 75)      { severity = "Critical"; severityColor = "text-red-600"; }
+                    else if (score >= 50) { severity = "High";     severityColor = "text-orange-600"; }
+                    else if (score >= 25) { severity = "Medium";   severityColor = "text-amber-600"; }
 
-          {/* PART 2: Why this score? */}
-          {result.reasonBreakdown && result.reasonBreakdown.length > 0 && (
-            <div className="mt-4 p-5 bg-white/60 border border-white/40 rounded-lg shadow-sm">
-              <h4 className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" /> Why this score?
-              </h4>
-              <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
-                {result.reasonBreakdown.map((reason, i) => (
-                  <li key={i} className="flex items-center gap-3 text-xs text-slate-600 font-medium leading-relaxed">
-                    <span className="text-slate-400 text-lg leading-none">•</span> {reason}
-                  </li>
-                ))}
-                {!result.reasonBreakdown.some(r => r.includes("reports")) && (
-                   <li className="flex items-center gap-3 text-xs text-slate-600 font-medium leading-relaxed">
-                     <span className="text-slate-400 text-lg leading-none">•</span> Based on community reports
-                   </li>
+                    return [
+                      { label: "Reports",    value: result.reports || 0 },
+                      { label: "Risk Score", value: `${score}/100` },
+                      { label: "Confidence", value: confidence },
+                      { label: "Severity",   value: severity, color: severityColor },
+                    ].map(s => (
+                      <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center shadow-sm">
+                        <div className={`text-lg sm:text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5 font-medium uppercase tracking-wider">{s.label}</div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+
+                {/* PART 1: Why this score? (Always Shows) */}
+                <div className="mt-4 p-5 bg-white/60 border border-white/40 rounded-lg shadow-sm">
+                  <h4 className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" /> Why this score?
+                  </h4>
+                  <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+                    {fallbackReasons.map((reason, i) => (
+                      <li key={i} className="flex items-center gap-3 text-xs text-slate-600 font-medium leading-relaxed">
+                        <span className="text-slate-400 text-lg leading-none">•</span> {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action Advice */}
+                {result.actionAdvice && (
+                  <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                    <div className="bg-white rounded-md p-4 border border-red-100">
+                      <h4 className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">What to avoid</h4>
+                      <ul className="space-y-1.5">
+                        {result.actionAdvice.avoid.map((a, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-red-800">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1 shrink-0" /> {a}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-white rounded-md p-4 border border-emerald-100">
+                      {/* PART 5: Label Fix */}
+                      <h4 className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">What to do</h4>
+                      <ul className="space-y-1.5">
+                        {(result.actionAdvice.doThis || []).filter(a => !a.includes("CyberShield")).map((a, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-emerald-800">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" /> {a}
+                          </li>
+                        ))}
+                        {/* PART 4: Force CyberShield CTA */}
+                        <li className="flex items-start gap-2 text-xs text-emerald-800 font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" /> 
+                          Create a CyberShield account and report this scam
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 )}
-              </ul>
-            </div>
-          )}
 
-          {/* Action Advice */}
-          {result.actionAdvice && (
-            <div className="grid sm:grid-cols-2 gap-4 mt-4">
-              <div className="bg-white rounded-md p-4 border border-red-100">
-                <h4 className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">What to avoid</h4>
-                <ul className="space-y-1.5">
-                  {result.actionAdvice.avoid.map((a, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-red-800">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1 shrink-0" /> {a}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-white rounded-md p-4 border border-emerald-100">
-                <h4 className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">Recommended steps</h4>
-                <ul className="space-y-1.5">
-                  {result.actionAdvice.doThis.filter(a => !a.includes("CyberShield")).map((a, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-emerald-800">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" /> {a}
-                    </li>
-                  ))}
-                  <li className="flex items-start gap-2 text-xs text-emerald-800 font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" /> 
-                    Create a CyberShield account and report this scam
-                  </li>
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* Premium CTA Box */}
-          {result.reports > 0 && (
-            <div className="mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Logo size={80} />
-              </div>
-              <div className="relative z-10">
-                <h4 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
-                  <span className="text-emerald-400">🛡</span> Help protect others
-                </h4>
-                <p className="text-slate-400 text-sm mb-5 max-w-md">
-                  Create a CyberShield account and report this scam to strengthen our scam intelligence network and prevent others from being victims.
-                </p>
-                <button
-                  onClick={() => {
-                    if (isLoggedIn) navigate(`/submit-complaint?target=${encodeURIComponent(result.value)}`);
-                    else navigate("/register");
-                  }}
-                  className="bg-white text-slate-900 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-emerald-50 transition shadow-lg"
-                >
-                  {isLoggedIn ? "Report This Scam" : "Create Account & Report"}
-                </button>
-              </div>
-            </div>
-          )}
+                {/* Premium CTA Box */}
+                {(result.reports > 0 || score > 0) && (
+                  <div className="mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Logo size={80} />
+                    </div>
+                    <div className="relative z-10">
+                      <h4 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                        <span className="text-emerald-400">🛡</span> Help protect others
+                      </h4>
+                      <p className="text-slate-400 text-sm mb-5 max-w-md">
+                        Create a CyberShield account and report this scam to strengthen our scam intelligence network and prevent others from being victims.
+                      </p>
+                      <button
+                        onClick={() => {
+                          if (isLoggedIn) navigate(`/submit-complaint?target=${encodeURIComponent(result.value)}`);
+                          else navigate("/register");
+                        }}
+                        className="bg-white text-slate-900 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-emerald-50 transition shadow-lg"
+                      >
+                        {isLoggedIn ? "Report This Scam" : "Create Account & Report"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -297,7 +309,7 @@ export default function ScamChecker() {
             Sign In
           </button>
           <button onClick={() => navigate("/register")} className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition">
-            Register
+            Sign Up
           </button>
         </div>
       </header>

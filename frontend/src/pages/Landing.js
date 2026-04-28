@@ -14,34 +14,17 @@ import Logo from "../components/Logo";
 /* ─── Step 2+3: accent color token ─────────────────────────── */
 const ACCENT = "#0ea5e9"; // sky-500 — professional, not garish
 
-const verdictConfig = {
-  safe:      { color: "text-emerald-700", bg: "bg-emerald-50",  border: "border-emerald-200", icon: CheckCircle,  title: "No Reports Found",  sub: "This target has no records in our database." },
-  caution:   { color: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-200",   icon: AlertTriangle, title: "Reported Once",      sub: "One incident found. Proceed with caution." },
-  warning:   { color: "text-orange-700",  bg: "bg-orange-50",  border: "border-orange-200",  icon: AlertTriangle, title: "Suspicious",         sub: "Multiple reports found. Do not engage." },
-  dangerous: { color: "text-red-700",     bg: "bg-red-50",     border: "border-red-200",     icon: AlertTriangle, title: "Highly Dangerous",   sub: "Confirmed scam. Do NOT engage with this entity." },
-};
-
 export default function Landing() {
   const navigate = useNavigate();
-  const [query, setQuery]             = useState("");
-  const [checkResult, setCheckResult] = useState(null);
-  const [loading, setLoading]         = useState(false);
+  const [query, setQuery] = useState("");
   const isVisible = useScrollDirection();
   const w = useWindowWidth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const triggerCheck = async (val) => {
-    if (!val) return;
-    setLoading(true);
-    try {
-      const res = await API.get(`/scam/check?query=${val}`);
-      setCheckResult(res.data);
-    } catch {
-      setCheckResult({ verdict: "caution", note: "Could not reach database. Proceed with caution." });
-    } finally { setLoading(false); }
+  const handleCheck = (e) => { 
+    e.preventDefault(); 
+    if (query.trim()) navigate(`/check/${encodeURIComponent(query.trim())}`);
   };
-
-  const handleCheck = (e) => { e.preventDefault(); triggerCheck(query); };
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#f5f7fa] overflow-x-hidden">
@@ -142,16 +125,13 @@ export default function Landing() {
             </div>
             {/* Step 4: consistent primary button */}
             <button
-              type="submit" disabled={loading}
-              className="text-white text-sm font-semibold px-5 py-2.5 rounded-md disabled:opacity-50 transition-colors flex items-center gap-2"
+              type="submit"
+              className="text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-colors flex items-center gap-2"
               style={{ background: "#0f172a" }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "#1e293b"; }}
+              onMouseEnter={e => e.currentTarget.style.background = "#1e293b"}
               onMouseLeave={e => e.currentTarget.style.background = "#0f172a"}
             >
-              {loading
-                ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : <><Search size={13} /> Check</>
-              }
+              <Search size={13} /> Check
             </button>
           </form>
 
@@ -161,7 +141,7 @@ export default function Landing() {
             {["9876543210", "sbi-kyc-check.in", "lottery@scam.in"].map(ex => (
               <button
                 key={ex}
-                onClick={() => { setQuery(ex); triggerCheck(ex); }}
+                onClick={() => navigate(`/check/${encodeURIComponent(ex)}`)}
                 className="text-xs text-slate-500 border border-slate-200 bg-white px-3 py-1 rounded-md hover:border-slate-400 hover:text-slate-800 transition-colors"
               >
                 {ex}
@@ -169,68 +149,7 @@ export default function Landing() {
             ))}
           </div>
 
-          {/* Inline Result Card */}
-          {(() => {
-            const vc = checkResult ? (verdictConfig[checkResult.verdict] || verdictConfig.safe) : null;
-            if (!vc) return null;
-            return (
-              <div className={`${vc.bg} border ${vc.border} rounded-lg p-5 text-left mb-6 max-w-xl mx-auto`}>
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-md bg-white border ${vc.border} flex items-center justify-center ${vc.color}`}>
-                      <vc.icon size={18} />
-                    </div>
-                    <div>
-                      <h3 className={`font-bold text-sm ${vc.color}`}>{vc.title}</h3>
-                      <p className="text-xs text-slate-600">{vc.sub}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/check-scam/${query}`)}
-                    className="text-xs flex items-center gap-1 text-slate-500 hover:text-slate-800 border border-slate-200 bg-white px-3 py-1.5 rounded-md transition-colors whitespace-nowrap"
-                  >
-                    <Share2 size={12} /> Share
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: "Reports",    value: checkResult.reports || 0 },
-                    { label: "Risk Score", value: checkResult.avgRiskScore || "—" },
-                    { label: "Severity",   value: checkResult.riskLevel || "Low" },
-                  ].map(s => (
-                    <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center">
-                      <div className={`text-lg font-bold ${vc.color}`}>{s.value}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-                {checkResult.actionAdvice && (
-                  <div className="grid sm:grid-cols-2 gap-3 mt-3">
-                    <div className="bg-white rounded-md p-3 border border-red-100">
-                      <p className="text-[10px] font-semibold text-red-600 uppercase tracking-wide mb-1.5">What to avoid</p>
-                      <ul className="space-y-1">
-                        {(checkResult.actionAdvice?.avoid || []).slice(0, 2).map((a, i) => (
-                          <li key={i} className="text-xs text-red-800 flex gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1 shrink-0" />{a}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-white rounded-md p-3 border border-emerald-100">
-                      <p className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1.5">What to do</p>
-                      <ul className="space-y-1">
-                        {(checkResult.actionAdvice?.doThis || []).slice(0, 2).map((a, i) => (
-                          <li key={i} className="text-xs text-emerald-800 flex gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" />{a}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          {/* Inline Result Card Removed for Unification */}
         </section>
 
         {/* ── Step 5: Feature Cards — hover lift ───────────── */}
