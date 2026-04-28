@@ -2,10 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ShieldCheck, AlertTriangle, Phone, Globe,
-  CreditCard, CheckCircle, ArrowRight, Search, Share2,
+  CreditCard, CheckCircle, ArrowRight, Search,
   Menu, X
 } from "lucide-react";
-import API from "../services/api";
 import { useScrollDirection } from "../hooks/useScrollDirection";
 import useWindowWidth from "../hooks/useWindowWidth";
 import Footer from "../components/Footer";
@@ -119,7 +118,7 @@ export default function Landing() {
                 type="text"
                 placeholder={w < 640 ? "Enter number or URL..." : "Phone number, UPI ID, or URL..."}
                 value={query}
-                onChange={e => { setQuery(e.target.value); setCheckResult(null); }}
+                onChange={e => setQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 transition"
               />
             </div>
