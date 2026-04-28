@@ -4,7 +4,7 @@ import API from "../services/api";
 import UserLayout from "../layouts/UserLayout";
 import Footer from "../components/Footer";
 import { useScrollDirection } from "../hooks/useScrollDirection";
-import { Search, AlertTriangle, CheckCircle, Share2, ChevronRight, Info } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle, Share2, ChevronRight } from "lucide-react";
 import Logo from "../components/Logo";
 
 const verdictConfig = {
