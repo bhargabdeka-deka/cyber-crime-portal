@@ -12,9 +12,11 @@
 ## 🚀 Key Features
 
 ### 👤 For Citizens (Users)
-- **🔍 Advanced Scam Checker**: Instantly verify suspicious numbers or links with detailed risk scores and specific threat reasons.
-- **🛡️ Reputation Center**: A dedicated profile dashboard showing your contribution, approval rate, and detailed trust activity logs.
+- **🔍 Premium Scam Reputation Engine V2**: A sophisticated weighted intelligence system with real-time risk scores (0-100) and explainable threat analysis.
+- **🛡️ "Why this score?" Explainability**: Full transparency into every flag, including trusted reporter counts, admin verified cases, and keyword indicators.
+- **📊 Reputation Center**: A dedicated profile dashboard showing your contribution, approval rate, and detailed trust activity logs.
 - **📈 Trust History**: Complete transparency into why your trust score changed (Rewards for valid reports, Penalties for spam).
+- **⚡ Confidence Scoring**: Real-time confidence metrics (Low/Medium/High) based on the quality and verification of incoming data.
 - **📊 Impact Tracking**: Track your contribution to community safety with personalized impact statistics.
 - **📱 Fully Responsive**: A seamless, high-end experience across mobile, tablet, and desktop devices.
 
@@ -26,6 +28,15 @@
 ---
 
 ## ⚙️ Core Logic & Intelligence
+
+### 🧠 Premium Scam Reputation Engine V2
+The platform uses a weighted intelligence formula to calculate cyber threat levels:
+- **Report Volume**: Dynamic weighting (+10 to +40) based on total report frequency.
+- **Trusted Reporter Weight**: Multiplier effect for reports from high-trust community members.
+- **Admin Status Weight**: Significant score boosts (+20) for cases officially resolved by authorities.
+- **Scam Type Severity**: Intelligent classification (Financial Fraud, OTP Scam, etc.) with tiered severity weights.
+- **Keyword Intelligence**: Automated scanning for high-risk patterns (*KYC, UPI, Bank, Password*).
+- **Strict Severity Tiers**: Scores are mapped strictly to categories: 0-19 (Low) up to 80-100 (Critical).
 
 ### 💎 The Trust Algorithm
 To maintain data integrity, CyberShield implements a "Skin in the Game" trust model:

@@ -135,10 +135,11 @@ export default function ScamChecker() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Reports",    value: result.reports },
               { label: "Risk Score", value: `${result.riskScore || result.avgRiskScore || 0}/100` },
+              { label: "Confidence", value: result.confidenceLevel || "Medium" },
               { label: "Severity",   value: result.riskLevel || "Low", color: 
                 result.riskLevel === "Critical" ? "text-red-600" : 
                 result.riskLevel === "High" ? "text-orange-600" : 
@@ -146,20 +147,31 @@ export default function ScamChecker() {
               },
             ].map(s => (
               <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center">
-                <div className={`text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
+                <div className={`text-lg sm:text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Risk Reasons */}
-          {result.riskReasons && result.riskReasons.length > 0 && (
-            <div className="mt-4 p-4 bg-white/50 border border-white/20 rounded-md">
-              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">Why this score?</h4>
-              <ul className="space-y-1.5">
-                {result.riskReasons.map((reason, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                    <span className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 shrink-0" /> {reason}
+          {/* Premium Intelligence: Community Verified Badge */}
+          {result.communityVerified && (
+            <div className="mt-4 flex justify-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200 uppercase tracking-wider">
+                <CheckCircle size={12} /> Trusted Community Verified
+              </div>
+            </div>
+          )}
+
+          {/* Why this score?: Reason Breakdown */}
+          {result.reasonBreakdown && result.reasonBreakdown.length > 0 && (
+            <div className="mt-4 p-5 bg-white/60 border border-white/40 rounded-lg shadow-sm">
+              <h4 className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" /> Why this score?
+              </h4>
+              <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+                {result.reasonBreakdown.map((reason, i) => (
+                  <li key={i} className="flex items-center gap-3 text-xs text-slate-600 font-medium leading-relaxed">
+                    <span className="text-slate-400 text-lg leading-none">•</span> {reason}
                   </li>
                 ))}
               </ul>
