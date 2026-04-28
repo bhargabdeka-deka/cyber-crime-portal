@@ -136,45 +136,42 @@ export default function ScamChecker() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Reports",    value: result.reports },
-              { label: "Risk Score", value: `${result.riskScore || result.avgRiskScore || 0}/100` },
-              { label: "Confidence", value: result.confidenceLevel || "Medium" },
-              { label: "Severity",   value: result.riskLevel || "Low", color: 
-                result.riskLevel?.toUpperCase() === "CRITICAL" ? "text-red-600" : 
-                result.riskLevel?.toUpperCase() === "HIGH" ? "text-orange-600" : 
-                result.riskLevel?.toUpperCase() === "MEDIUM" ? "text-amber-600" : 
-                result.riskLevel?.toUpperCase() === "MILD" ? "text-yellow-600" : "text-emerald-600" 
-              },
-            ].map(s => (
-              <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center">
-                <div className={`text-lg sm:text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Premium Intelligence: Community Verification Badge */}
-          <div className="mt-4 flex justify-center">
             {(() => {
-              const conf = result.confidenceLevel || "Low";
-              let badge = { label: "Limited Verification", icon: Info, color: "bg-slate-100 text-slate-700 border-slate-200" };
+              const score = result.riskScore || result.avgRiskScore || 0;
               
-              if (conf === "High") {
-                badge = { label: "Trusted Community Verified", icon: CheckCircle, color: "bg-emerald-100 text-emerald-700 border-emerald-200" };
-              } else if (conf === "Medium") {
-                badge = { label: "Community Flagged", icon: AlertTriangle, color: "bg-orange-100 text-orange-700 border-orange-200" };
-              }
+              // PART 1 & 3: Severity & Confidence Alignment
+              let severity = "Low";
+              let severityColor = "text-emerald-600";
+              if (score >= 75)      { severity = "Critical"; severityColor = "text-red-600"; }
+              else if (score >= 50) { severity = "High";     severityColor = "text-orange-600"; }
+              else if (score >= 25) { severity = "Medium";   severityColor = "text-amber-600"; }
 
-              return (
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.color} text-[10px] font-bold border uppercase tracking-wider`}>
-                  <badge.icon size={12} /> {badge.label}
+              const confidence = result.confidenceLevel || (score >= 75 ? "High" : score >= 40 ? "Medium" : "Low");
+
+              return [
+                { label: "Reports",    value: result.reports },
+                { label: "Risk Score", value: `${score}/100` },
+                { label: "Confidence", value: confidence },
+                { label: "Severity",   value: severity, color: severityColor },
+              ].map(s => (
+                <div key={s.label} className="bg-white border border-white rounded-md p-3 text-center shadow-sm">
+                  <div className={`text-lg sm:text-xl font-bold ${s.color || vc.color}`}>{s.value}</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5 font-medium uppercase tracking-wider">{s.label}</div>
                 </div>
-              );
+              ));
             })()}
           </div>
 
-          {/* Why this score?: Reason Breakdown */}
+          {/* PART 5: Community Trust Badge */}
+          {(result.reports >= 3 || result.communityVerified) && (
+            <div className="mt-4 flex justify-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200 uppercase tracking-wider animate-pulse">
+                <CheckCircle size={12} /> Community Verified Threat
+              </div>
+            </div>
+          )}
+
+          {/* PART 2: Why this score? */}
           {result.reasonBreakdown && result.reasonBreakdown.length > 0 && (
             <div className="mt-4 p-5 bg-white/60 border border-white/40 rounded-lg shadow-sm">
               <h4 className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -186,6 +183,11 @@ export default function ScamChecker() {
                     <span className="text-slate-400 text-lg leading-none">•</span> {reason}
                   </li>
                 ))}
+                {!result.reasonBreakdown.some(r => r.includes("reports")) && (
+                   <li className="flex items-center gap-3 text-xs text-slate-600 font-medium leading-relaxed">
+                     <span className="text-slate-400 text-lg leading-none">•</span> Based on community reports
+                   </li>
+                )}
               </ul>
             </div>
           )}
@@ -206,11 +208,15 @@ export default function ScamChecker() {
               <div className="bg-white rounded-md p-4 border border-emerald-100">
                 <h4 className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">Recommended steps</h4>
                 <ul className="space-y-1.5">
-                  {result.actionAdvice.doThis.map((a, i) => (
+                  {result.actionAdvice.doThis.filter(a => !a.includes("CyberShield")).map((a, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-emerald-800">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" /> {a}
                     </li>
                   ))}
+                  <li className="flex items-start gap-2 text-xs text-emerald-800 font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" /> 
+                    Create a CyberShield account and report this scam
+                  </li>
                 </ul>
               </div>
             </div>
