@@ -92,6 +92,12 @@ export default function Landing() {
         {/* ── Hero ─────────────────────────────────────────── */}
         <section className="max-w-3xl mx-auto px-6 py-20 text-center">
 
+          {/* AI Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-6 shadow-sm animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            AI-Powered Scam Intelligence
+          </div>
+
           {/* Step 2: accent on one key word only */}
           <h1
             className="text-4xl md:text-6xl font-extrabold text-slate-900 leading-tight mb-4"
@@ -111,7 +117,7 @@ export default function Landing() {
           </p>
 
           {/* Search bar */}
-          <form onSubmit={handleCheck} className="flex gap-2 max-w-xl mx-auto mb-4">
+          <form onSubmit={handleCheck} className="flex gap-2 max-w-xl mx-auto mb-3">
             <div className="relative flex-grow">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -133,6 +139,12 @@ export default function Landing() {
               <Search size={13} /> Check
             </button>
           </form>
+
+          {/* AI Intelligence Subtext */}
+          <p className="text-[11px] text-slate-400 mb-6 flex items-center justify-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+            AI scans suspicious targets using predictive fraud intelligence.
+          </p>
 
           {/* Quick examples */}
           <div className="flex flex-wrap justify-center gap-2 mb-10">

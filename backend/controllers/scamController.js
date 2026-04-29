@@ -10,106 +10,118 @@ const detectType = (value = "") => {
   return "other";
 };
 
-// ── Compute risk level from report count + recency ───────────────────────────
 // ── Compute risk level from risk score ───────────────────────────────────────
 const getSeverityTier = (score) => {
-  if (score >= 80) return "Critical";
-  if (score >= 60) return "High";
-  if (score >= 40) return "Medium";
-  if (score >= 20) return "Mild";
+  if (score >= 76) return "Critical";
+  if (score >= 51) return "High";
+  if (score >= 26) return "Medium";
   return "Low";
 };
 
-// ── Part 3: Premium Scam Reputation Engine V2 ─────────────────────────────────
+// ── Compute confidence label from report count ────────────────────────────────
+const getConfidenceTier = (count) => {
+  if (count >= 16) return "Critical";
+  if (count >= 6)  return "High";
+  if (count >= 1)  return "Medium";
+  return "Low";
+};
+
+// ── Part 3: Premium Scam Reputation Engine V3 ─────────────────────────────────
 const calculateRiskScore = async (scamTarget) => {
   const Complaint = require("../models/Complaint");
   const User = require("../models/User");
 
-  // Fetch all related complaints with reporter trust scores
-  const reports = await Complaint.find({ scamTarget: { $regex: scamTarget, $options: "i" } })
+  const escapedTarget = scamTarget.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const reports = await Complaint.find({ scamTarget: { $regex: escapedTarget, $options: "i" } })
     .populate("user", "trustScore name");
   
   const reportCount = reports.length;
-  if (reportCount === 0) return { riskScore: 0, riskLevel: "Low", riskReasons: [], confidenceLevel: "Low", reasonBreakdown: [] };
-
-  let score = 0;
   const breakdown = [];
 
-  // 1. REPORT VOLUME WEIGHT
-  let volumePoints = 0;
-  if (reportCount >= 6)      volumePoints = 40;
-  else if (reportCount >= 4) volumePoints = 30;
-  else if (reportCount >= 2) volumePoints = 20;
-  else                      volumePoints = 10;
-  score += volumePoints;
-  breakdown.push(`${reportCount} total report${reportCount > 1 ? "s" : ""} found`);
+  const existing = await Scam.findOne({ value: scamTarget.toLowerCase() });
+  const baselineReports = Math.max(reportCount, existing?.reports || 0);
+  
+  // PHASE 2 — BASELINE: baselineReports × 4
+  let score = baselineReports * 4;
+  breakdown.push(`${baselineReports} total reports recorded (Community + Database)`);
 
-  // 2. TRUSTED REPORTER WEIGHT
-  let trustedPoints = 0;
+  // PHASE 3 — CATEGORY BOOST
+  const types = reports.map(r => r.crimeType);
+  let categoryBonus = 0;
+  if (types.some(t => t === "Phishing"))         categoryBonus = 20;
+  else if (types.some(t => t === "UPI Fraud"))   categoryBonus = 20;
+  else if (types.some(t => t === "Lottery Scam")) categoryBonus = 15;
+  else if (types.some(t => t === "Job Scam"))     categoryBonus = 10;
+  
+  if (categoryBonus > 0) {
+    score += categoryBonus;
+    breakdown.push(`High-risk category boost (+${categoryBonus})`);
+  }
+
+  // PHASE 3 — VERIFIED BOOST
   let trustedCount = 0;
-  reports.forEach(r => {
-    const ts = r.user?.trustScore || 0;
-    if (ts > 70) { trustedPoints += 15; trustedCount++; }
-    else if (ts >= 40) { trustedPoints += 8; }
-    else { trustedPoints += 3; }
-  });
-  score += trustedPoints;
-  if (trustedCount > 0) breakdown.push(`${trustedCount} trusted reporter${trustedCount > 1 ? "s" : ""} contributed`);
-
-  // 3. ADMIN STATUS WEIGHT
-  let statusPoints = 0;
   let resolvedCount = 0;
   reports.forEach(r => {
-    if (r.status === "Resolved") { statusPoints += 20; resolvedCount++; }
-    else if (r.status === "Investigating") statusPoints += 10;
-    else if (r.status === "Pending") statusPoints += 5;
+    if (r.user?.trustScore >= 70) trustedCount++;
+    if (r.status === "Resolved") resolvedCount++;
   });
-  score += statusPoints;
-  if (resolvedCount > 0) breakdown.push(`${resolvedCount} admin verified complaint${resolvedCount > 1 ? "s" : ""}`);
 
-  // 4. SCAM TYPE SEVERITY WEIGHT
-  let typePoints = 0;
-  const types = reports.map(r => r.crimeType);
-  if (types.includes("Financial Fraud")) typePoints = 25;
-  else if (types.includes("OTP Scam")) typePoints = 20;
-  else if (types.includes("Account Hacking")) typePoints = 18;
-  else if (types.includes("Lottery Scam")) typePoints = 15;
-  else typePoints = 8;
-  score += typePoints;
-  breakdown.push(`${types[0] || "General scam"} category detected`);
+  if (resolvedCount > 0) {
+    score += 20;
+    breakdown.push(`Admin verified threat (+20)`);
+  } else if (trustedCount > 0) {
+    score += 10;
+    breakdown.push(`Community verified threat (+10)`);
+  }
 
-  // 5. KEYWORD INTELLIGENCE
-  const keywords = ["otp", "bank", "kyc", "verify", "refund", "lottery", "phishing", "upi", "account", "password"];
-  const combinedText = reports.map(r => (r.description || "") + " " + (r.title || "")).join(" ").toLowerCase();
-  let keywordPoints = 0;
-  let detectedCount = 0;
-  keywords.forEach(word => {
-    if (combinedText.includes(word)) {
-      keywordPoints += 3;
-      detectedCount++;
+  // PHASE 4 — AI BOOST (+0–20)
+  let aiScoreTotal = 0;
+  let aiConfidenceTotal = 0;
+  let aiCount = 0;
+  let aiExplanations = [];
+  let aiSummaries = [];
+
+  reports.forEach(r => {
+    if (r.aiRiskScore > 0) {
+      aiScoreTotal += r.aiRiskScore;
+      aiConfidenceTotal += r.aiConfidence;
+      aiCount++;
+      if (r.aiExplanation) r.aiExplanation.forEach(e => aiExplanations.push(e));
+      if (r.aiSummary) aiSummaries.push(r.aiSummary);
     }
   });
-  const finalKeywordBonus = Math.min(15, keywordPoints);
-  score += finalKeywordBonus;
-  if (detectedCount > 0) breakdown.push(`OTP / UPI scam keywords found`);
 
-  // CONFIDENCE LEVEL REFINEMENT
-  let confidence = "Low";
-  // High: Multiple trusted OR (Multiple resolved + Trusted)
-  if (trustedCount >= 2 || (resolvedCount >= 1 && trustedCount >= 1)) confidence = "High";
-  // Medium: Moderate reports OR some trusted OR limited verification
-  else if (trustedCount >= 1 || reportCount >= 3 || resolvedCount >= 1) confidence = "Medium";
+  if (aiCount > 0) {
+    const avgAiScore = aiScoreTotal / aiCount;
+    const aiBonus = Math.round((avgAiScore / 100) * 20);
+    score += aiBonus;
+    breakdown.push(`AI predictive intelligence boost (+${aiBonus})`);
+  }
 
-  const finalScore = Math.min(100, Math.max(0, score));
+  // PHASE 5 — FINAL SCORE CLAMP
+  const finalScore = Math.min(100, Math.max(0, Math.round(score)));
+  
+  // PHASE 6 — CONFIDENCE
+  const finalConfidenceValue = Math.min(100, (baselineReports * 4) + (resolvedCount ? 30 : (trustedCount ? 15 : 0)) + (aiCount ? 10 : (existing?.aiConfidence ? 5 : 0)));
+  let confidenceTier = "Low";
+  if (finalConfidenceValue >= 71) confidenceTier = "Critical";
+  else if (finalConfidenceValue >= 41) confidenceTier = "High";
+  else if (finalConfidenceValue >= 21) confidenceTier = "Medium";
+
+  // PHASE 7 — SEVERITY
   const level = getSeverityTier(finalScore);
 
   return { 
     riskScore: finalScore, 
     riskLevel: level, 
     riskReasons: breakdown,
-    confidenceLevel: confidence,
     reasonBreakdown: breakdown,
-    communityVerified: trustedCount >= 1 || resolvedCount >= 1
+    communityVerified: trustedCount >= 1 || resolvedCount >= 1,
+    aiConfidence: finalConfidenceValue,
+    confidenceTier: confidenceTier,
+    aiSummary: aiSummaries[0] || existing?.aiSummary || (baselineReports > 10 ? "Repeated scam activity detected across community database." : "Predictive analysis merged with community data."),
+    aiExplanations: aiExplanations.length > 0 ? [...new Set(aiExplanations)].slice(0, 4) : (existing?.aiKeywords ? [`Recognized pattern: ${existing.aiKeywords.join(", ")}`] : ["Pattern analysis merged with community data."]),
+    aiSeverity: level
   };
 };
 
@@ -143,39 +155,60 @@ const checkScam = async (req, res) => {
     }
     const v = value.trim().toLowerCase();
 
+    // ── Premium AI Integration Layer (ALWAYS RUN) ──────────
+    const { analyzeTarget } = require("../services/aiScamAnalyzer");
+    const aiPredictive = await analyzeTarget(value.trim());
+
     const scam = await Scam.findOne({ value: v });
 
     if (!scam) {
       return res.json({
-        status: "SAFE",
-        verdict: "safe",
-        verdictLabel: "No Reports Found",
-        verdictColor: "#10b981",
+        status: aiPredictive.aiRiskScore > 20 ? "SUSPICIOUS" : "SAFE",
+        verdict: aiPredictive.aiRiskScore > 20 ? "warning" : "safe",
+        verdictLabel: aiPredictive.aiRiskScore > 20 ? "AI Flagged" : "AI Verified Safe",
+        verdictColor: aiPredictive.aiRiskScore > 20 ? "#f59e0b" : "#10b981",
         reports: 0,
-        riskLevel: "LOW",
-        message: "This number/link has not been reported in our database.",
+        riskLevel: aiPredictive.aiSeverity,
+        riskScore: aiPredictive.aiRiskScore,
+        avgRiskScore: aiPredictive.aiRiskScore,
+        confidenceLevel: aiPredictive.aiConfidence,
+        reasonBreakdown: aiPredictive.aiExplanation,
+        communityVerified: false,
+        aiSummary: aiPredictive.aiSummary,
+        aiKeywords: aiPredictive.aiKeywords,
+        aiExplanations: aiPredictive.aiExplanation,
+        aiTrend: aiPredictive.aiTrendContribution,
+        category: aiPredictive.aiCategory,
+        aiConfidence: aiPredictive.aiConfidence,
+        message: "AI predictive analysis completed.",
         value: value.trim()
       });
     }
 
-    const { verdict, label, color } = riskToVerdict(scam.riskLevel, scam.reports);
+    // Merge DB + AI Predictive
     const details = await calculateRiskScore(scam.value);
-
+    const finalRiskScore = Math.max(details.riskScore, aiPredictive.aiRiskScore);
+    const finalSeverity = getSeverityTier(finalRiskScore);
+    
     return res.json({
       status: "SCAM",
-      verdict,
-      verdictLabel: label,
-      verdictColor: color,
-      value: scam.value,
-      type: scam.type,
+      verdict: scam.reports >= 10 ? "dangerous" : (scam.reports >= 3 ? "warning" : "caution"),
+      verdictLabel: scam.reports >= 10 ? "High Community Threat" : (scam.reports >= 3 ? "Repeated Scam Activity" : "Reported Once"),
       reports: scam.reports,
-      riskLevel: scam.riskLevel,
+      riskLevel: details.riskLevel,
       riskScore: details.riskScore,
       avgRiskScore: details.riskScore,
-      confidenceLevel: details.confidenceLevel,
-      reasonBreakdown: details.reasonBreakdown,
+      confidenceLevel: Math.max(details.aiConfidence || 0, aiPredictive.aiConfidence),
+      reasonBreakdown: [...new Set([...(details.reasonBreakdown || []), ...aiPredictive.aiExplanation])],
       communityVerified: details.communityVerified,
-      category: scam.category,
+      aiSummary: aiPredictive.aiRiskScore > (scam.avgRiskScore || 0) ? aiPredictive.aiSummary : (scam.aiSummary || aiPredictive.aiSummary),
+      aiKeywords: [...new Set([...(details.aiKeywords || []), ...aiPredictive.aiKeywords])],
+      aiExplanations: aiPredictive.aiExplanation,
+      aiTrend: scam.aiTrendLabel || aiPredictive.aiTrendContribution,
+      category: scam.category || aiPredictive.aiCategory,
+      message: "AI predictive analysis merged with community reports.",
+      value: scam.value,
+      type: scam.type,
       description: scam.description,
       locations: scam.locations,
       lastReportedAt: scam.lastReportedAt,
@@ -195,37 +228,63 @@ const checkScamGet = async (req, res) => {
     }
     const v = value.trim().toLowerCase();
 
+    // ── Premium AI Integration Layer (ALWAYS RUN) ──────────
+    const { analyzeTarget } = require("../services/aiScamAnalyzer");
+    const aiPredictive = await analyzeTarget(value.trim());
+
     const scam = await Scam.findOne({ value: v });
 
     if (!scam) {
       return res.json({
-        status: "SAFE", verdict: "safe",
-        verdictLabel: "No Reports Found", verdictColor: "#10b981",
-        reports: 0, riskLevel: "LOW",
-        message: "This number/link has not been reported in our database.",
+        status: aiPredictive.aiRiskScore > 20 ? "SUSPICIOUS" : "SAFE",
+        verdict: aiPredictive.aiRiskScore > 20 ? "warning" : "safe",
+        verdictLabel: aiPredictive.aiRiskScore > 20 ? "AI Flagged" : "AI Verified Safe",
+        verdictColor: aiPredictive.aiRiskScore > 20 ? "#f59e0b" : "#10b981",
+        reports: 0,
+        riskLevel: aiPredictive.aiSeverity,
+        riskScore: aiPredictive.aiRiskScore,
+        avgRiskScore: aiPredictive.aiRiskScore,
+        confidenceLevel: aiPredictive.aiConfidence,
+        reasonBreakdown: aiPredictive.aiExplanation,
+        communityVerified: false,
+        aiSummary: aiPredictive.aiSummary,
+        aiKeywords: aiPredictive.aiKeywords,
+        aiExplanations: aiPredictive.aiExplanation,
+        aiTrend: aiPredictive.aiTrendContribution,
+        category: aiPredictive.aiCategory,
+        aiConfidence: aiPredictive.aiConfidence,
+        message: "AI predictive analysis completed.",
         value: value.trim()
       });
     }
 
-    const { verdict, label, color } = riskToVerdict(scam.riskLevel, scam.reports);
+    // Merge DB + AI Predictive
     const details = await calculateRiskScore(scam.value);
+    const finalRiskScore = Math.max(details.riskScore, aiPredictive.aiRiskScore);
+    const finalSeverity = getSeverityTier(finalRiskScore);
 
     return res.json({
-      status: "SCAM", verdict,
-      verdictLabel: label, verdictColor: color,
+      status: "SCAM", 
+      verdict: scam.reports >= 10 ? "dangerous" : (scam.reports >= 3 ? "warning" : "caution"),
+      verdictLabel: scam.reports >= 10 ? "High Community Threat" : (scam.reports >= 3 ? "Repeated Scam Activity" : "Reported Once"),
       value: scam.value, type: scam.type,
-      reports: scam.reports, riskLevel: scam.riskLevel,
+      reports: scam.reports, riskLevel: details.riskLevel,
       riskScore: details.riskScore,
       avgRiskScore: details.riskScore,
-      confidenceLevel: details.confidenceLevel,
-      reasonBreakdown: details.reasonBreakdown,
+      confidenceLevel: Math.max(details.aiConfidence || 0, aiPredictive.aiConfidence),
+      reasonBreakdown: [...new Set([...(details.reasonBreakdown || []), ...aiPredictive.aiExplanation])],
       communityVerified: details.communityVerified,
-      category: scam.category,
+      aiSummary: aiPredictive.aiRiskScore > (scam.avgRiskScore || 0) ? aiPredictive.aiSummary : (scam.aiSummary || aiPredictive.aiSummary),
+      aiKeywords: [...new Set([...(details.aiKeywords || []), ...aiPredictive.aiKeywords])],
+      aiExplanations: aiPredictive.aiExplanation,
+      aiTrend: scam.aiTrendLabel || aiPredictive.aiTrendContribution,
+      category: scam.category || aiPredictive.aiCategory,
+      message: "AI predictive analysis merged with community reports.",
+      actionAdvice: getActionAdvice(scam.category || aiPredictive.aiCategory, finalSeverity),
       description: scam.description,
       locations: scam.locations,
       lastReportedAt: scam.lastReportedAt,
-      relatedCaseIds: scam.relatedCaseIds,
-      actionAdvice: getActionAdvice(scam.category, scam.riskLevel)
+      relatedCaseIds: scam.relatedCaseIds
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -288,11 +347,21 @@ const getTrending = async (req, res, next) => {
     const since       = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const recentCount = await Scam.countDocuments({ lastReportedAt: { $gte: since } });
 
+    // AI Emerging Threats Aggregation
+    const Complaint = require("../models/Complaint");
+    const emergingThreats = await Complaint.aggregate([
+      { $match: { aiTrendContribution: { $ne: "", $ne: "General activity", $ne: null } } },
+      { $group: { _id: "$aiTrendContribution", count: { $sum: 1 }, latest: { $max: "$createdAt" } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+
     res.json({
       success: true,
       topTargets,
       topCategories: topCategories.map(c => ({ category: c._id, count: c.count, avgRisk: Math.round(c.avgRisk) })),
-      stats: { totalScams, criticalCount, highCount, recentCount }
+      stats: { totalScams, criticalCount, highCount, recentCount },
+      emergingThreats: emergingThreats.map(t => ({ threat: t._id, count: t.count, lastSeen: t.latest }))
     });
   } catch (error) {
     next(error);
@@ -301,7 +370,7 @@ const getTrending = async (req, res, next) => {
 
 // ── Internal: upsert Scam doc when a complaint is filed ──────────────────────
 // Called from complaintService — NOT an HTTP handler.
-const upsertScamIntelligence = async ({ value, category, description, riskScore, caseId, location }) => {
+const upsertScamIntelligence = async ({ value, category, description, riskScore, caseId, location, aiResults = {} }) => {
   if (!value || value.trim() === "") return;
 
   const v    = value.trim().toLowerCase();
@@ -315,20 +384,38 @@ const upsertScamIntelligence = async ({ value, category, description, riskScore,
     existing.avgRiskScore   = Math.round(
       (existing.avgRiskScore * (existing.reports - 1) + riskScore) / existing.reports
     );
-    existing.riskLevel = computeRiskLevel(existing.reports);
+    existing.riskLevel = getSeverityTier(existing.avgRiskScore);
     if (category)    existing.category    = category;
     if (description) existing.description = description;
     if (location && !existing.locations.includes(location)) existing.locations.push(location);
     if (caseId && !existing.relatedCaseIds.includes(caseId)) existing.relatedCaseIds.push(caseId);
+    
+    // Update AI intelligence if new results are stronger or existing is empty
+    if (aiResults.aiSummary) {
+      if (!existing.aiSummary || (aiResults.aiConfidence || 0) > (existing.aiConfidence || 0)) {
+        existing.aiSummary     = aiResults.aiSummary;
+        existing.aiConfidence  = aiResults.aiConfidence;
+        existing.aiKeywords    = aiResults.aiKeywords;
+        existing.aiSeverity    = aiResults.aiSeverity;
+        existing.aiTrendLabel  = aiResults.aiTrendContribution;
+      }
+    }
+    
     await existing.save();
   } else {
     await Scam.create({
       value: v, type, category, description,
-      reports: 1, riskLevel: computeRiskLevel(1),
+      reports: 1, riskLevel: getSeverityTier(riskScore),
       avgRiskScore: riskScore,
       lastReportedAt: new Date(),
       locations: location ? [location] : [],
-      relatedCaseIds: caseId ? [caseId] : []
+      relatedCaseIds: caseId ? [caseId] : [],
+      // AI Intelligence Fields
+      aiSummary:    aiResults.aiSummary || null,
+      aiConfidence: aiResults.aiConfidence || 0,
+      aiKeywords:   aiResults.aiKeywords || [],
+      aiSeverity:   aiResults.aiSeverity || null,
+      aiTrendLabel: aiResults.aiTrendContribution || null
     });
   }
 };

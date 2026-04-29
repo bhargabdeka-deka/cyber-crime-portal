@@ -262,6 +262,41 @@ export default function MyComplaints() {
                 </p>
               </div>
 
+              {/* PART 1: Gemini AI Intelligence Section */}
+              {selected.aiSummary && (
+                <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-lg border border-white/10 shadow-lg overflow-hidden relative">
+                  <div className="absolute top-0 right-0 p-2 opacity-20">
+                    <div className="text-[8px] font-black text-white tracking-[0.2em] uppercase bg-blue-600/30 px-1.5 py-0.5 rounded">AI Analyst</div>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center text-blue-400">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
+                          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                      </div>
+                      <h4 className="text-white font-bold text-xs uppercase tracking-wider">AI Intelligence Insight</h4>
+                    </div>
+
+                    <p className="text-blue-100/90 text-[13px] leading-relaxed mb-4 font-medium italic">
+                      "{selected.aiSummary}"
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">Category</div>
+                        <div className="text-[12px] font-bold text-white">{selected.aiCategory || "Unclassified"}</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">Confidence</div>
+                        <div className="text-[12px] font-bold text-white">{selected.aiConfidence}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Evidence */}
               {selected.evidence && (
                 <div>

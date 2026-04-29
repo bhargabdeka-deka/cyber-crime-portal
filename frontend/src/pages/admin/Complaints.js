@@ -3,7 +3,7 @@ import API from "../../services/api";
 import Layout from "../../components/Layout";
 import {
   Search, AlertTriangle, CheckCircle, Clock,
-  Download, X, ChevronLeft, ChevronRight, FileText
+  Download, X, ChevronLeft, ChevronRight, FileText, ArrowRight
 } from "lucide-react";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
@@ -227,17 +227,21 @@ export default function Complaints() {
             <p className="text-sm">No complaints found. Try adjusting your filters.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[700px]">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+            <div className="md:hidden px-4 py-2 bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 flex items-center gap-2">
+               <ArrowRight size={10} className="animate-pulse" /> Swipe to see all columns
+            </div>
+            <table className="w-full text-sm min-w-[1000px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-left">
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Case ID</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Reporter</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Type</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Priority</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Risk</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Details</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[120px]">Case ID</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[120px]">Reporter</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[120px]">Type</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[80px]">Priority</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[60px]">Risk</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[150px]">AI Intelligence</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 min-w-[120px]">Status</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 text-right">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -278,6 +282,33 @@ export default function Complaints() {
                           {c.riskScore}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                         {c.aiCategory ? (
+                           <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-1.5">
+                               <span className={`w-1.5 h-1.5 rounded-full ${
+                                 c.aiSeverity === "Critical" ? "bg-red-500" :
+                                 c.aiSeverity === "High" ? "bg-orange-500" :
+                                 c.aiSeverity === "Medium" ? "bg-amber-500" :
+                                 "bg-emerald-500"
+                               }`} />
+                               <span className="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">
+                                 {c.aiCategory}
+                               </span>
+                             </div>
+                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                               c.aiSeverity === "Critical" ? "bg-red-50 text-red-600 border-red-100" :
+                               c.aiSeverity === "High" ? "bg-orange-50 text-orange-600 border-orange-100" :
+                               c.aiSeverity === "Medium" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                               "bg-emerald-50 text-emerald-600 border-emerald-100"
+                             }`}>
+                               {c.aiConfidence ? `${c.aiConfidence}%` : c.aiSeverity} • {c.aiSeverity}
+                             </span>
+                           </div>
+                         ) : (
+                           <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 italic">AI Pending</span>
+                         )}
+                      </td>
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         {reporterDisabled ? (
                           <span
@@ -299,7 +330,7 @@ export default function Complaints() {
                           </select>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-right">
                         <button className="text-xs text-slate-400 hover:text-slate-700 transition">View →</button>
                       </td>
                     </tr>
@@ -400,9 +431,98 @@ export default function Complaints() {
                 </p>
               </div>
 
+              {/* AI Intelligence Layer */}
+              {selected.aiSummary && (
+                <div className="p-5 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-lg border border-white/10 shadow-lg relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-3 opacity-10">
+                    <div className="text-[9px] font-black text-white tracking-[0.2em] uppercase bg-blue-600/30 px-2 py-1 rounded">AI Investigator</div>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                        <Search size={18} />
+                      </div>
+                      <h4 className="text-white font-bold text-xs uppercase tracking-wider">AI Investigator Assistant</h4>
+                    </div>
+
+                    <p className="text-blue-100/90 text-[13px] leading-relaxed mb-4 font-medium italic">
+                      "{selected.aiSummary}"
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">Category</div>
+                        <div className="text-[12px] font-bold text-white">{selected.aiCategory || "Unclassified"}</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">Confidence</div>
+                        <div className="text-[12px] font-bold text-white">{selected.aiConfidence}%</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">Severity</div>
+                        <div className={`text-[12px] font-bold ${
+                          selected.aiSeverity === "Critical" ? "text-red-400" :
+                          selected.aiSeverity === "High" ? "text-orange-400" :
+                          "text-emerald-400"
+                        }`}>{selected.aiSeverity || "Low"}</div>
+                      </div>
+                    </div>
+
+                    {selected.aiTrendContribution && (
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-2">Emerging Trend Cluster</div>
+                        <div className="inline-flex items-center gap-2 px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-[11px] text-blue-200 font-bold">
+                          <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" /> {selected.aiTrendContribution}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-5 space-y-4">
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-2">Pattern Analysis</div>
+                        <ul className="space-y-1.5">
+                          {(selected.aiExplanation || []).map((exp, i) => (
+                            <li key={i} className="flex items-start gap-2 text-[11px] text-white/70">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1 shrink-0" /> {exp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-2">Keywords</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(selected.aiKeywords || []).map((word, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-white/10 border border-white/10 rounded text-[10px] text-white/80 font-medium capitalize">
+                              {word}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {selected.aiRecommendation && (
+                        <div className="mt-5 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md">
+                          <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1.5">AI Investigator Recommendation</div>
+                          <p className="text-[12px] text-white font-semibold flex items-center gap-2">
+                            <span className="text-blue-400">⚡</span> {selected.aiRecommendation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Status Stepper */}
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Update Status</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Update Status</p>
+                  {selected.status === "Pending" && selected.aiSeverity && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded text-[10px] font-bold text-indigo-700">
+                      AI Suggested Priority: {selected.aiSeverity}
+                    </div>
+                  )}
+                </div>
                 {selected.user?.isDisabled ? (
                   <div className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-red-50 border border-red-200 text-xs text-red-600">
                     🔒 Status updates are locked — reporter account is disabled.

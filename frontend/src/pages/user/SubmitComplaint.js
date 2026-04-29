@@ -154,6 +154,9 @@ export default function SubmitComplaint() {
         <div className="mb-6">
           <h1 className="text-xl font-bold text-slate-900">File a Report</h1>
           <p className="text-sm text-slate-500 mt-0.5">Submit a scam or cyber crime report for review.</p>
+          <div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-fit uppercase tracking-wider border border-blue-100">
+            <Info size={12} /> Limit: Max 3 reports per day
+          </div>
         </div>
 
         {/* Status Banner */}

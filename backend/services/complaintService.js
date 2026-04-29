@@ -14,13 +14,24 @@ const createComplaintService = async (userId, title, description, file, extras =
     user: userId,
     title,
     description,
-    crimeType,
+    crimeType: extras.aiCategory || crimeType, // AI category takes precedence
     scamType: extras.scamType || scamType,
     scamTarget: extras.scamTarget || "",
     location: extras.location || "",
-    riskScore,
-    priority,
-    evidence: file ? (file.path || file.secure_url || file.url) : null
+    riskScore: extras.aiRiskScore || riskScore, // AI risk score takes precedence
+    priority: extras.aiSeverity || priority,    // AI severity takes precedence
+    evidence: file ? (file.path || file.secure_url || file.url) : null,
+
+    // AI Fields (Gemini specific)
+    aiCategory: extras.aiCategory || null,
+    aiConfidence: Number(extras.aiConfidence) || 0,
+    aiRiskScore: Number(extras.aiRiskScore) || 0,
+    aiSeverity: extras.aiSeverity || null,
+    aiKeywords: extras.aiKeywords || [],
+    aiExplanation: extras.aiExplanation || [],
+    aiSummary: extras.aiSummary || "",
+    aiRecommendation: extras.aiRecommendation || "",
+    aiTrendContribution: extras.aiTrendContribution || ""
   });
 
   const saved = await complaint.save();
@@ -31,10 +42,20 @@ const createComplaintService = async (userId, title, description, file, extras =
       value:       extras.scamTarget,
       category:    extras.scamType || scamType,
       description: description.slice(0, 200),
-      riskScore,
+      riskScore:   saved.riskScore,
       caseId:      saved.caseId,
-      location:    extras.location || ""
-    }).catch(() => {}); // non-blocking
+      location:    extras.location || "",
+      aiResults: {
+        aiCategory: saved.aiCategory,
+        aiConfidence: saved.aiConfidence,
+        aiRiskScore: saved.aiRiskScore,
+        aiSeverity: saved.aiSeverity,
+        aiKeywords: saved.aiKeywords,
+        aiExplanation: saved.aiExplanation,
+        aiSummary: saved.aiSummary,
+        aiTrendContribution: saved.aiTrendContribution
+      }
+    }).catch((err) => console.error("Scam intelligence update failed:", err)); // non-blocking
   }
 
   if (saved.riskScore >= 80) {

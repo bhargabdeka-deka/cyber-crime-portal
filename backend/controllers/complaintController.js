@@ -8,6 +8,7 @@ const {
 } = require("../services/complaintService");
 const User = require("../models/User");
 const Complaint = require("../models/Complaint");
+const { analyzeScam } = require("../services/aiScamAnalyzer");
 
 // ================= CREATE =================
 const createComplaint = async (req, res, next) => {
@@ -82,10 +83,19 @@ const createComplaint = async (req, res, next) => {
     }
 
 
+    // ── PART 7: AI Intelligence Integration ───────────────────────────
+    let aiResults = {};
+    try {
+      aiResults = await analyzeScam(description, scamTarget);
+    } catch (aiErr) {
+      console.error("AI Analysis skipped due to error:", aiErr);
+      // Fallback values already handled in analyzeScam catch block
+    }
+
     // ── Save the complaint ─────────────────────────────────────────
     const complaint = await createComplaintService(
       req.user.id, title, description, req.file,
-      { scamType, scamTarget, location }
+      { scamType, scamTarget, location, ...aiResults }
     );
 
     // ── Update user activity fields after successful report ──────────────

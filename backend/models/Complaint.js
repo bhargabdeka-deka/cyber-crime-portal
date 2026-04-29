@@ -31,7 +31,18 @@ const complaintSchema = new mongoose.Schema(
     location: {
       type: String,   // state / city (optional, user-provided)
       default: ""
-    }
+    },
+
+    // ── Gemini AI Intelligence Fields ──
+    aiCategory: { type: String, default: null },
+    aiConfidence: { type: Number, default: 0 },
+    aiRiskScore: { type: Number, default: 0 },
+    aiSeverity: { type: String, default: null },
+    aiKeywords: [{ type: String }],
+    aiExplanation: [{ type: String }],
+    aiSummary: { type: String, default: "" },
+    aiRecommendation: { type: String, default: "" },
+    aiTrendContribution: { type: String, default: "" }
   },
   { timestamps: true }
 );

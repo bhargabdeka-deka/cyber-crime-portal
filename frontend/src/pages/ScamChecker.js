@@ -8,7 +8,7 @@ import { Search, AlertTriangle, CheckCircle, Share2, ChevronRight } from "lucide
 import Logo from "../components/Logo";
 
 const verdictConfig = {
-  safe:      { color: "text-emerald-700", bg: "bg-emerald-50",  border: "border-emerald-200", icon: CheckCircle,  title: "No Reports Found",   sub: "This target has no records in our database." },
+  safe:      { color: "text-emerald-700", bg: "bg-emerald-50",  border: "border-emerald-200", icon: CheckCircle,  title: "No Reports Found",   sub: "AI predictive analysis completed. No suspicious patterns detected in our community database." },
   caution:   { color: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-200",   icon: AlertTriangle, title: "Reported Once",       sub: "One incident found. Proceed with caution." },
   warning:   { color: "text-orange-700",  bg: "bg-orange-50",  border: "border-orange-200",  icon: AlertTriangle, title: "Suspicious",          sub: "Multiple reports found. Do not engage." },
   dangerous: { color: "text-red-700",     bg: "bg-red-50",     border: "border-red-200",     icon: AlertTriangle, title: "Highly Dangerous",    sub: "Confirmed scam. Do NOT engage with this entity." },
@@ -118,20 +118,19 @@ export default function ScamChecker() {
         <div className={`${vc.bg} border ${vc.border} rounded-lg p-6 mb-6`}>
           {(() => {
             const score = result.riskScore || result.avgRiskScore || 0;
-            const confidence = result.confidenceLevel || (score >= 75 ? "High" : score >= 40 ? "Medium" : "Low");
+            const confidence = result.confidenceTier || (score >= 76 ? "Critical" : score >= 51 ? "High" : score >= 26 ? "Medium" : "Low");
             
             const fallbackReasons = (result.reasonBreakdown && result.reasonBreakdown.length > 0)
               ? result.reasonBreakdown
               : [
-                  `${result.reports || 0} community reports found`,
+                  "AI predictive pattern analysis completed.",
+                  `Target evaluated for ${result.category || "suspicious"} indicators.`,
                   score >= 75
-                    ? "High-risk scam patterns detected"
+                    ? "Critical risk signature detected in target structure."
                     : score >= 40
-                    ? "Moderate scam indicators detected"
-                    : "Limited scam indicators detected",
-                  result.category
-                    ? `${result.category} category detected`
-                    : "Severity influenced by complaint patterns"
+                    ? "Moderate risk indicators found via pattern matching."
+                    : "Baseline risk patterns identified.",
+                  result.reports > 0 ? `${result.reports} community reports contributing to score.` : "Predictive analysis executed (zero database reports found)."
                 ];
 
             return (
@@ -142,9 +141,9 @@ export default function ScamChecker() {
                       <vc.icon size={20} />
                     </div>
                     <div>
-                      <h3 className={`font-bold text-base ${vc.color}`}>{vc.title}</h3>
+                      <h3 className={`font-bold text-base ${vc.color}`}>{result.verdictLabel || vc.title}</h3>
                       {/* PART 2 & 5: Community Trust Badge */}
-                      {(result.reports >= 3 || score >= 60) ? (
+                      {(result.reports >= 6 || score >= 60 || result.communityVerified) ? (
                         <div className="inline-flex items-center gap-1.5 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
                            <CheckCircle size={10} /> Community Verified Threat
                         </div>
@@ -167,9 +166,9 @@ export default function ScamChecker() {
                     // PART 3: Severity Alignment
                     let severity = "Low";
                     let severityColor = "text-emerald-600";
-                    if (score >= 75)      { severity = "Critical"; severityColor = "text-red-600"; }
-                    else if (score >= 50) { severity = "High";     severityColor = "text-orange-600"; }
-                    else if (score >= 25) { severity = "Medium";   severityColor = "text-amber-600"; }
+                    if (score >= 76)      { severity = "Critical"; severityColor = "text-red-600"; }
+                    else if (score >= 51) { severity = "High";     severityColor = "text-orange-600"; }
+                    else if (score >= 26) { severity = "Medium";   severityColor = "text-amber-600"; }
 
                     return [
                       { label: "Reports",    value: result.reports || 0 },
@@ -185,6 +184,79 @@ export default function ScamChecker() {
                   })()}
                 </div>
 
+                {/* PART 1: Gemini AI Intelligence Engine */}
+                {result.aiSummary && (
+                  <div className="mt-6 mb-4 p-5 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-xl border border-white/10 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-20">
+                      <div className="text-[10px] font-black text-white tracking-[0.2em] uppercase bg-blue-600/30 px-2 py-1 rounded">AI Investigator</div>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <h4 className="text-white font-bold text-base tracking-tight">AI Scam Analysis</h4>
+                      </div>
+
+                      <p className="text-blue-100/90 text-sm leading-relaxed mb-4 font-medium italic">
+                        "{result.aiSummary}"
+                      </p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5 border-b border-white/5 pb-4">
+                        <div>
+                          <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1">AI Category</div>
+                          <div className="text-[12px] font-bold text-white truncate">{result.category || "General Fraud"}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1">AI Confidence</div>
+                          <div className="text-[12px] font-bold text-white">{(result.confidenceLevel || result.aiConfidence || 15)}%</div>
+                        </div>
+                        <div>
+                          <div className="text-[9px] font-bold text-blue-300 uppercase tracking-widest mb-1">AI Severity</div>
+                          <div className={`text-[12px] font-bold ${
+                            result.riskLevel?.toUpperCase() === "CRITICAL" ? "text-red-400" : "text-emerald-400"
+                          }`}>{result.riskLevel || "Low"}</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-bold text-blue-300 uppercase tracking-wider">Pattern Analysis</div>
+                          <ul className="space-y-2">
+                            {(result.aiExplanations || []).map((exp, i) => (
+                              <li key={i} className="flex items-start gap-2 text-[12px] text-white/80">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0" /> {exp}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-bold text-blue-300 uppercase tracking-wider">AI Keywords</div>
+                          <div className="flex flex-wrap gap-2">
+                            {(result.aiKeywords || []).map((word, i) => (
+                              <span key={i} className="px-2 py-1 bg-white/10 border border-white/10 rounded text-[10px] text-white/90 font-medium capitalize">
+                                {word}
+                              </span>
+                            ))}
+                          </div>
+                          
+                          {result.aiTrend && (
+                            <div className="mt-4 pt-4 border-t border-white/10">
+                              <div className="text-[10px] font-bold text-blue-300 uppercase tracking-wider mb-2">Trend Cluster</div>
+                              <div className="inline-flex items-center gap-2 px-2 py-1 bg-blue-500/20 border border-blue-500/30 rounded text-[11px] text-blue-200 font-bold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /> {result.aiTrend}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* PART 1: Why this score? (Always Shows) */}
                 <div className="mt-4 p-5 bg-white/60 border border-white/40 rounded-lg shadow-sm">
                   <h4 className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -196,6 +268,11 @@ export default function ScamChecker() {
                         <span className="text-slate-400 text-lg leading-none">•</span> {reason}
                       </li>
                     ))}
+                    {result.aiConfidence > 0 && (
+                      <li className="flex items-center gap-3 text-xs text-blue-700 font-bold leading-relaxed">
+                        <span className="text-blue-400 text-lg leading-none">•</span> AI Confidence: {result.aiConfidence}%
+                      </li>
+                    )}
                   </ul>
                 </div>
 

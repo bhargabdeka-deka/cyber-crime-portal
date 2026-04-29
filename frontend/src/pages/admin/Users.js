@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
-import { Search, User, ChevronLeft, ChevronRight, UserX, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, User, ChevronLeft, ChevronRight, UserX, UserPlus, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -121,14 +121,17 @@ export default function Users() {
             <p className="text-sm">No users found.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[600px]">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+            <div className="md:hidden px-4 py-2 bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 flex items-center gap-2">
+               <ArrowRight size={10} className="animate-pulse" /> Swipe to see all columns
+            </div>
+            <table className="w-full text-sm min-w-[800px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50 text-left">
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">User</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden md:table-cell">Email</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Email</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">Role</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-slate-500 hidden sm:table-cell">Trust</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-slate-500">Trust</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
                   <th className="px-4 py-3 text-xs font-semibold text-slate-500 text-right">Actions</th>
                 </tr>
@@ -159,11 +162,11 @@ export default function Users() {
                       </span>
                     </div>
                   </td>
-                  <td className={`px-4 py-3 hidden md:table-cell ${u.isDisabled ? "text-slate-400" : "text-slate-500"}`}>
+                  <td className={`px-4 py-3 ${u.isDisabled ? "text-slate-400" : "text-slate-500"}`}>
                     {u.email}
                   </td>
                   <td className="px-4 py-3">{roleBadge(u.role) || <span className="text-slate-400 text-xs capitalize">{u.role}</span>}</td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
+                  <td className="px-4 py-3">
                     <span className={`text-xs font-semibold ${
                       u.isDisabled                      ? "text-slate-400" :
                       (u.trustScore ?? 50) >= 50        ? "text-emerald-600" :

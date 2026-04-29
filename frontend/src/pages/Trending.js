@@ -74,6 +74,42 @@ export default function Trending() {
               </div>
             ))}
           </div>
+          
+          {/* AI Trend Clusters Section */}
+          {data.emergingThreats && data.emergingThreats.length > 0 && (
+            <div className="mb-8 p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-xl border border-white/10 shadow-xl">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-1.5 bg-blue-500/20 rounded-lg text-blue-400">
+                  <TrendingUp size={18} />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold text-base leading-none">AI Trend Clusters</h2>
+                  <p className="text-[10px] text-blue-300/60 font-bold uppercase tracking-widest mt-1">Predictive Pattern Intelligence</p>
+                </div>
+              </div>
+              
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {data.emergingThreats.map((t, i) => (
+                  <div key={i} className="bg-white/5 border border-white/5 rounded-lg p-3 hover:bg-white/10 transition group">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-[12px] font-bold text-white group-hover:text-blue-300 transition line-clamp-1">{t.threat}</div>
+                      <div className="px-1.5 py-0.5 bg-blue-500/20 rounded text-[9px] font-bold text-blue-300 uppercase tracking-tighter shrink-0">Rising</div>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="text-[10px] text-slate-400 font-medium">Cluster Strength</div>
+                      <div className="text-[11px] font-black text-white">{t.count} reports</div>
+                    </div>
+                    <div className="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-500 rounded-full animate-pulse" 
+                        style={{ width: `${Math.min(100, (t.count / data.emergingThreats[0].count) * 100)}%` }} 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Two-column layout */}
           <div className="grid lg:grid-cols-2 gap-5">

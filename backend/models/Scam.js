@@ -26,7 +26,14 @@ const scamSchema = new mongoose.Schema(
     avgRiskScore: { type: Number, default: 0 },
     lastReportedAt:  { type: Date, default: Date.now },
     locations:       [{ type: String }],             // cities/states reported from
-    relatedCaseIds:  [{ type: String }]              // caseIds that reference this target
+    relatedCaseIds:  [{ type: String }],              // caseIds that reference this target
+    
+    // ── Gemini AI Intelligence Fields (PREMIUM) ──
+    aiConfidence: { type: Number, default: 0 },
+    aiSummary: { type: String, default: null },
+    aiKeywords: { type: [String], default: [] },
+    aiSeverity: { type: String, default: null },
+    aiTrendLabel: { type: String, default: null }
   },
   { timestamps: true }
 );
