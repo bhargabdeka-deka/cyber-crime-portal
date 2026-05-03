@@ -47,6 +47,7 @@ export default function Complaints() {
   const [sort, setSort]               = useState("-createdAt");
   const [selected, setSelected]       = useState(null);
   const [updating, setUpdating]       = useState(null);
+  const [exporting, setExporting]     = useState(false);
   const [toast, setToast]             = useState(null);
 
   const showToast = (msg, type = "success") => {
@@ -98,41 +99,38 @@ export default function Complaints() {
   };
 
   const handleExportCSV = async () => {
+    console.log("Premium AI Export Triggered — Connecting to Intelligence Server...");
+    if (exporting) return;
+    setExporting(true);
     try {
-      const token = localStorage.getItem("token");
+      const res = await API.get("/complaints/export/csv", {
+        params: { 
+          priority: priorityFilter, 
+          status: statusFilter, 
+          search, 
+          sort 
+        },
+        responseType: "blob"
+      });
 
-      if (!token) {
-        alert("Please login again");
-        return;
-      }
-
-      // Hardcoded production URL for Render as requested
-      const response = await fetch(
-        "https://cyber-crime-portal-2.onrender.com/api/complaints/export/csv",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Unauthorized or failed");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "complaints.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      
+      const dateStr = new Date().toISOString().split("T")[0];
+      link.setAttribute("download", `CyberShield_Complaints_${dateStr}.csv`);
+      
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       window.URL.revokeObjectURL(url);
+      
+      showToast("AI-enhanced complaint intelligence exported successfully");
     } catch (err) {
-      console.error(err);
-      alert("Export failed");
+      console.error("EXPORT_ERROR:", err);
+      showToast("Export failed. Please try again.", "error");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -161,9 +159,19 @@ export default function Complaints() {
         </div>
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition"
+          disabled={exporting}
+          className={`flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition ${exporting ? "opacity-70 cursor-not-allowed" : ""}`}
         >
-          <Download size={15} /> Export CSV
+          {exporting ? (
+            <>
+              <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              Exporting...
+            </>
+          ) : (
+            <>
+              <Download size={15} /> Export CSV
+            </>
+          )}
         </button>
       </div>
 

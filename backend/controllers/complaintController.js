@@ -9,6 +9,8 @@ const {
 const User = require("../models/User");
 const Complaint = require("../models/Complaint");
 const { analyzeScam } = require("../services/aiScamAnalyzer");
+const { generateComplaintAISummary } = require("../services/complaintAIService");
+
 
 // ================= CREATE =================
 const createComplaint = async (req, res, next) => {
@@ -255,7 +257,25 @@ const getAnalytics = async (req, res, next) => {
   }
 };
 
+// ================= AI SAFETY GUIDANCE =================
+const generateAISafetyGuidance = async (req, res, next) => {
+  console.log("AI Safety Route Hit");
+  try {
+    const { title, scamType, scamTarget, description, location, evidenceStatus } = req.body;
+    
+    const guidance = await generateComplaintAISummary({
+      title, scamType, scamTarget, description, location, evidenceStatus
+    });
+
+    res.status(200).json({ success: true, guidance });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createComplaint, getUserComplaints, getAllComplaints,
-  updateComplaintStatus, getDashboardStats, getAnalytics
+  updateComplaintStatus, getDashboardStats, getAnalytics,
+  generateAISafetyGuidance
 };
+

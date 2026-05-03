@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import UserLayout from "../../layouts/UserLayout";
 import analyzeComplaint from "../../utils/riskAnalyzer";
 import {
-  AlertTriangle, Info, Paperclip, CheckCircle, MapPin
+  AlertTriangle, Info, Paperclip, CheckCircle, MapPin, Zap, Shield, ArrowLeft
 } from "lucide-react";
 
 const SCAM_TYPES = [
@@ -36,6 +36,13 @@ export default function SubmitComplaint() {
   const [fileName, setFileName]   = useState("");
   const [scamIntel, setScamIntel] = useState(null);
   const [errors, setErrors]       = useState({});
+  
+  // AI Feature States
+  const [aiGuidance, setAiGuidance]     = useState(null);
+  const [loadingAI, setLoadingAI]       = useState(false);
+  const [aiError, setAiError]           = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
+
   const navigate = useNavigate();
 
   // ── Trust score guard (Part 8) ───────────────────────────────────
@@ -90,6 +97,27 @@ export default function SubmitComplaint() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const fetchAISafetyGuidance = async (submittedData) => {
+    setLoadingAI(true);
+    setAiError(false);
+    try {
+      const response = await API.post("/complaints/ai-safety-guidance", {
+        title: submittedData.title,
+        scamType: submittedData.scamType || (analysis?.scamType || "Other"),
+        scamTarget: submittedData.scamTarget,
+        description: submittedData.description,
+        location: submittedData.location,
+        evidenceStatus: !!submittedData.evidence
+      });
+      setAiGuidance(response.data.guidance);
+    } catch (err) {
+      console.error("AI Guidance Fetch Error:", err);
+      setAiError(true);
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,14 +147,141 @@ export default function SubmitComplaint() {
         } catch {}
       }
 
-      setStatus({ type: "success", msg: "Report submitted successfully. Redirecting..." });
-      setTimeout(() => navigate("/my-complaints"), 3000);
+      setSubmissionSuccess(true);
+      setStatus({ type: "success", msg: "Complaint submitted successfully. Analyzing safety guidance..." });
+      
+      // Trigger AI fetch immediately
+      fetchAISafetyGuidance(formData);
+
     } catch (err) {
       setStatus({ type: "error", msg: err.response?.data?.message || "Submission failed. Please try again." });
     } finally { setLoading(false); }
   };
 
   const meta = analysis ? (priorityMeta[analysis.priority] || priorityMeta.Low) : null;
+
+  const getSeverityColor = (level) => {
+    switch (level?.toLowerCase()) {
+      case "low": return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
+      case "medium": return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
+      case "high": return "text-orange-400 bg-orange-400/10 border-orange-400/20";
+      case "critical": return "text-red-400 bg-red-400/10 border-red-400/20";
+      default: return "text-slate-400 bg-slate-400/10 border-slate-400/20";
+    }
+  };
+
+  if (submissionSuccess) {
+    return (
+      <UserLayout>
+        <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shrink-0">
+               <CheckCircle size={28} />
+            </div>
+            <div>
+               <h1 className="text-2xl font-bold text-slate-900">Submission Successful</h1>
+               <p className="text-sm text-slate-500">Your complaint has been logged and assigned a Case ID.</p>
+            </div>
+          </div>
+
+          {/* AI Guidance Card */}
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden mb-8">
+            <div className="p-6 md:p-8 border-b border-white/5 bg-white/5">
+               <div className="flex items-center justify-between gap-4 mb-2">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Zap size={18} className="text-yellow-400 fill-yellow-400" />
+                    AI Preliminary Safety Guidance
+                  </h2>
+                  {loadingAI && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+               </div>
+               <p className="text-xs text-slate-400 font-medium tracking-wide uppercase">
+                 Instant cyber safety recommendations based on your complaint
+               </p>
+            </div>
+
+            <div className="p-6 md:p-8 space-y-8">
+              {loadingAI ? (
+                <div className="py-12 flex flex-col items-center justify-center text-center">
+                  <div className="w-10 h-10 border-4 border-white/10 border-t-soft-teal rounded-full animate-spin mb-4" />
+                  <p className="text-sm text-slate-300 font-medium">Analyzing your complaint with AI...</p>
+                </div>
+              ) : aiError ? (
+                <div className="py-6 text-center">
+                   <p className="text-sm text-slate-300 mb-4">Your complaint has been submitted successfully. AI safety guidance is temporarily unavailable. Admin review is pending.</p>
+                </div>
+              ) : aiGuidance ? (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Likely Scam Type</p>
+                      <p className="text-sm font-bold text-white">{aiGuidance.likelyScamType}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Severity Level</p>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${getSeverityColor(aiGuidance.severityLevel)}`}>
+                        {aiGuidance.severityLevel}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Confidence Score</p>
+                      <p className="text-sm font-bold text-white">{aiGuidance.confidenceScore}%</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                       <ArrowLeft size={12} className="rotate-180" /> Immediate Actions
+                    </p>
+                    <ul className="space-y-2">
+                      {aiGuidance.immediateActions?.map((action, i) => (
+                        <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                          {action}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                       <Shield size={12} /> Prevention Tips
+                    </p>
+                    <ul className="space-y-2">
+                      {aiGuidance.preventionTips?.map((tip, i) => (
+                        <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <p className="text-xs text-slate-200 leading-relaxed italic">
+                      "{aiGuidance.reassuranceMessage}"
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="px-6 py-4 bg-black/20 border-t border-white/5">
+               <p className="text-[10px] text-slate-500 font-medium text-center italic">
+                 {aiGuidance?.disclaimer || "This is an AI-generated preliminary assessment. Final admin verification is pending."}
+               </p>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => navigate("/my-complaints")}
+            className="w-full bg-slate-900 text-white py-3 rounded-md text-sm font-semibold hover:bg-slate-700 transition"
+          >
+            Go to My Complaints
+          </button>
+        </div>
+      </UserLayout>
+    );
+  }
 
   return (
     <UserLayout>

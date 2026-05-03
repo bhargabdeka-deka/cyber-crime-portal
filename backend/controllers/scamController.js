@@ -329,28 +329,46 @@ const getActivity = async (req, res, next) => {
 // Public. Returns top reported scams + stats.
 const getTrending = async (req, res, next) => {
   try {
-    const topTargets = await Scam.find()
-      .sort({ reports: -1 })
-      .limit(10)
-      .select("value type category reports riskLevel avgRiskScore lastReportedAt locations");
+    const Complaint = require("../models/Complaint");
 
-    const topCategories = await Scam.aggregate([
-      { $group: { _id: "$category", count: { $sum: "$reports" }, avgRisk: { $avg: "$avgRiskScore" } } },
-      { $sort: { count: -1 } },
-      { $limit: 6 }
+    // 1. Fully Dynamic "Most Reported Targets" (Aggregate from Complaints)
+    const topTargetsRaw = await Complaint.aggregate([
+      { $match: { status: { $ne: "Rejected" }, scamTarget: { $exists: true, $ne: "" } } },
+      { $group: { _id: { $toLower: "$scamTarget" }, reports: { $sum: 1 } } },
+      { $sort: { reports: -1 } },
+      { $limit: 5 }
     ]);
 
+    const topTargets = topTargetsRaw.map(t => ({
+      _id: t._id,
+      value: t._id,
+      reports: t.reports
+    }));
+
+    // 2. Fully Dynamic "By Scam Type" (Aggregate from Complaints)
+    const topCategoriesRaw = await Complaint.aggregate([
+      { $match: { status: { $ne: "Rejected" }, scamType: { $exists: true, $ne: "" } } },
+      { $group: { _id: "$scamType", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 8 }
+    ]);
+
+    const topCategories = topCategoriesRaw.map(c => ({
+      category: c._id,
+      count: c.count
+    }));
+
+    // 3. Stats (Still using Scam collection for global counts, or switch to Complaint if preferred)
     const totalScams    = await Scam.countDocuments();
     const criticalCount = await Scam.countDocuments({ riskLevel: "CRITICAL" });
     const highCount     = await Scam.countDocuments({ riskLevel: "HIGH" });
 
     const since       = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const recentCount = await Scam.countDocuments({ lastReportedAt: { $gte: since } });
+    const recentCount = await Complaint.countDocuments({ createdAt: { $gte: since }, status: { $ne: "Rejected" } });
 
-    // AI Emerging Threats Aggregation
-    const Complaint = require("../models/Complaint");
+    // 4. AI Emerging Threats Aggregation (Already from Complaints)
     const emergingThreats = await Complaint.aggregate([
-      { $match: { aiTrendContribution: { $ne: "", $ne: "General activity", $ne: null } } },
+      { $match: { aiTrendContribution: { $ne: "", $ne: "General activity", $ne: null }, status: { $ne: "Rejected" } } },
       { $group: { _id: "$aiTrendContribution", count: { $sum: 1 }, latest: { $max: "$createdAt" } } },
       { $sort: { count: -1 } },
       { $limit: 5 }
@@ -359,7 +377,7 @@ const getTrending = async (req, res, next) => {
     res.json({
       success: true,
       topTargets,
-      topCategories: topCategories.map(c => ({ category: c._id, count: c.count, avgRisk: Math.round(c.avgRisk) })),
+      topCategories,
       stats: { totalScams, criticalCount, highCount, recentCount },
       emergingThreats: emergingThreats.map(t => ({ threat: t._id, count: t.count, lastSeen: t.latest }))
     });
