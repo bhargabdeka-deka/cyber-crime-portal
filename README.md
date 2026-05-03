@@ -27,6 +27,23 @@
 
 ---
 
+## ✨ Recent AI & Intelligence Updates (May 2026)
+
+### 🤖 AI Preliminary Safety Guidance
+- **Instant Investigative Advice**: Immediately after filing a complaint, users receive a high-intelligence AI safety report.
+- **Expert Persona**: Powered by **Gemini Pro**, acting as an Expert Cyber Investigator to analyze the specific context of the scam.
+- **Personalized Action Plans**: Tailored "Immediate Actions" (e.g., specific banking blocks) and "Prevention Tips" based on the attack vector (UPI, Phishing, KYC, etc.).
+
+### 🧠 High-Fidelity Scam Analysis
+- **Investigative Classification**: Moves beyond generic categories to identify specific variants like "SBI KYC Phishing," "Telegram Task Fraud," and "UPI Collect-Request Scam."
+- **Context-Aware Severity**: Dynamic risk assessment based on financial threat levels and semantic clues in the complaint description.
+
+### 📊 Real-Time Dynamic Trending
+- **Live Intelligence Dashboard**: The "Trending Threats" page is now fully dynamic, aggregating real-time data directly from the `Complaints` collection.
+- **Community Threat Ranking**: "Most Reported Targets" and "By Scam Type" sections update instantly as new reports are filed, reflecting the current cyber threat landscape.
+
+---
+
 ## ⚙️ Core Logic & Intelligence
 
 ### 🧠 Premium Scam Reputation Engine V2
